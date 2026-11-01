@@ -1,4 +1,6 @@
-# Barttolo World Expansion v0.6.16 — PRUEBAS EXPERIMENTALES
+# Barttolo World Expansion v0.6.17 — PRUEBAS EXPERIMENTALES
+
+> **Nuevo v0.6.17 (2026-11-01, experimental):** `/bwe superficie <ctov:id|explorify:id>` mide, en solo lectura y por etapas, la altura del terreno de UNA pieza NBT más un margen de 7 bloques. Usa el heightmap que ignora hojas, calcula la mediana como altura de base sugerida y estima corte/relleno. `/bwe superficieestado` consulta el resultado; `/bwe cancelarsuperficie` cancela. No genera chunks, no modifica bloques, no terraforma ni coloca plantillas. La altura sugerida NO garantiza que no haya casas, cuevas o líquidos. Límite de 1.000.000 columnas y 1.024 chunks por medición. Se añadieron pruebas Java 17 y controles estáticos. Sigue pendiente la copia reversible de NBT y pruebas en mundo.
 
 > **Nuevo (2026-11-01):** `/bwe auditarplantilla <ctov:id|explorify:id>` ejecuta una auditoría **solo lectura** del volumen 3D de una pieza NBT en el punto del operador, sin rotación. Requiere pasar `/bwe verificarplantilla` y chunks cargados. Lee como máximo **1024 bloques por tick** y **8 millones de bloques por auditoría**; no carga chunks. `/bwe auditoria` muestra progreso; `/bwe cancelarauditoria` cancela. Informa aire, líquidos, bloques con block entity y bloques no clasificados como naturales. **No interpreta inventarios NBT, entidades ni conectores jigsaw, no garantiza que una estructura sea segura para colocar y no coloca ningún bloque.** Las plantillas de cualquier tamaño siguen catalogadas aunque excedan el límite de auditoría.
 
