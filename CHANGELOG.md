@@ -1,3 +1,9 @@
+# v0.6.17 — 2026-11-01
+- Medicion incremental de superficie para plantillas CTOV/Explorify con margen 7 y altura base mediana; sin escrituras ni carga de chunks.
+- Comandos `/bwe superficie <id>`, `/bwe superficieestado`, `/bwe cancelarsuperficie`.
+- Histograma puro Java 17 y pruebas de corte/relleno; auditoria estatica de lectura.
+- NO implementa terraformacion, colocacion externa ni rollback de block entities. Solo pruebas en copia del mundo.
+
 ## v0.6.16 (2026-11-01, auditoria 3D incremental, solo lectura)
 - Nuevo comando /bwe auditarplantilla <id> tras verificar la huella: recorre el volumen 3D de una pieza NBT por lotes de 1024 bloques/tick, sin cargar chunks ni modificar bloques.
 - Limite de 8 millones de bloques por auditoria; no limita el catalogo de estructuras grandes. Progreso y cancelacion mediante /bwe auditoria y /bwe cancelarauditoria.
