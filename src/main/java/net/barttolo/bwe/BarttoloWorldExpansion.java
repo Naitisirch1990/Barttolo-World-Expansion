@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.17. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.18. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -70,6 +70,10 @@ public final class BarttoloWorldExpansion {
                 .executes(ctx -> auditTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("superficie").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(ctx -> surfaceTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("margen").executes(ctx -> marginStatus(ctx.getSource()))
+                .then(Commands.argument("bloques",IntegerArgumentType.integer(5,10))
+                    .executes(ctx -> configureMargin(ctx.getSource(),
+                        IntegerArgumentType.getInteger(ctx,"bloques")))))
             .then(Commands.literal("superficieestado").executes(ctx -> surfaceStatus(ctx.getSource())))
             .then(Commands.literal("cancelarsuperficie").executes(ctx -> cancelSurface(ctx.getSource())))
             .then(Commands.literal("auditoria").executes(ctx -> auditStatus(ctx.getSource())))
@@ -131,7 +135,7 @@ public final class BarttoloWorldExpansion {
     private static int help(CommandSourceStack s) {
         say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
-        say(s,"Avanzado: /bwe superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (solo lectura, margen 7)");
+        say(s,"Avanzado: /bwe margen [5..10] (temporal) | superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (SOLO LECTURA)");
         say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
         return 1;
     }
@@ -342,6 +346,17 @@ public final class BarttoloWorldExpansion {
         TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.start(s.getLevel(),
             s.getPlayerOrException().blockPosition(),found.get().getSize(),
             s.getPlayerOrException().getUUID(),key);
+        if(!result.ok()) return fail(s,result.message());
+        say(s,result.message());
+        return 1;
+    }
+    private static int marginStatus(CommandSourceStack s) throws CommandSyntaxException {
+        say(s,"Margen de medicion para tu proxima superficie: "
+            +TemplateSurfaceSurvey.marginFor(player(s))+" bloques. Solo lectura; NO cambia /bwe crear.");
+        return 1;
+    }
+    private static int configureMargin(CommandSourceStack s,int margin) throws CommandSyntaxException {
+        TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.configureMargin(player(s),margin);
         if(!result.ok()) return fail(s,result.message());
         say(s,result.message());
         return 1;
