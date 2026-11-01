@@ -9,7 +9,7 @@ assert 'Commands.literal("cancelarsuperficie")' in main
 assert 'TemplateSurfaceSurvey.serverTick()' in main
 assert 'TemplateSurfaceSurvey.resetForShutdown()' in main
 assert 'Heightmap.Types.MOTION_BLOCKING_NO_LEAVES' in survey
-assert 'DEFAULT_MARGIN = 7' in survey and 'COLUMNS_PER_TICK = 1024' in survey
+assert 'DEFAULT_MARGIN = 7' in survey and 'COLUMNS_PER_TICK = 256' in survey
 assert 'Commands.literal("margen")' in main
 assert 'IntegerArgumentType.integer(5,10)' in main
 assert 'TemplateSurfaceSurvey.configureMargin' in main
@@ -28,3 +28,9 @@ for forbidden in ('setBlock(', 'placeInWorld(', 'getChunk(', 'getBlockEntity(', 
     assert forbidden not in survey, forbidden
 assert 'NO se terraformo ni coloco NBT' in survey
 print('OK: medicion solo de base con margen configurable, sin escrituras ni cargas de chunks (auditoria estatica)')
+
+assert 'TerrainColumnProbe.findGround' in survey
+assert 's.unresolved>s.total/10L' in survey
+assert 'isLikelyNaturalGround' in survey
+assert 'SIN BASE SUGERIDA' in survey
+assert 'coveredObstacles' in survey
