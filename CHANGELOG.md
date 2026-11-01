@@ -1,3 +1,10 @@
+## v0.6.16 (2026-11-01, auditoria 3D incremental, solo lectura)
+- Nuevo comando /bwe auditarplantilla <id> tras verificar la huella: recorre el volumen 3D de una pieza NBT por lotes de 1024 bloques/tick, sin cargar chunks ni modificar bloques.
+- Limite de 8 millones de bloques por auditoria; no limita el catalogo de estructuras grandes. Progreso y cancelacion mediante /bwe auditoria y /bwe cancelarauditoria.
+- Cuenta aire, liquidos, block entities y estados no clasificados como naturales. No inspecciona NBT, entidades, jigsaw ni detecta con certeza bloques de jugadores.
+- Cursor de geometria Java 17 independiente de Minecraft con pruebas puras; CI incluye auditoria estatica adicional.
+- Pendiente: prueba dentro de Minecraft/copia del mundo, colocacion reversible con NBT, terraformacion y ensamblaje de aldeas.
+
 ## v0.6.14 (2026-11-01, inspeccion sin colocar)
 - /bwe inspeccionar muestra huella X × Z, superficie, conectores jigsaw, marcadores structure y cofres/barriles vanilla detectados. Indicadores parciales de una pieza, no auditoria NBT completa ni ensamblaje de aldeas.
 - /bwe plantilla <id> es alias de inspeccion, sin planes falsos de construccion. Eliminada la lista estatica de IDs de ejemplo como restriccion de comandos.

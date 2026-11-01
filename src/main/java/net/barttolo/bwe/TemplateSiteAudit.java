@@ -1,0 +1,129 @@
+package net.barttolo.bwe;
+
+import com.mojang.logging.LogUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import org.slf4j.Logger;
+
+import java.util.UUID;
+
+/** Incremental, read-only audit of an existing site's full 3D volume.
+ *  Does not place templates, inspect inventory NBT, or assemble jigsaw structures.
+ *  Exactly one audit may run per JVM; reset on server shutdown. */
+public final class TemplateSiteAudit {
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final int BLOCKS_PER_TICK = 1024;
+    private static final long MAX_SCAN_BLOCKS = 8_000_000L;
+    private static Audit active;
+
+    private static final class Audit {
+        final ServerLevel world;
+        final UUID operator;
+        final String templateId;
+        final TemplateScanCursor cursor;
+        long air, fluids, blockEntities, nonNatural;
+        Audit(ServerLevel world, UUID operator, String templateId, TemplateScanCursor cursor) {
+            this.world=world; this.operator=operator; this.templateId=templateId; this.cursor=cursor;
+        }
+    }
+    public record Result(boolean ok, String message) {}
+    private TemplateSiteAudit() {}
+
+    public static Result start(ServerLevel world, BlockPos anchor, Vec3i size,
+                               UUID operator, ResourceLocation templateId) {
+        if(active!=null) return new Result(false,"Ya hay una auditoria: "+status());
+        if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
+            return new Result(false,"Hay una obra o respaldo pendiente.");
+        if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
+            return new Result(false,"Dimensiones de plantilla invalidas.");
+        TemplateFootprint.Bounds bounds;
+        TemplateScanCursor cursor;
+        try {
+            bounds=TemplateFootprint.centered(anchor.getX(),anchor.getZ(),size.getX(),size.getZ(),false);
+            long top=(long)anchor.getY()+size.getY()-1L;
+            if(!bounds.withinMinecraftCoordinates() || anchor.getY()<world.getMinBuildHeight()
+                || top>=world.getMaxBuildHeight())
+                return new Result(false,"Huella o altura fuera de los limites del mundo.");
+            if(bounds.chunkCount()>1024L)
+                return new Result(false,"Mas de 1024 chunks: auditoria no iniciada; sigue catalogada.");
+            cursor=new TemplateScanCursor(bounds,anchor.getY(),(int)top);
+        } catch(ArithmeticException | IllegalArgumentException ex) {
+            return new Result(false,"Volumen invalido: "+ex.getMessage());
+        }
+        if(cursor.total()>MAX_SCAN_BLOCKS)
+            return new Result(false,"Volumen de "+cursor.total()+" bloques excede el maximo de "
+                +MAX_SCAN_BLOCKS+" por auditoria; sigue disponible en el catalogo.");
+        // Never force-load or generate chunks, even at the start.
+        for(long cx=bounds.minX()>>4;cx<=bounds.maxX()>>4;cx++)
+            for(long cz=bounds.minZ()>>4;cz<=bounds.maxZ()>>4;cz++)
+                if(!world.hasChunk((int)cx,(int)cz))
+                    return new Result(false,"Chunk sin cargar: auditoria no iniciada.");
+        active=new Audit(world,operator,templateId.toString(),cursor);
+        return new Result(true,"Auditoria SOLO LECTURA iniciada: "+templateId+" | "
+            +cursor.total()+" bloques; "+BLOCKS_PER_TICK+"/tick. /bwe auditoria para progreso.");
+    }
+
+    public static String status() {
+        Audit a=active;
+        if(a==null) return "No hay auditoria de plantilla en curso.";
+        return "Auditoria "+a.templateId+": "+a.cursor.processed()+"/"+a.cursor.total()
+            +" bloques. No se esta modificando el mundo.";
+    }
+
+    public static Result cancel() {
+        if(active==null) return new Result(false,"No hay auditoria que cancelar.");
+        String id=active.templateId;
+        active=null;
+        return new Result(true,"Auditoria "+id+" cancelada; no se modificaron bloques.");
+    }
+
+    public static void resetForShutdown() { active=null; }
+
+    public static void serverTick() {
+        Audit a=active;
+        if(a==null) return;
+        try {
+            if(BuildEngine.busy() || WorldData.get(a.world).undo()!=null) {
+                stop(a,"Auditoria interrumpida: otra obra o respaldo activo.");
+                return;
+            }
+            int budget=BLOCKS_PER_TICK;
+            while(budget-->0 && a.cursor.hasNext()) {
+                TemplateScanCursor.Position p=a.cursor.next();
+                if(!a.world.hasChunk(p.x()>>4,p.z()>>4)) {
+                    stop(a,"Auditoria interrumpida: chunk descargado; NO se genero terreno.");
+                    return;
+                }
+                BlockState state=a.world.getBlockState(new BlockPos(p.x(),p.y(),p.z()));
+                if(state.isAir()) a.air++;
+                if(state.hasBlockEntity()) a.blockEntities++;
+                if(!state.getFluidState().isEmpty()) a.fluids++;
+                else if(!WorldChecks.natural(state)) a.nonNatural++;
+            }
+            if(!a.cursor.hasNext()) {
+                stop(a,"AUDITORIA COMPLETA (solo lectura) "+a.templateId
+                    +" | volumen="+a.cursor.total()+" | aire="+a.air
+                    +" | liquidos="+a.fluids+" | bloques con block entity="+a.blockEntities
+                    +" | bloques no clasificados como naturales="+a.nonNatural
+                    +". NO demuestra que el sitio sea seguro para construir: minerales, "
+                    +"jigsaw, inventarios NBT, entidades y cambios posteriores requieren "
+                    +"comprobaciones adicionales. NO se coloco ninguna plantilla.");
+            }
+        } catch(Exception error) {
+            LOGGER.error("[BWE] Fallo en auditoria de plantilla {}",a.templateId,error);
+            stop(a,"Auditoria abortada por error "+error.getClass().getSimpleName()
+                +"; NO se modificaron bloques.");
+        }
+    }
+
+    private static void stop(Audit a,String message) {
+        if(active==a) active=null;
+        LOGGER.info("[BWE] {}",message);
+        var player=a.world.getServer().getPlayerList().getPlayer(a.operator);
+        if(player!=null) player.sendSystemMessage(Component.literal("[BWE] "+message));
+    }
+}

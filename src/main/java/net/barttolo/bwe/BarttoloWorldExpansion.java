@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.15. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.16. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -40,7 +40,7 @@ public final class BarttoloWorldExpansion {
 
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.END) BuildEngine.serverTick();
+        if(event.phase == TickEvent.Phase.END) { BuildEngine.serverTick(); TemplateSiteAudit.serverTick(); }
     }
 
     /** Drop stale level references when a test server is stopped and restarted
@@ -48,6 +48,7 @@ public final class BarttoloWorldExpansion {
     @SubscribeEvent
     public void onServerStopped(ServerStoppedEvent event) {
         BuildEngine.resetForShutdown();
+        TemplateSiteAudit.resetForShutdown();
         PLANS.clear();
         SCANS.clear();
     }
@@ -64,6 +65,10 @@ public final class BarttoloWorldExpansion {
                 .executes(ctx -> inspectTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("verificarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(ctx -> verifyTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("auditarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(ctx -> auditTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("auditoria").executes(ctx -> auditStatus(ctx.getSource())))
+            .then(Commands.literal("cancelarauditoria").executes(ctx -> cancelAudit(ctx.getSource())))
             .then(Commands.literal("plantillas").executes(ctx -> templates(ctx.getSource())))
             .then(Commands.literal("escanear").executes(ctx -> scan(ctx.getSource(),12))
                 .then(Commands.argument("radio",IntegerArgumentType.integer(4,32))
@@ -121,7 +126,7 @@ public final class BarttoloWorldExpansion {
     private static int help(CommandSourceStack s) {
         say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
-        say(s,"Avanzado: /bwe verificarplantilla <namespace:id> (solo lectura) | diagnosticar | asentamientos | olvidar <numero> SI | plantillas");
+        say(s,"Avanzado: /bwe verificarplantilla <namespace:id> | auditarplantilla <namespace:id> | auditoria | cancelarauditoria (solo lectura) | diagnosticar | asentamientos | plantillas");
         return 1;
     }
     private static int diagnose(CommandSourceStack s) {
@@ -304,6 +309,31 @@ public final class BarttoloWorldExpansion {
                 if(!world.hasChunk((int)cx,(int)cz))
                     return fail(s,"Hay chunks sin cargar dentro de la huella. No se genero terreno.");
         say(s,"PREVERIFICACION COMPLETADA: limites, protecciones y chunks cargados. NO comprueba terreno, inventarios, jigsaw ni entidades; NO coloca bloques.");
+        return 1;
+    }
+
+    /** Read-only incremental volume scan, only after the same footprint preflight. */
+    private static int auditTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
+        if(verifyTemplate(s,id)!=1) return 0;
+        ResourceLocation key=ResourceLocation.tryParse(id);
+        if(key==null) return fail(s,"ID de plantilla invalido.");
+        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
+        if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
+        TemplateSiteAudit.Result result=TemplateSiteAudit.start(s.getLevel(),
+            s.getPlayerOrException().blockPosition(),found.get().getSize(),
+            s.getPlayerOrException().getUUID(),key);
+        if(!result.ok()) return fail(s,result.message());
+        say(s,result.message());
+        return 1;
+    }
+    private static int auditStatus(CommandSourceStack s) {
+        say(s,TemplateSiteAudit.status());
+        return 1;
+    }
+    private static int cancelAudit(CommandSourceStack s) {
+        TemplateSiteAudit.Result result=TemplateSiteAudit.cancel();
+        if(!result.ok()) return fail(s,result.message());
+        say(s,result.message());
         return 1;
     }
 

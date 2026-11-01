@@ -3,7 +3,7 @@ from pathlib import Path
 r=Path(__file__).resolve().parents[1]
 p=r/'src/main/java/net/barttolo/bwe'
 s={x.stem:x.read_text() for x in p.glob('*.java')}
-assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint'}, s.keys()
+assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit'}, s.keys()
 m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
 for cmd in ('escanear','seleccionar','crear','listar','analizar','buscar','planear','plantilla','previsualizar','simular','confirmar','cancelar','deshacer','proteger','estado','finalizar','asentamientos','olvidar','protegerarea','areas','liberararea'):
     assert f'Commands.literal("{cmd}")' in m,cmd
@@ -35,4 +35,4 @@ assert 'palette.roofSlab' in e and 'ACACIA_PLANKS' in e and 'MANGROVE_LOG' in e
 assert 'Blocks.FURNACE' not in e and 'Blocks.BARREL' not in e, 'No dejar inventarios originales sin copia de NBT'
 for name,code in s.items():
     assert code.count('{')==code.count('}'),name
-print('OK: verificaciones estáticas v0.6.15 (NO compilación Forge).')
+print('OK: verificaciones estáticas v0.6.16 (NO compilación Forge).')
