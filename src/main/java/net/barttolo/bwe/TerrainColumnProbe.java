@@ -16,9 +16,13 @@ public final class TerrainColumnProbe {
         if (naturalAtY == null || topY < minY)
             throw new IllegalArgumentException("Invalid column probe");
         int bottom = (int)Math.max((long)minY, (long)topY - MAX_DEPTH);
+        if (topY <= bottom) return new Result(false, topY, 0);
+        boolean above = naturalAtY.test(topY - 1);
         for (int y = topY - 1; y > bottom; y--) {
-            if (naturalAtY.test(y) && naturalAtY.test(y - 1))
+            boolean below = naturalAtY.test(y - 1);
+            if (above && below)
                 return new Result(true, y + 1, topY - y - 1);
+            above = below;
         }
         return new Result(false, topY, topY - bottom);
     }
