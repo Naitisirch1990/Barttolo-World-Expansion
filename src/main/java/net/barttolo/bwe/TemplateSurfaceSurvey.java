@@ -18,7 +18,7 @@ import java.util.HashMap;
  *  A median is a suggestion, not authorization to terraform or place NBT. */
 public final class TemplateSurfaceSurvey {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int COLUMNS_PER_TICK = 256; // up to 48 terrain checks per column
+    private static final int COLUMNS_PER_TICK = 256; // up to 49 terrain checks per column
     private static final long MAX_COLUMNS = 1_000_000L;
     private static final long MAX_CHUNKS = 1024L;
     private static final int DEFAULT_MARGIN = 7;
