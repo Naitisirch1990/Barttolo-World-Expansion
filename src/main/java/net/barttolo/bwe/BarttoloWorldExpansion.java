@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.14. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.15. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -62,6 +62,8 @@ public final class BarttoloWorldExpansion {
                     .executes(ctx -> listing(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"pagina")))))
             .then(Commands.literal("inspeccionar").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(ctx -> inspectTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("verificarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(ctx -> verifyTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("plantillas").executes(ctx -> templates(ctx.getSource())))
             .then(Commands.literal("escanear").executes(ctx -> scan(ctx.getSource(),12))
                 .then(Commands.argument("radio",IntegerArgumentType.integer(4,32))
@@ -119,7 +121,7 @@ public final class BarttoloWorldExpansion {
     private static int help(CommandSourceStack s) {
         say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
-        say(s,"Avanzado: /bwe diagnosticar | asentamientos | olvidar <numero> SI | plantillas");
+        say(s,"Avanzado: /bwe verificarplantilla <namespace:id> (solo lectura) | diagnosticar | asentamientos | olvidar <numero> SI | plantillas");
         return 1;
     }
     private static int diagnose(CommandSourceStack s) {
@@ -248,6 +250,63 @@ public final class BarttoloWorldExpansion {
         say(s,"SOLO LECTURA: no coloca, no terraforma y /bwe crear NO construye plantillas externas.");
         return 1;
     }
+    /** Read-only preflight at the operator's current block, for ONE unrotated NBT piece.
+     *  Does not load/generate chunks, examine terrain or authorize construction. */
+    private static int verifyTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
+        ResourceLocation key=ResourceLocation.tryParse(id);
+        if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
+            return fail(s,"Solo se verifican plantillas CTOV y Explorify.");
+        ServerLevel world=s.getLevel();
+        if(!externalTemplates(world).contains(key))
+            return fail(s,"Plantilla no disponible en los recursos cargados: "+id);
+        Optional<StructureTemplate> found=world.getStructureManager().get(key);
+        if(found.isEmpty()) return fail(s,"No se pudo leer la plantilla: "+id);
+        Vec3i size=found.get().getSize();
+        if(size.getY()<1) return fail(s,"Altura invalida de la plantilla.");
+        BlockPos anchor=s.getPlayerOrException().blockPosition();
+        TemplateFootprint.Bounds footprint;
+        try {
+            footprint=TemplateFootprint.centered(anchor.getX(),anchor.getZ(),size.getX(),size.getZ(),false);
+        } catch(IllegalArgumentException error) {
+            return fail(s,"Dimensiones invalidas: "+error.getMessage());
+        }
+        say(s,"HUELLA PROPUESTA (sin rotacion) "+id+" X="+footprint.minX()+".."+footprint.maxX()
+            +" Z="+footprint.minZ()+".."+footprint.maxZ()+" | "+footprint.width()+"x"+footprint.length()
+            +" | area="+footprint.area()+" | chunks="+footprint.chunkCount()
+            +" | Y="+anchor.getY()+".."+((long)anchor.getY()+size.getY()-1L));
+        if(!footprint.withinMinecraftCoordinates())
+            return fail(s,"Fuera de las coordenadas permitidas de Minecraft.");
+        if(footprint.chunkCount()>1024L)
+            return fail(s,"Huella muy extensa para comprobar chunks en un comando (mas de 1024); sigue catalogada.");
+        if(!world.dimension().location().toString().equals("minecraft:overworld"))
+            return fail(s,"Verificacion preliminar limitada al Overworld.");
+        if(anchor.getY()<world.getMinBuildHeight()
+            || (long)anchor.getY()+size.getY()-1L>=world.getMaxBuildHeight())
+            return fail(s,"Altura Y fuera de los limites del mundo.");
+        if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
+            return fail(s,"Hay una obra o respaldo pendiente; no se prepara otra.");
+        int x0=(int)footprint.minX(),z0=(int)footprint.minZ();
+        int x1=(int)footprint.maxX(),z1=(int)footprint.maxZ();
+        WorldData data=WorldData.get(world);
+        if(data.protectedFootprint(dim(world),x0,z0,x1,z1,8)
+            || data.overlapsCompleted(dim(world),x0,z0,x1,z1,16))
+            return fail(s,"La huella toca una zona protegida o un asentamiento BWE.");
+        BlockPos spawn=world.getSharedSpawnPos();
+        if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1))
+            return fail(s,"La huella toca la reserva de spawn (160 bloques).");
+        for(long x:new long[]{footprint.minX(),footprint.maxX()})
+            for(long z:new long[]{footprint.minZ(),footprint.maxZ()})
+                if(!world.getWorldBorder().isWithinBounds(new BlockPos((int)x,anchor.getY(),(int)z)))
+                    return fail(s,"La huella sale del worldborder.");
+        // Chunk existence only: never call getChunk/getHeight on an unloaded location.
+        for(long cx=footprint.minX()>>4;cx<=footprint.maxX()>>4;cx++)
+            for(long cz=footprint.minZ()>>4;cz<=footprint.maxZ()>>4;cz++)
+                if(!world.hasChunk((int)cx,(int)cz))
+                    return fail(s,"Hay chunks sin cargar dentro de la huella. No se genero terreno.");
+        say(s,"PREVERIFICACION COMPLETADA: limites, protecciones y chunks cargados. NO comprueba terreno, inventarios, jigsaw ni entidades; NO coloca bloques.");
+        return 1;
+    }
+
     private static int scan(CommandSourceStack s,int r) throws CommandSyntaxException {
         BlockPos center=s.getPlayerOrException().blockPosition();
         var result=WorldChecks.scan(s.getLevel(),center,r,r,4);
