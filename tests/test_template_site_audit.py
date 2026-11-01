@@ -21,5 +21,5 @@ assert 'getBlockState(' in audit
 for forbidden in ('setBlock(', 'placeInWorld(', 'getChunk(', 'getHeight(', 'addFreshEntity(', 'getBlockEntity('):
     assert forbidden not in audit, forbidden
 assert 'setBlock(' not in cursor
-assert 'No se coloco ninguna plantilla' in audit
+assert 'NO se coloco ninguna plantilla' in audit
 print('OK: auditoria incremental sin escrituras ni cargas de chunks (auditoria estatica)')
