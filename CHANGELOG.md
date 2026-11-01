@@ -1,3 +1,10 @@
+## Desarrollo posterior a 0.6.18 — 2026-11-01 (sin release)
+- Sondeo de suelo bajo tejados: hasta 48 bloques hacia abajo por columna, exigiendo dos bloques de suelo natural consecutivos.
+- Presupuesto de 256 columnas/tick para limitar lecturas; informa obstaculos y columnas sin clasificar.
+- Si mas del 10% de la huella no puede reconocerse, no recomienda altura. La heuristica no distingue con certeza piedra natural de piedra colocada por jugadores.
+- Pruebas puras Java 17 de techos, columnas desconocidas, profundidad acotada y alturas negativas.
+- Solo lectura; sin terraformacion, pegado externo ni rollback NBT. No se distribuye JAR experimental.
+
 ## 0.6.18 — 2026-11-01 (experimental)
 
 - `/bwe margen [5..10]`: margen de comprobacion horizontal por operador, temporal hasta reinicio, predeterminado 7.
