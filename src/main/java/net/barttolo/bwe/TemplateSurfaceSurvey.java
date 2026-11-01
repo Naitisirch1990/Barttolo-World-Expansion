@@ -9,6 +9,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.slf4j.Logger;
 import java.util.UUID;
+import java.util.Map;
+import java.util.HashMap;
 
 /** Read-only, incremental surface survey. NEVER changes or generates terrain.
  *  A median is a suggestion, not authorization to terraform or place NBT. */
@@ -17,7 +19,8 @@ public final class TemplateSurfaceSurvey {
     private static final int COLUMNS_PER_TICK = 1024;
     private static final long MAX_COLUMNS = 1_000_000L;
     private static final long MAX_CHUNKS = 1024L;
-    private static final int MARGIN = 7;
+    private static final int DEFAULT_MARGIN = 7;
+    private static final Map<UUID,Integer> OPERATOR_MARGINS = new HashMap<>();
     private static Survey active;
     private static String lastResult = "Sin mediciones anteriores.";
 
@@ -26,18 +29,35 @@ public final class TemplateSurfaceSurvey {
         final ServerLevel world;
         final UUID operator;
         final ResourceLocation id;
-        final TemplateFootprint.Bounds bounds;
+        final TemplateFootprint.Bounds bounds; // ONLY the structure's foundation
+        final TemplateFootprint.Bounds clearance; // foundation + safety margin
+        final int margin;
         final SurfaceProfile profile;
         final long total;
         long processed;
         Survey(ServerLevel world, UUID operator, ResourceLocation id,
-               TemplateFootprint.Bounds bounds) {
-            this.world=world; this.operator=operator; this.id=id; this.bounds=bounds;
-            this.total=bounds.area();
+               TemplateFootprint.Bounds foundation, TemplateFootprint.Bounds clearance, int margin) {
+            this.world=world; this.operator=operator; this.id=id;
+            this.bounds=foundation; this.clearance=clearance; this.margin=margin;
+            this.total=foundation.area();
             this.profile=new SurfaceProfile(world.getMinBuildHeight(), world.getMaxBuildHeight());
         }
     }
     private TemplateSurfaceSurvey() {}
+
+    /** Operator preference is temporary and affects read-only surveys only.
+     *  Future terraform/build commands MUST NOT assume this grants permission to write.
+     */
+    public static int marginFor(UUID operator) {
+        return OPERATOR_MARGINS.getOrDefault(operator, DEFAULT_MARGIN);
+    }
+    public static Result configureMargin(UUID operator, int margin) {
+        if(margin<5 || margin>10)
+            return new Result(false,"Margen permitido: 5..10 bloques.");
+        OPERATOR_MARGINS.put(operator,margin);
+        return new Result(true,"Margen de medicion configurado en "+margin
+            +" bloques (temporal hasta reinicio). SOLO LECTURA: no limpia ni terraforma.");
+    }
 
     public static Result start(ServerLevel world, BlockPos anchor, Vec3i size,
                                UUID operator, ResourceLocation id) {
@@ -46,14 +66,14 @@ public final class TemplateSurfaceSurvey {
             return new Result(false,"Hay una obra o respaldo pendiente.");
         if(size.getX()<1 || size.getZ()<1)
             return new Result(false,"Huella invalida.");
+        int margin=marginFor(operator);
         TemplateFootprint.Bounds base, area;
         try {
             base=TemplateFootprint.centered(anchor.getX(),anchor.getZ(),size.getX(),size.getZ(),false);
-            area=new TemplateFootprint.Bounds(base.minX()-MARGIN,base.minZ()-MARGIN,
-                                               base.maxX()+MARGIN,base.maxZ()+MARGIN);
+            area=TemplateFootprint.expanded(base,margin);
             if(!area.withinMinecraftCoordinates())
-                return new Result(false,"Margen de 7 bloques fuera de limites Minecraft.");
-            if(area.chunkCount()>MAX_CHUNKS || area.area()>MAX_COLUMNS)
+                return new Result(false,"Margen de "+margin+" bloques fuera de limites Minecraft.");
+            if(area.chunkCount()>MAX_CHUNKS || base.area()>MAX_COLUMNS)
                 return new Result(false,"Area demasiado extensa para medir en una sesion; sigue catalogada.");
         } catch(ArithmeticException | IllegalArgumentException error) {
             return new Result(false,"Huella invalida: "+error.getMessage());
@@ -77,16 +97,18 @@ public final class TemplateSurfaceSurvey {
             for(long cz=area.minZ()>>4;cz<=area.maxZ()>>4;cz++)
                 if(!world.hasChunk((int)cx,(int)cz))
                     return new Result(false,"Chunk sin cargar dentro del margen: no se genero terreno.");
-        active=new Survey(world,operator,id,area);
-        return new Result(true,"Medicion SOLO LECTURA iniciada para "+id+" | "+
-            area.width()+"x"+area.length()+" (margen 7) | "+area.area()+
-            " columnas, "+COLUMNS_PER_TICK+"/tick. /bwe superficieestado");
+        active=new Survey(world,operator,id,base,area,margin);
+        return new Result(true,"Medicion SOLO LECTURA iniciada para "+id
+            +" | base="+base.width()+"x"+base.length()+" ("+base.area()+" columnas)"
+            +" | zona de despeje propuesta="+area.width()+"x"+area.length()
+            +" (margen "+margin+") | "+COLUMNS_PER_TICK+"/tick. /bwe superficieestado");
     }
 
     public static String status() {
         Survey s=active;
         if(s==null) return lastResult;
-        return "Superficie "+s.id+": "+s.processed+"/"+s.total+" columnas (solo lectura).";
+        return "Superficie "+s.id+": "+s.processed+"/"+s.total
+            +" columnas de la BASE (margen de despeje "+s.margin+", solo lectura).";
     }
     public static Result cancel() {
         if(active==null) return new Result(false,"No hay medicion activa.");
@@ -97,6 +119,7 @@ public final class TemplateSurfaceSurvey {
     }
     public static void resetForShutdown() {
         active=null;
+        OPERATOR_MARGINS.clear();
         lastResult="Sin mediciones anteriores.";
     }
     public static void serverTick() {
@@ -122,7 +145,8 @@ public final class TemplateSurfaceSurvey {
             }
             if(s.processed==s.total) {
                 int median=s.profile.median();
-                stop(s,"SUPERFICIE "+s.id+" | area="+s.total+" columnas (margen 7)"
+                stop(s,"SUPERFICIE "+s.id+" | base="+s.total+" columnas"
+                    +" | margen de despeje="+s.margin+" (area "+s.clearance.area()+")"
                     +" | Y="+s.profile.low()+".."+s.profile.high()
                     +" | base sugerida Y="+median
                     +" | corte aprox="+s.profile.cut(median)
