@@ -1,3 +1,18 @@
+## Prueba adicional v0.6.18 — cimentacion frente a margen (PENDIENTE EN JUEGO)
+
+Usar **solo una copia aislada** del mundo con Forge 1.20.1 y los mods originales CTOV/Explorify instalados por su propietario. No instalar en el servidor activo.
+
+1. Elegir una plantilla individual del catalogo (no asumir que una pieza jigsaw es una aldea completa).
+2. Situarse sobre una base relativamente plana con una colina o edificio alto a 5..10 bloques **fuera** de la huella NBT.
+3. Ejecutar `/bwe margen 5` y `/bwe superficie <id>`; anotar la base Y, corte, relleno y area de despeje propuesta.
+4. Repetir con `/bwe margen 10`. La altura Y, corte y relleno deben permanecer iguales cuando el punto y la plantilla no cambian; solo debe aumentar el area de comprobacion.
+5. Verificar `/bwe margen`, `/bwe superficieestado` y `/bwe cancelarsuperficie`. Los margenes fuera de 5..10 deben rechazarse.
+6. Tomar una copia de seguridad del mundo antes y despues del sondeo y confirmar que **no se modifico ningun bloque ni entidad**.
+7. Confirmar que el sondeo rechaza chunks descargados, worldborder, spawn y protecciones previas, sin generarlos.
+8. Reiniciar la instancia de prueba y verificar que el margen vuelve a 7.
+
+**Resultado actual:** no ejecutado dentro de Minecraft; el ensayo necesita una copia completa del mundo y los JAR externos. Este protocolo no autoriza terraformacion ni colocacion.
+
 # Plan de ensayo seguro — Barttolo World Expansion v0.6.17
 
 Estado: **pruebas de construccion/restauracion NO ejecutadas**. Hay captura del 01/11/2026 con `/bwe listar` funcionando en un mundo descartable usando v0.6.9; no se ha proporcionado copia del mundo para ensayos automatizados. v0.6.10 requiere compilacion CI independiente.
