@@ -24,6 +24,26 @@ public final class TemplateFootprintTest {
         expect(TemplateFootprint.centered(16, 16, 1, 1, false).chunkCount() == 1, "positive boundary");
         expect(!TemplateFootprint.centered(Integer.MAX_VALUE, 0, 500, 1, false).withinMinecraftCoordinates(), "far world coordinate");
         expect(TemplateFootprint.centered(0, 0, 1, 1, false).withinMinecraftCoordinates(), "world origin");
+        var clearance = TemplateFootprint.expanded(odd, 7);
+        expect(clearance.width()==19 && clearance.length()==17, "7-block margin dimensions");
+        expect(clearance.area()==323, "clearance area");
+        expect(clearance.minX()==-9 && clearance.maxX()==9, "expanded X");
+        expect(clearance.minZ()==-8 && clearance.maxZ()==8, "expanded Z");
+        expect(TemplateFootprint.expanded(odd,0).equals(odd), "zero expansion identity");
+        expect(TemplateFootprint.expanded(odd,10).width()==25, "maximum margin");
+        expect(TemplateFootprint.expanded(odd,7).chunkCount()==4, "negative margin chunk coverage");
+        boolean badMargin=false;
+        try { TemplateFootprint.expanded(odd,-1); }
+        catch(IllegalArgumentException expected) { badMargin=true; }
+        expect(badMargin,"negative margin rejected");
+        badMargin=false;
+        try { TemplateFootprint.expanded(odd,11); }
+        catch(IllegalArgumentException expected) { badMargin=true; }
+        expect(badMargin,"margin beyond maximum rejected");
+        boolean overflow=false;
+        try { TemplateFootprint.expanded(new TemplateFootprint.Bounds(Long.MIN_VALUE,0,0,0),1); }
+        catch(ArithmeticException expected) { overflow=true; }
+        expect(overflow,"coordinate overflow rejected");
         boolean threw = false;
         try { TemplateFootprint.centered(0, 0, 0, 1, false); }
         catch (IllegalArgumentException e) { threw = true; }
