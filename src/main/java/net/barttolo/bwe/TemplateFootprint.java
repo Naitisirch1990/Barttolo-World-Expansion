@@ -23,6 +23,19 @@ public final class TemplateFootprint {
         }
     }
 
+    /** Expand a footprint by a horizontal safety/clearance margin.
+     *  This geometry does NOT clear blocks or approve construction.
+     *  Long arithmetic avoids overflow at extreme operator coordinates.
+     */
+    public static Bounds expanded(Bounds base, int margin) {
+        if (margin < 0 || margin > 10)
+            throw new IllegalArgumentException("Invalid clearance margin: " + margin);
+        return new Bounds(Math.subtractExact(base.minX(), margin),
+            Math.subtractExact(base.minZ(), margin),
+            Math.addExact(base.maxX(), margin),
+            Math.addExact(base.maxZ(), margin));
+    }
+
     /** Centre at the operator's block. A quarter turn swaps X/Z sizes.
      *  This is NOT a terrain check or a guarantee that jigsaw pieces assemble. */
     public static Bounds centered(int centerX, int centerZ, int sizeX, int sizeZ, boolean quarterTurn) {
