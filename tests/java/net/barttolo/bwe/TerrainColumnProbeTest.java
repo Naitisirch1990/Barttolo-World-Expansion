@@ -1,6 +1,7 @@
 package net.barttolo.bwe;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Deterministic Java 17 tests without Minecraft or Forge. */
 public final class TerrainColumnProbeTest {
@@ -21,6 +22,9 @@ public final class TerrainColumnProbeTest {
             "one natural-looking roof block is insufficient");
         var unknown = TerrainColumnProbe.findGround(81, -64, y -> false);
         check(!unknown.found() && unknown.ignoredAbove() == 48, "unrecognized column");
+        AtomicInteger reads = new AtomicInteger();
+        TerrainColumnProbe.findGround(120, -64, y -> { reads.incrementAndGet(); return false; });
+        check(reads.get() == TerrainColumnProbe.MAX_DEPTH + 1, "maximum 49 block reads");
         var deep = TerrainColumnProbe.findGround(120, -64, y -> y <= 64);
         check(!deep.found(), "bounded depth");
         var negative = TerrainColumnProbe.findGround(-58, -64, y -> y <= -59);
