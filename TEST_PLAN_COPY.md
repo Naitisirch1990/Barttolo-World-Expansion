@@ -1,4 +1,4 @@
-# Plan de ensayo seguro — Barttolo World Expansion v0.6.10
+# Plan de ensayo seguro — Barttolo World Expansion v0.6.17
 
 Estado: **pruebas de construccion/restauracion NO ejecutadas**. Hay captura del 01/11/2026 con `/bwe listar` funcionando en un mundo descartable usando v0.6.9; no se ha proporcionado copia del mundo para ensayos automatizados. v0.6.10 requiere compilacion CI independiente.
 
