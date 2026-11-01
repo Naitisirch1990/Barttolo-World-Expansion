@@ -61,12 +61,12 @@ jobs:
           jarfile=$(find build/libs -maxdepth 1 -type f -name 'BarttoloWorldExpansion-*.jar' | head -n 1)
           test -n "$jarfile"
           unzip -t "$jarfile" > /dev/null
-          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.6.17"'
+          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.6.18"'
           jar tf "$jarfile" | grep -F 'net/barttolo/bwe/BarttoloWorldExpansion.class'
           javap -verbose -classpath "$jarfile" net.barttolo.bwe.BarttoloWorldExpansion | grep -F 'major version: 61'
       - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.17
+          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.18
           path: build/libs/*.jar
           if-no-files-found: error
