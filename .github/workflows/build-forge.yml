@@ -13,16 +13,11 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
-      - name: Extraer fuentes versionadas para compilacion experimental
-        shell: bash
-        run: |
-          echo "03af7ebc26aa0ef72acca4267ea236e69013103508a3a74663269887510fad48  .bwe-source-0.6.7.tar.xz" | sha256sum -c -
-          tar -xJf .bwe-source-0.6.7.tar.xz
       - name: Exigir fuentes completos
         shell: bash
         run: |
           if [[ ! -f build.gradle || ! -f settings.gradle || ! -f src/main/java/net/barttolo/bwe/BarttoloWorldExpansion.java ]]; then
-            echo "::error::Faltan fuentes BWE. Revisar paquete versionado."
+            echo "::error::Faltan fuentes BWE. Sube el contenido descomprimido del ZIP antes de compilar."
             exit 1
           fi
       - name: Configurar Java 17
@@ -54,6 +49,6 @@ jobs:
       - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.7-EXPERIMENTAL
+          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.7
           path: build/libs/*.jar
           if-no-files-found: error
