@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.12. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.13. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -33,6 +33,7 @@ public final class BarttoloWorldExpansion {
     private static final Map<UUID, ScanSite> SCANS = new HashMap<>();
     private static final List<String> ORDERED_KINDS = List.of(
         "campamento", "refugio", "pozo", "carreta", "torre", "ruina", "altar", "aldea");
+    private static final int CATALOG_PAGE_SIZE = 8;
     private static final List<String> OPTIONAL_TEMPLATES = List.of(
         "explorify:campsite/main/01", "explorify:campsite/main/02", "explorify:campsite/main/03",
         "explorify:campsite/tent/01", "explorify:guide_post/warm/whole", "explorify:guide_post/cold/whole", "explorify:ruins/house/ruins_01",
@@ -63,7 +64,11 @@ public final class BarttoloWorldExpansion {
         CommandDispatcher<CommandSourceStack> dispatcher=event.getDispatcher();
         dispatcher.register(Commands.literal("bwe").requires(s -> s.hasPermission(2))
             .then(Commands.literal("ayuda").executes(ctx -> help(ctx.getSource())))
-            .then(Commands.literal("listar").executes(ctx -> listing(ctx.getSource())))
+            .then(Commands.literal("listar").executes(ctx -> listing(ctx.getSource(),1))
+                .then(Commands.argument("pagina",IntegerArgumentType.integer(1))
+                    .executes(ctx -> listing(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"pagina")))))
+            .then(Commands.literal("inspeccionar").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(ctx -> inspectTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("plantillas").executes(ctx -> templates(ctx.getSource())))
             .then(Commands.literal("escanear").executes(ctx -> scan(ctx.getSource(),12))
                 .then(Commands.argument("radio",IntegerArgumentType.integer(4,32))
@@ -155,23 +160,78 @@ public final class BarttoloWorldExpansion {
         say(s,"Registro #"+number+" olvidado. Los edificios no se han modificado.");
         return 1;
     }
-    /** Clickable chat catalogue: only original structures, no external NBT assets. */
-    private static int listing(CommandSourceStack s) {
-        say(s,"Selecciona una construccion con clic (antes usa /bwe escanear):");
-        for(String type : ORDERED_KINDS) {
-            Component option = Component.literal("  [" + type.toUpperCase(Locale.ROOT) + "]")
-                .withStyle(style -> style.withColor(ChatFormatting.AQUA)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe seleccionar " + type))
+    /** Read-only discovery: use templates already exposed by the server's resource manager.
+     *  Do not copy third-party NBT or offer placement without block-entity-safe undo.
+     *  Only the visible page loads NBT, keeping command execution bounded.
+     */
+    private static List<ResourceLocation> externalTemplates(ServerLevel level) {
+        try (var stream = level.getStructureManager().listTemplates()) {
+            return stream.filter(key -> key.getNamespace().equals("ctov")
+                    || key.getNamespace().equals("explorify"))
+                .distinct().sorted(Comparator.comparing(ResourceLocation::toString)).toList();
+        }
+    }
+    private static int listing(CommandSourceStack s,int page) {
+        if(page==1) {
+            say(s,"Estructuras BWE construibles (clic para seleccionar; antes /bwe escanear):");
+            for(String type : ORDERED_KINDS) {
+                Component option = Component.literal("  [" + type.toUpperCase(Locale.ROOT) + "]")
+                    .withStyle(style -> style.withColor(ChatFormatting.AQUA)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe seleccionar " + type))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            Component.literal("Seleccionar " + type))));
+                s.sendSuccess(() -> option,false);
+            }
+        }
+        List<ResourceLocation> ids=externalTemplates(s.getLevel());
+        int pages=Math.max(1,(ids.size()+CATALOG_PAGE_SIZE-1)/CATALOG_PAGE_SIZE);
+        if(page>pages) return fail(s,"Pagina inexistente. Ultima pagina: "+pages);
+        say(s,"CTOV/Explorify: "+ids.size()+" plantillas detectadas | pagina "+page+"/"+pages
+            +" | INSPECCION SOLAMENTE: construccion externa aun bloqueada.");
+        int begin=(page-1)*CATALOG_PAGE_SIZE;
+        for(int i=begin;i<Math.min(ids.size(),begin+CATALOG_PAGE_SIZE);i++) {
+            ResourceLocation key=ids.get(i);
+            Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
+            String dimensions=found.map(t -> {
+                Vec3i size=t.getSize();
+                return size.getX()+" x "+size.getZ()+" bloques";
+            }).orElse("dimensiones no disponibles");
+            String id=key.toString();
+            Component option=Component.literal("  ["+id+"] "+dimensions)
+                .withStyle(style -> style.withColor(ChatFormatting.YELLOW)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe inspeccionar "+id))
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Component.literal("Seleccionar " + type))));
+                        Component.literal("Ver dimensiones; NO construye"))));
             s.sendSuccess(() -> option,false);
         }
-        say(s,"Tras seleccionar, alejate del area y usa /bwe crear. /bwe deshacer revierte la obra.");
+        if(page>1) {
+            Component prev=Component.literal("  [Pagina anterior]")
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page-1))));
+            s.sendSuccess(() -> prev,false);
+        }
+        if(page<pages) {
+            Component next=Component.literal("  [Pagina siguiente]")
+                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page+1))));
+            s.sendSuccess(() -> next,false);
+        }
+        if(ids.isEmpty()) say(s,"No se encontraron plantillas con namespace ctov/explorify en los recursos del servidor.");
         return 1;
     }
-    private static int templates(CommandSourceStack s) {
-        say(s,"Plantillas externas: solo catalogo, colocacion deshabilitada hasta verificar rollback NBT.");
-        for(String id : OPTIONAL_TEMPLATES) say(s,id);
+    private static int templates(CommandSourceStack s) { return listing(s,1); }
+    private static int inspectTemplate(CommandSourceStack s,String id) {
+        ResourceLocation key=ResourceLocation.tryParse(id);
+        if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
+            return fail(s,"Solo se inspeccionan plantillas CTOV y Explorify.");
+        if(!externalTemplates(s.getLevel()).contains(key))
+            return fail(s,"La plantilla no aparece en los recursos cargados: "+id);
+        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
+        if(found.isEmpty()) return fail(s,"La plantilla existe en el catalogo pero no se pudo leer: "+id);
+        Vec3i size=found.get().getSize();
+        say(s,"Plantilla "+id+" | huella X x Z: "+size.getX()+" x "+size.getZ()
+            +" bloques | altura: "+size.getY()+" (solo informativa).");
+        say(s,"Solo inspeccion: no hay colocacion externa ni terraformacion todavia. /bwe crear NO construye esta plantilla.");
         return 1;
     }
     private static int scan(CommandSourceStack s,int r) throws CommandSyntaxException {
