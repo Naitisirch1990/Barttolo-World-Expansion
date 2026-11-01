@@ -1,3 +1,9 @@
+## v0.6.14 (2026-11-01, inspeccion sin colocar)
+- /bwe inspeccionar muestra huella X × Z, superficie, conectores jigsaw, marcadores structure y cofres/barriles vanilla detectados. Indicadores parciales de una pieza, no auditoria NBT completa ni ensamblaje de aldeas.
+- /bwe plantilla <id> es alias de inspeccion, sin planes falsos de construccion. Eliminada la lista estatica de IDs de ejemplo como restriccion de comandos.
+- Las plantillas CTOV/Explorify siguen solo en catalogo; sin recursos de terceros empaquetados ni colocacion externa.
+- Pendiente: pruebas en copia real, rollback NBT seguro, ensamblaje jigsaw y terraformacion.
+
 ## 0.6.12 (propuesta en rama de pruebas)
 - Nuevo flujo sencillo: /bwe escanear, /bwe listar con opciones clicables, /bwe seleccionar y /bwe crear.
 - Escaneo anclado al punto original: el jugador puede alejarse antes de construir.

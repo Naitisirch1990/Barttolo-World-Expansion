@@ -1,10 +1,10 @@
-# Barttolo World Expansion v0.6.11 — PRUEBAS EXPERIMENTALES
+# Barttolo World Expansion v0.6.14 — PRUEBAS EXPERIMENTALES
 
 **Minecraft 1.20.1 · Forge 47.4.10 · Java 17 · servidor RingWorld**
 
 > ⚠️ El código de la rama de desarrollo se compila con Forge mediante GitHub Actions; **eso no demuestra que arranque ni funcione en un mundo real**. El JAR solo es apto para ensayos aislados hasta superar las pruebas de construcción y restauración. **No instalar en el mundo principal**.
 
-> **Actualización v0.6.13 (1 nov 2026, experimental):** `/bwe listar` y `/bwe listar <pagina>` descubren dinamicamente los IDs `ctov:` y `explorify:` expuestos por el gestor de plantillas del servidor, muestran su huella X × Z real (8 por pagina) y ofrecen un clic de **inspección** con `/bwe inspeccionar <id>`. No hay límite artificial de 150 × 150 para **catalogar**. Las estructuras compuestas por jigsaw no se ensamblan ni se miden como conjunto: solo aparecen las piezas NBT individuales. **NO se colocan plantillas externas, no se terraforman aldeas vanilla, ni se restaura NBT de contenedores.** La inspección es de solo lectura; se requiere Forge 1.20.1 y los recursos externos cargados en el servidor. La compilación y las pruebas en copia del mundo se deben verificar por separado antes de instalar.
+> **Actualización v0.6.14 (1 nov 2026, experimental):** `/bwe listar` y `/bwe listar <pagina>` descubren dinamicamente los IDs `ctov:` y `explorify:` expuestos por el gestor de plantillas del servidor, muestran su huella X × Z real (8 por pagina) y ofrecen un clic de **inspección** con `/bwe inspeccionar <id>`. No hay límite artificial de 150 × 150 para **catalogar**. Las estructuras compuestas por jigsaw no se ensamblan ni se miden como conjunto: solo aparecen las piezas NBT individuales. **NO se colocan plantillas externas, no se terraforman aldeas vanilla, ni se restaura NBT de contenedores.** La inspección ahora cuenta conectores jigsaw, marcadores structure y cofres/barriles vanilla (indicadores, no auditoría NBT completa). `/bwe plantilla <id>` es un alias de inspección y no crea planes de construcción engañosos. La inspección es de solo lectura; se requiere Forge 1.20.1 y los recursos externos cargados en el servidor. La compilación y las pruebas en copia del mundo se deben verificar por separado antes de instalar.
 
 ## Objetivo
 
@@ -61,7 +61,7 @@ El usuario mostro el 1 de noviembre de 2026 una captura de un mundo descartable 
 /bwe plantilla explorify:campsite/main/01
 ```
 
-**Advertencia:** `/bwe plantilla <id>` solo comprueba datos y genera un plan textual; `/bwe confirmar SI` bloquea deliberadamente la colocación de NBT externos. `/bwe previsualizar` es **texto**, no un holograma; `/bwe buscar` se limita a sondeos en chunks cargados. Solo administradores OP de nivel 2.
+**Advertencia:** `/bwe plantilla <id>` solo inspecciona datos; no crea un plan ni autoriza `/bwe confirmar SI` para colocar NBT externos. `/bwe previsualizar` es **texto**, no un holograma; `/bwe buscar` se limita a sondeos en chunks cargados. Solo administradores OP de nivel 2.
 
 ## Seguridad: límites conocidos
 
