@@ -115,21 +115,25 @@ public final class BuildEngine {
                 for(int[] at:new int[][]{{-12,-12},{14,-12},{-12,14},{14,14}}) {
                     Villager villager = EntityType.VILLAGER.create(job.world);
                     UUID reserved = job.reservedEntities.get(index++);
-                    if(villager != null) {
-                        // Persist the UUID BEFORE spawning. A crash during entity creation
-                        // must never leave an untracked villager behind on rollback.
-                        villager.setUUID(reserved);
-                        villager.moveTo(job.plan.center().getX()+at[0]+.5,job.plan.y()+1,job.plan.center().getZ()+at[1]+.5,0,0);
-                        if(job.world.addFreshEntity(villager)) spawned++;
-                    }
+                    if(villager == null)
+                        throw new IllegalStateException("No se pudo crear el aldeano " + index);
+                    // UUIDs were persisted before the first block was modified.
+                    villager.setUUID(reserved);
+                    villager.moveTo(job.plan.center().getX()+at[0]+.5,job.plan.y()+1,job.plan.center().getZ()+at[1]+.5,0,0);
+                    if(!job.world.addFreshEntity(villager))
+                        throw new IllegalStateException("No se pudo incorporar el aldeano " + index);
+                    spawned++;
                 }
             }
+            if(job.plan.kind().equals("aldea") && spawned != job.reservedEntities.size())
+                throw new IllegalStateException("Aldeanos incompletos; conservar respaldo");
             ArrayList<WorldData.StoredBlock> finalBlocks = new ArrayList<>(job.originals.size());
             for(WorldData.StoredBlock b:job.originals) {
                 finalBlocks.add(new WorldData.StoredBlock(b.pos(), b.before(),
                     WorldData.encode(job.world.getBlockState(BlockPos.of(b.pos())))));
             }
-            WorldData.get(job.world).setUndo(new WorldData.Undo(job.plan.dimension(),job.plan.kind(),finalBlocks,job.reservedEntities));
+            // Mark complete only AFTER all blocks and villagers were placed.
+            WorldData.get(job.world).setUndo(new WorldData.Undo(job.plan.dimension(),job.plan.kind(),finalBlocks,job.reservedEntities,true));
             job.world.getServer().overworld().getDataStorage().save();
             var operator = job.world.getServer().getPlayerList().getPlayer(job.operator);
             if(operator != null) operator.sendSystemMessage(Component.literal("[BWE] Obra terminada: " + job.plan.kind()
@@ -481,6 +485,8 @@ public final class BuildEngine {
         WorldData data=WorldData.get(world);
         WorldData.Undo snapshot=data.undo();
         if(snapshot==null) return new Result(false,"No hay construccion pendiente",0);
+        if(snapshot.blocks().isEmpty())
+            return new Result(false,"Respaldo vacio o corrupto: no se puede deshacer automaticamente",0);
         if(!snapshot.dimension().equals(world.dimension().location().toString()))
             return new Result(false,"Entra en la misma dimension de la construccion",0);
         // Validate ALL entries before starting rollback: never overwrite later player edits.
@@ -512,6 +518,10 @@ public final class BuildEngine {
         if(busy()) return new Result(false,"Hay una obra o restauracion en curso",0);
         WorldData.Undo snapshot=WorldData.get(world).undo();
         if(snapshot==null) return new Result(false,"No hay obra pendiente",0);
+        if(!snapshot.completed())
+            return new Result(false,"Obra incompleta o respaldo anterior sin marca de finalizacion. Usa /bwe deshacer en una copia; no se descarta el respaldo.",0);
+        if(snapshot.blocks().isEmpty())
+            return new Result(false,"Respaldo vacio o corrupto; no se puede finalizar",0);
         if(!snapshot.dimension().equals(world.dimension().location().toString()))
             return new Result(false,"Debes estar en la dimension original",0);
         for(WorldData.StoredBlock b : snapshot.blocks()) {

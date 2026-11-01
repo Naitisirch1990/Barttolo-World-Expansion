@@ -1,6 +1,6 @@
-# Plan de ensayo seguro — Barttolo World Expansion v0.6.6
+# Plan de ensayo seguro — Barttolo World Expansion v0.6.9
 
-Estado: **NO ejecutado**. No se ha proporcionado una copia del mundo ni hay JAR compilado.
+Estado: **NO ejecutado**. No se ha proporcionado una copia del mundo. GitHub Actions compiló v0.6.8; v0.6.9 requiere verificación CI independiente.
 
 ## Preparacion (fuera del servidor activo)
 
@@ -53,3 +53,12 @@ lote: la restauracion debe detenerse sin borrar el respaldo. Retirar entidades y
 `/bwe deshacer` para completar. En aldeas, los aldeanos creados por BWE no bloquean
 la restauracion, pero cualquier entidad ajena si. Comparar regiones y NBT contra la
 copia original. Esta prueba no se ha ejecutado en Minecraft.
+
+
+## Caso adicional: reinicio en el ultimo lote (parche de seguridad)
+
+- En la copia, interrumpir una obra despues de colocar los bloques pero antes de finalizar el ciclo de aldeanos (solo en entorno de depuracion).
+- Verificar que el NBT de `barttolo_world_expansion` conserva `Undo.Completed=false` y que `/bwe finalizar SI` es rechazado.
+- Ejecutar `/bwe deshacer` con el area vacia y comprobar restauracion y limpieza de aldeanos rastreados.
+- Tras una obra terminada, comprobar `Undo.Completed=true` y que `/bwe finalizar SI` se habilita solo con estados de bloques intactos.
+- Respaldos antiguos sin `Completed` se consideran incompletos: no forzar finalizacion ni editar NBT manualmente.

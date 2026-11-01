@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.8. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.9. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";

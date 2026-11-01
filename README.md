@@ -1,8 +1,8 @@
-# Barttolo World Expansion v0.6.8 — FUENTES EXPERIMENTALES
+# Barttolo World Expansion v0.6.9 — PRUEBAS EXPERIMENTALES
 
 **Minecraft 1.20.1 · Forge 47.4.10 · Java 17 · servidor RingWorld**
 
-> ⚠️ Este ZIP contiene código fuente, NO un `.jar` instalable. Aún NO está compilado con Forge ni probado en Minecraft. **No instalar en el mundo principal** hasta comprobar compilación, pruebas en una copia y restauración de un backup real.
+> ⚠️ El código de la rama de desarrollo se compila con Forge mediante GitHub Actions; **eso no demuestra que arranque ni funcione en un mundo real**. El JAR solo es apto para ensayos aislados hasta superar las pruebas de construcción y restauración. **No instalar en el mundo principal**.
 
 ## Objetivo
 
@@ -10,7 +10,7 @@ Construir **sobre chunks existentes** sin volver a generar el mundo. Los 8 tipos
 
 El mod se plantea **solo en el servidor** (`displayTest="IGNORE_SERVER_VERSION"` en `mods.toml`), sin GUI ni paquetes de red propios; debe confirmarse la compatibilidad real con Forge/AutoModpack mediante una prueba.
 
-## Cambios en v0.6.5 respecto de v0.4.0
+## Correcciones de seguridad acumuladas
 
 **Seguridad v0.6.5:** se repite la comprobacion de entidades antes de cada lote de hasta 200 bloques; si alguien entra durante una obra, se detiene sin borrar el snapshot de deshacer. Comprobacion de codigo, aun no probada en Forge.
 
@@ -25,7 +25,7 @@ El mod se plantea **solo en el servidor** (`displayTest="IGNORE_SERVER_VERSION"`
 6. **Geometría probada con Java 17:** `SiteMath.java` no depende de Forge y tiene 14 casos de prueba ejecutables, incluidos límites de coordenadas y separación de estructuras.
 7. Flujo de GitHub Actions ampliado con tests Java, auditoría de fuentes y de `mods.toml` antes de ejecutar la compilación Forge.
 
-## Comandos propuestos (aún NO probados dentro del juego)
+## Comandos disponibles en el código (aún NO probados dentro del juego)
 
 ```text
 /bwe ayuda
@@ -135,3 +135,10 @@ se detiene la restauracion y se conserva el respaldo persistente. Esta modificac
 solo ha superado inspecciones estaticas; falta validar Forge y Minecraft.
 
 El workflow se prepara para ejecutarse tambien en PRs hacia `main` (sin ejecuciones duplicadas por push en dev).
+
+
+## Seguridad v0.6.9 — finalizacion persistente
+
+La copia de seguridad NBT incluye ahora `Undo.Completed`. Se guarda como `false` antes de cambiar bloques y solo pasa a `true` cuando todos los bloques y los aldeanos previstos se han colocado correctamente. `/bwe finalizar SI` rechaza respaldos incompletos y no descarta su capacidad de deshacer. Si falla la creacion de un aldeano, el proceso se detiene conservando el respaldo. Un respaldo anterior sin esta marca se considera incompleto por seguridad; primero se debe comprobar o deshacer en una copia aislada.
+
+**Pruebas:** las comprobaciones estáticas y de geometría no sustituyen una ejecución en Minecraft. El arranque Forge, la integración con RingWorld, los reinicios a mitad de construcción y la restauración de entidades continúan pendientes de ensayo en una copia.

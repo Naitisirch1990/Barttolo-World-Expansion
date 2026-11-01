@@ -1,3 +1,11 @@
+## v0.6.9 — marca persistente de finalizacion (solo desarrollo)
+
+- `Undo.Completed` comienza en `false` y se persiste como `true` solo tras completar los bloques y aldeanos.
+- `/bwe finalizar SI` no elimina respaldos incompletos o anteriores sin la marca; evita aceptar una obra tras un reinicio en el ultimo lote.
+- Fallos al crear aldeanos detienen la obra y conservan el respaldo para restauracion.
+- Rechaza deshacer respaldos vacios y registra una prueba estatica de regresion en CI.
+- **Pendiente:** ejecutar pruebas reales en una copia aislada de RingWorld; no instalar en produccion.
+
 ## v0.6.8 — 2026-11-01
 - Corregida la decodificación de estados de bloque del respaldo: ahora exige los campos NBT `Name` y `Properties` con sus tipos correctos y **todas** las propiedades del bloque. Un respaldo truncado ya no puede restaurar silenciosamente la orientación/mitad por defecto.
 - Añadidas aserciones estáticas para la presencia y completitud de propiedades. La compilación y las pruebas Forge dentro del juego siguen pendientes.

@@ -37,7 +37,14 @@ public final class WorldData extends SavedData {
         }
     }
     public record StoredBlock(long pos, CompoundTag before, CompoundTag after) {}
-    public record Undo(String dimension, String name, List<StoredBlock> blocks, List<UUID> entities) {}
+    /** Completion is persisted only after all blocks AND required villagers have been created.
+     *  Old backups lacking this flag remain recoverable but cannot be finalized. */
+    public record Undo(String dimension, String name, List<StoredBlock> blocks, List<UUID> entities,
+                       boolean completed) {
+        public Undo(String dimension, String name, List<StoredBlock> blocks, List<UUID> entities) {
+            this(dimension, name, blocks, entities, false);
+        }
+    }
 
     private final ArrayList<Area> exclusions = new ArrayList<>();
     private final ArrayList<RectArea> rectangles = new ArrayList<>();
@@ -81,7 +88,9 @@ public final class WorldData extends SavedData {
                 CompoundTag e = uuids.getCompound(i);
                 if (e.hasUUID("ID")) entities.add(e.getUUID("ID"));
             }
-            data.undo = new Undo(u.getString("Dimension"), u.getString("Name"), blocks, entities);
+            // Missing/wrongly typed flag is treated as incomplete (fail closed).
+            data.undo = new Undo(u.getString("Dimension"), u.getString("Name"), blocks, entities,
+                u.contains("Completed", Tag.TAG_BYTE) && u.getBoolean("Completed"));
         }
         return data;
     }
@@ -117,6 +126,7 @@ public final class WorldData extends SavedData {
             CompoundTag u = new CompoundTag();
             u.putString("Dimension", undo.dimension());
             u.putString("Name", undo.name());
+            u.putBoolean("Completed", undo.completed());
             ListTag blocks = new ListTag();
             for (StoredBlock b : undo.blocks()) {
                 CompoundTag t = new CompoundTag();
@@ -155,7 +165,8 @@ public final class WorldData extends SavedData {
     public List<Site> completedSites() { return Collections.unmodifiableList(sites); }
     /** The site is recorded only after explicit finalization of the completed build. */
     public void registerCompleted(Undo snapshot) {
-        if (snapshot.blocks().isEmpty()) return;
+        if (!snapshot.completed() || snapshot.blocks().isEmpty())
+            throw new IllegalStateException("No se puede registrar una obra incompleta o sin bloques");
         int minX=Integer.MAX_VALUE, maxX=Integer.MIN_VALUE, minZ=Integer.MAX_VALUE, maxZ=Integer.MIN_VALUE;
         for (StoredBlock b : snapshot.blocks()) {
             BlockPos pos = BlockPos.of(b.pos());

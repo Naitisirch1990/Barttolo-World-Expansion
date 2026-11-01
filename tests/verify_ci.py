@@ -6,6 +6,7 @@ assert 'python3 tests/verify_simulation_parity.py' in yaml
 assert 'python3 tests/verify_ci.py' in yaml
 assert 'python3 tests/test_live_occupancy_guard.py' in yaml
 assert 'python3 tests/test_strict_undo_codec.py' in yaml
+assert 'python3 tests/test_completion_marker.py' in yaml
 assert 'python3 tests/test_server_lifecycle.py' in yaml
 assert 'python3 tests/test_undo_entity_guard.py' in yaml
 assert 'pull_request:' in yaml
