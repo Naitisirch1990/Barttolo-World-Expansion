@@ -57,6 +57,8 @@ public final class BuildEngine {
         final List<UUID> reservedEntities;
         final Map<Long, net.minecraft.nbt.CompoundTag> expectedBefore = new HashMap<>();
         final int total;
+        final CollisionZone collisionZone;
+        boolean waitingForEntities;
         int placed;
         Job(ServerLevel world, Plan plan, UUID operator, Map<Long,BlockState> changes,
             List<WorldData.StoredBlock> originals, List<UUID> reservedEntities) {
@@ -68,6 +70,7 @@ public final class BuildEngine {
             this.reservedEntities = reservedEntities;
             for(WorldData.StoredBlock block : originals) expectedBefore.put(block.pos(), block.before());
             this.total = changes.size();
+            this.collisionZone = collisionZone(changes);
         }
     }
     /** Never retain a ServerLevel from a stopped integrated/dedicated server.
@@ -82,18 +85,21 @@ public final class BuildEngine {
         if(undoRunning != null) return "Restaurando " + undoRunning.name + ": " +
             (undoRunning.blocks.size()-1-undoRunning.cursor) + "/" + undoRunning.blocks.size() + " bloques (200/tick).";
         if(running == null) return "Sin construcciones en curso.";
-        return running.plan.kind() + " " + running.placed + "/" + running.total + " bloques (200/tick).";
+        return running.plan.kind() + " " + running.placed + "/" + running.total
+            + " bloques (200/tick)." + (running.waitingForEntities ? " EN ESPERA: entidades sobre bloques pendientes." : "");
     }
     public static void serverTick() {
         if(undoRunning != null) { undoTick(); return; }
         Job job = running;
         if(job == null) return;
         try {
-            // The area can become occupied after /bwe confirmar SI. Stop before
-            // the next batch instead of placing blocks under newly arrived entities.
-            // A partial job keeps its durable undo snapshot for /bwe deshacer.
-            if (occupied(job.world, job.plan))
-                throw new IllegalStateException("Entidad entro en la huella durante la obra");
+            // Pause (do not fail or discard the backup) while an entity overlaps
+            // a SOLID block still pending placement. Nearby slimes are harmless.
+            if (occupied(job.world, job.collisionZone)) {
+                job.waitingForEntities = true;
+                return;
+            }
+            job.waitingForEntities = false;
             int applied = 0;
             while (job.remaining.hasNext() && applied++ < BLOCKS_PER_TICK) {
                 var entry = job.remaining.next();
@@ -110,6 +116,7 @@ public final class BuildEngine {
                 // (which can return false for an unchanged state). Never overwrite
                 // an unexpected third state; it may be a player's edit.
                 if(actual.equals(desired)) {
+                    job.collisionZone.solidBlocks().remove(entry.getKey());
                     job.placed++;
                     continue;
                 }
@@ -124,6 +131,7 @@ public final class BuildEngine {
                 if(!WorldData.encode(job.world.getBlockState(at)).equals(desired))
                     throw new IllegalStateException("Estado distinto tras colocar en " + at
                         + " | destino=" + desired + " | actual=" + WorldData.encode(job.world.getBlockState(at)));
+                job.collisionZone.solidBlocks().remove(entry.getKey());
                 job.placed++;
             }
             if(job.remaining.hasNext()) return;
@@ -215,6 +223,39 @@ public final class BuildEngine {
     public record Plan(String kind, String template, BlockPos center, String dimension,
                        int y, int halfX, int halfZ, long created) {}
     public record Result(boolean ok, String message, int count) {}
+
+    /** Collision checks only target SOLID blocks. No entities are moved or removed. */
+    private record CollisionZone(Set<Long> solidBlocks, AABB bounds) {}
+    private static CollisionZone collisionZone(Map<Long,BlockState> changes) {
+        Set<Long> solids=new HashSet<>();
+        int minX=Integer.MAX_VALUE,minY=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE;
+        int maxX=Integer.MIN_VALUE,maxY=Integer.MIN_VALUE,maxZ=Integer.MIN_VALUE;
+        for(var entry:changes.entrySet()) {
+            if(entry.getValue().isAir()) continue;
+            BlockPos at=BlockPos.of(entry.getKey());
+            solids.add(entry.getKey());
+            minX=Math.min(minX,at.getX()); minY=Math.min(minY,at.getY()); minZ=Math.min(minZ,at.getZ());
+            maxX=Math.max(maxX,at.getX()); maxY=Math.max(maxY,at.getY()); maxZ=Math.max(maxZ,at.getZ());
+        }
+        return new CollisionZone(solids,solids.isEmpty()?null:
+            new AABB(minX,minY,minZ,maxX+1.0,maxY+1.0,maxZ+1.0));
+    }
+    private static boolean occupied(ServerLevel world, CollisionZone zone) {
+        if(zone.bounds()==null || zone.solidBlocks().isEmpty()) return false;
+        for(Entity entity:world.getEntitiesOfClass(Entity.class,zone.bounds())) {
+            AABB box=entity.getBoundingBox();
+            int minX=(int)Math.floor(box.minX),minY=(int)Math.floor(box.minY),minZ=(int)Math.floor(box.minZ);
+            int maxX=(int)Math.floor(Math.nextDown(box.maxX));
+            int maxY=(int)Math.floor(Math.nextDown(box.maxY));
+            int maxZ=(int)Math.floor(Math.nextDown(box.maxZ));
+            long volume=(long)(maxX-minX+1)*(maxY-minY+1)*(maxZ-minZ+1);
+            if(volume>4096L) return true; // Giant entity: fail closed.
+            for(int x=minX;x<=maxX;x++) for(int y=minY;y<=maxY;y++)
+                for(int z=minZ;z<=maxZ;z++)
+                    if(zone.solidBlocks().contains(BlockPos.asLong(x,y,z))) return true;
+        }
+        return false;
+    }
 
     /** Shared, deliberately conservative entity guard for both dry-run and build.
      *  Rejects every existing entity, including dropped items, vehicles and decorations.
@@ -465,8 +506,7 @@ public final class BuildEngine {
         if(WorldData.get(world).undo()!=null) return new Result(false,"Hay una obra sin finalizar: /bwe deshacer o /bwe finalizar",0);
         WorldChecks.Survey review=WorldChecks.scanFull(world,p.center(),p.halfX(),p.halfZ(),4);
         if(!review.ok() || review.groundY()!=p.y()) return new Result(false,"La revision cambio: "+review.reason(),0);
-        if(occupied(world,p))
-            return new Result(false,"Hay entidades dentro del area (jugadores, mobs u objetos). Despejenla antes de confirmar.",0);
+        // Entity overlap is handled as a non-destructive WAIT during server ticks.
         // External NBT pieces often contain jigsaws, chests and loot/BE metadata.
         // The old implementation could not undo their block entity NBT: fail closed.
         if(!p.template().isEmpty()) return new Result(false,
@@ -500,7 +540,7 @@ public final class BuildEngine {
         // Save undo to disk before applying any edits. The job then writes 200 blocks per tick.
         world.getServer().overworld().getDataStorage().save();
         running = new Job(world,p,operator,changed,undoBlocks,reservedEntities);
-        return new Result(true,"Obra iniciada por etapas. /bwe estado para ver el avance.",changed.size());
+        return new Result(true,"Obra iniciada. Esperara sin modificar bloques ocupados; /bwe estado muestra el avance.",changed.size());
     }
 
     /** Read-only diagnosis for a pending undo. Does not load chunks or mutate blocks. */

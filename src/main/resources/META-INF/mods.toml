@@ -4,8 +4,8 @@ license="All Rights Reserved"
 [[mods]]
 modId="barttoloworldexpansion"
 displayTest="IGNORE_SERVER_VERSION"
-version="0.6.11"
-displayName="Barttolo World Expansion - PREVIEW v0.6.11"
+version="0.6.12"
+displayName="Barttolo World Expansion - PREVIEW v0.6.12"
 authors="Barttolo / RingWorld"
 description='''Construccion por comandos, 8 estructuras originales, registro de asentamientos, zonas circulares y rectangulares protegidas y deshacer. Estructuras propias, integracion opcional por plantillas externas. SIN activos de CTOV ni Explorify embebidos. PRUEBAS EN COPIA DEL MUNDO SOLAMENTE.'''
 [[dependencies.barttoloworldexpansion]]

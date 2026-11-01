@@ -4,11 +4,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -21,11 +24,15 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.11. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.12. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
     private static final Map<UUID, BuildEngine.Plan> PLANS = new HashMap<>();
+    private record ScanSite(BlockPos center, String dimension, long created) {}
+    private static final Map<UUID, ScanSite> SCANS = new HashMap<>();
+    private static final List<String> ORDERED_KINDS = List.of(
+        "campamento", "refugio", "pozo", "carreta", "torre", "ruina", "altar", "aldea");
     private static final List<String> OPTIONAL_TEMPLATES = List.of(
         "explorify:campsite/main/01", "explorify:campsite/main/02", "explorify:campsite/main/03",
         "explorify:campsite/tent/01", "explorify:guide_post/warm/whole", "explorify:guide_post/cold/whole", "explorify:ruins/house/ruins_01",
@@ -48,6 +55,7 @@ public final class BarttoloWorldExpansion {
     public void onServerStopped(ServerStoppedEvent event) {
         BuildEngine.resetForShutdown();
         PLANS.clear();
+        SCANS.clear();
     }
 
     @SubscribeEvent
@@ -56,6 +64,13 @@ public final class BarttoloWorldExpansion {
         dispatcher.register(Commands.literal("bwe").requires(s -> s.hasPermission(2))
             .then(Commands.literal("ayuda").executes(ctx -> help(ctx.getSource())))
             .then(Commands.literal("listar").executes(ctx -> listing(ctx.getSource())))
+            .then(Commands.literal("plantillas").executes(ctx -> templates(ctx.getSource())))
+            .then(Commands.literal("escanear").executes(ctx -> scan(ctx.getSource(),12))
+                .then(Commands.argument("radio",IntegerArgumentType.integer(4,32))
+                    .executes(ctx -> scan(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"radio")))))
+            .then(Commands.literal("seleccionar").then(Commands.argument("tipo",StringArgumentType.word())
+                .executes(ctx -> select(ctx.getSource(),StringArgumentType.getString(ctx,"tipo")))))
+            .then(Commands.literal("crear").executes(ctx -> create(ctx.getSource())))
             .then(Commands.literal("estado").executes(ctx -> status(ctx.getSource())))
             .then(Commands.literal("diagnosticar").executes(ctx -> diagnose(ctx.getSource())))
             .then(Commands.literal("asentamientos").executes(ctx -> completedSites(ctx.getSource())))
@@ -104,8 +119,9 @@ public final class BarttoloWorldExpansion {
     private static String dim(ServerLevel level) {return level.dimension().location().toString();}
 
     private static int help(CommandSourceStack s) {
-        say(s,"analizar [radio] | planear <aldea|campamento|ruina|torre|refugio|altar|pozo|carreta> | buscar <tipo> <radio> | plantilla <id>");
-        say(s,"previsualizar | simular | confirmar SI | estado | diagnosticar | cancelar | deshacer | finalizar SI | asentamientos | olvidar <numero> SI | proteger <radio> | protegidas | desproteger <numero> | protegerarea <x1> <z1> <x2> <z2> | areas | liberararea <numero> SI");
+        say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
+        say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
+        say(s,"Avanzado: /bwe diagnosticar | asentamientos | olvidar <numero> SI | plantillas");
         return 1;
     }
     private static int diagnose(CommandSourceStack s) {
@@ -139,18 +155,74 @@ public final class BarttoloWorldExpansion {
         say(s,"Registro #"+number+" olvidado. Los edificios no se han modificado.");
         return 1;
     }
+    /** Clickable chat catalogue: only original structures, no external NBT assets. */
     private static int listing(CommandSourceStack s) {
-        say(s,"Construcciones propias: "+String.join(", ",BuildEngine.KINDS));
-        say(s,"Plantillas opcionales de CTOV y Explorify (requieren mod original instalado):");
-        for(String t:OPTIONAL_TEMPLATES) say(s,t);
+        say(s,"Selecciona una construccion con clic (antes usa /bwe escanear):");
+        for(String type : ORDERED_KINDS) {
+            Component option = Component.literal("  [" + type.toUpperCase(Locale.ROOT) + "]")
+                .withStyle(style -> style.withColor(ChatFormatting.AQUA)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe seleccionar " + type))
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                        Component.literal("Seleccionar " + type))));
+            s.sendSuccess(() -> option,false);
+        }
+        say(s,"Tras seleccionar, alejate del area y usa /bwe crear. /bwe deshacer revierte la obra.");
+        return 1;
+    }
+    private static int templates(CommandSourceStack s) {
+        say(s,"Plantillas externas: solo catalogo, colocacion deshabilitada hasta verificar rollback NBT.");
+        for(String id : OPTIONAL_TEMPLATES) say(s,id);
         return 1;
     }
     private static int scan(CommandSourceStack s,int r) throws CommandSyntaxException {
         BlockPos center=s.getPlayerOrException().blockPosition();
         var result=WorldChecks.scan(s.getLevel(),center,r,r,4);
+        UUID id=player(s);
+        PLANS.remove(id); // A new scan must not leave an old selection active.
+        if(result.ok()) SCANS.put(id,new ScanSite(center,dim(s.getLevel()),System.currentTimeMillis()));
+        else SCANS.remove(id);
         say(s,"Radio "+r+" | "+(result.ok()?"APTO":"NO APTO")+": "+result.reason()
             +" | suelo "+result.low()+".."+result.high()+" | agua="+result.liquids()+" | artificial="+result.artificial());
+        if(result.ok()) say(s,"Zona guardada. Usa /bwe listar, elige una construccion y luego /bwe crear.");
         return result.ok()?1:0;
+    }
+    /** Selects a type for the LAST scanned location, even after the player walks away. */
+    private static int select(CommandSourceStack s,String type) throws CommandSyntaxException {
+        if(!BuildEngine.KINDS.contains(type)) return fail(s,"Tipo desconocido. /bwe listar");
+        if(BuildEngine.busy() || WorldData.get(s.getLevel()).undo()!=null)
+            return fail(s,"Primero termina o deshaz la obra pendiente.");
+        UUID id=player(s);
+        ScanSite site=SCANS.get(id);
+        if(site==null) return fail(s,"Primero /bwe escanear en el lugar deseado.");
+        if(!site.dimension().equals(dim(s.getLevel()))) {
+            SCANS.remove(id);
+            return fail(s,"Dimension distinta: vuelve a escanear.");
+        }
+        if(System.currentTimeMillis()-site.created()>900_000L) {
+            SCANS.remove(id);
+            return fail(s,"Escaneo caducado: vuelve a /bwe escanear.");
+        }
+        int radius=BuildEngine.radius(type);
+        var survey=WorldChecks.scanFull(s.getLevel(),site.center(),radius,radius,4);
+        if(!survey.ok()) return fail(s,"La zona no es apta para "+type+": "+survey.reason());
+        PLANS.put(id,new BuildEngine.Plan(type,"",site.center(),site.dimension(),
+            survey.groundY(),radius,radius,System.currentTimeMillis()));
+        say(s,"Seleccionado: "+type+" en X="+site.center().getX()+" Z="+site.center().getZ()
+            +". Alejate de los bloques a construir y usa /bwe crear.");
+        return 1;
+    }
+    /** No preview or extra confirmation. BuildEngine rechecks the whole area before editing. */
+    private static int create(CommandSourceStack s) throws CommandSyntaxException {
+        UUID id=player(s);
+        BuildEngine.Plan plan=PLANS.get(id);
+        if(plan==null) return fail(s,"Primero /bwe escanear y /bwe listar para seleccionar.");
+        if(!plan.dimension().equals(dim(s.getLevel()))) return fail(s,"Dimension diferente de la seleccion.");
+        BuildEngine.Result result=BuildEngine.build(s.getLevel(),plan,id);
+        if(!result.ok()) return fail(s,result.message());
+        PLANS.remove(id);
+        SCANS.remove(id);
+        say(s,result.message()+" | bloques="+result.count());
+        return 1;
     }
     private static int planOriginal(CommandSourceStack s,String type,BlockPos where) throws CommandSyntaxException {
         if(!BuildEngine.KINDS.contains(type)) return fail(s,"Tipo desconocido. /bwe listar");

@@ -155,3 +155,15 @@ La copia de seguridad NBT incluye ahora `Undo.Completed`. Se guarda como `false`
 `latest(3).log` confirma que `/bwe confirmar SI` inició un campamento de 562 bloques a las 15:12:45.819 y reportó error a las 15:12:45.842 (23 ms después). No contiene la excepción interna. El rollback rechazó una discrepancia en x=150,y=66,z=-129 y posteriormente x=151,y=68,z=-133; el backup quedó protegido. El usuario no vio construcción visible. No está probado si la causa fue una actualización vecinal, entidad, error de `setBlock` u otra condición.
 
 **v0.6.11 (experimental):** si un bloque ya coincide exactamente con el destino previsto, la construcción lo cuenta sin invocar `setBlock` nuevamente. Si no coincide ni con el original ni con el destino, detiene la obra sin sobrescribirlo. Los errores ahora registran excepción y traza con logger de Minecraft y muestran al operador causa/progreso. `/bwe diagnosticar` es SOLO LECTURA y cuenta originales, destinos, discrepancias y chunks descargados del respaldo pendiente. No desbloquea ni fuerza restauración. Se requieren pruebas en mundo descartable antes de declarar corregido el fallo.
+
+
+### Flujo simplificado (v0.6.12, pruebas)
+1. En el punto deseado: `/bwe escanear` (o `/bwe escanear 22` para aldeas grandes).
+2. `/bwe listar` y clic sobre la estructura deseada (ejecuta `/bwe seleccionar <tipo>`).
+3. Alejarse de los bloques que se van a construir y ejecutar `/bwe crear`.
+4. `/bwe estado` informa progreso o espera por entidades sobre bloques pendientes.
+5. `/bwe deshacer` restaura el respaldo cuando la zona esta despejada.
+
+El escaneo y la seleccion no modifican bloques. El motor revalida terreno y protecciones antes de crear.
+Los comandos avanzados anteriores siguen disponibles por compatibilidad, pero no se muestran en el flujo basico.
+**Usar solo en una copia descartable hasta verificar construccion y restauracion en Minecraft.**

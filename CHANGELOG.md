@@ -1,3 +1,11 @@
+## 0.6.12 (propuesta en rama de pruebas)
+- Nuevo flujo sencillo: /bwe escanear, /bwe listar con opciones clicables, /bwe seleccionar y /bwe crear.
+- Escaneo anclado al punto original: el jugador puede alejarse antes de construir.
+- Nueva espera no destructiva por entidades que intersectan bloques solidos pendientes; los slimes cercanos fuera de esos bloques no bloquean.
+- Conserva el reescaneo completo antes de construir, el respaldo persistente y /bwe deshacer.
+- /bwe plantillas muestra referencias opcionales, sin copiar ni colocar activos CTOV/Explorify.
+- Pendiente: pruebas reales en copia del mundo; auditorias estaticas no las sustituyen.
+
 ## v0.6.10 — seguridad de cancelacion y respaldo vacio (2026-11-01)
 
 - `/bwe cancelar` ya no anuncia falsamente que detuvo una construccion: solo cancela planes no iniciados y rechaza trabajos activos o respaldos pendientes.

@@ -5,7 +5,7 @@ p=r/'src/main/java/net/barttolo/bwe'
 s={x.stem:x.read_text() for x in p.glob('*.java')}
 assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath'}, s.keys()
 m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
-for cmd in ('analizar','buscar','planear','plantilla','previsualizar','simular','confirmar','cancelar','deshacer','proteger','estado','finalizar','asentamientos','olvidar','protegerarea','areas','liberararea'):
+for cmd in ('escanear','seleccionar','crear','listar','analizar','buscar','planear','plantilla','previsualizar','simular','confirmar','cancelar','deshacer','proteger','estado','finalizar','asentamientos','olvidar','protegerarea','areas','liberararea'):
     assert f'Commands.literal("{cmd}")' in m,cmd
 for kind in ('aldea','campamento','ruina','torre','refugio','altar','pozo','carreta'):
     assert f'"{kind}"' in e,kind
@@ -34,4 +34,4 @@ assert 'palette.roofSlab' in e and 'ACACIA_PLANKS' in e and 'MANGROVE_LOG' in e
 assert 'Blocks.FURNACE' not in e and 'Blocks.BARREL' not in e, 'No dejar inventarios originales sin copia de NBT'
 for name,code in s.items():
     assert code.count('{')==code.count('}'),name
-print('OK: verificaciones estáticas v0.6.11 (NO compilación Forge).')
+print('OK: verificaciones estáticas v0.6.12 (NO compilación Forge).')

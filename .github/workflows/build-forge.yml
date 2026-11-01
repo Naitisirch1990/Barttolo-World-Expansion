@@ -38,6 +38,7 @@ jobs:
           python3 tests/test_chunk_guard.py
           python3 tests/verify_simulation_parity.py
           python3 tests/test_live_occupancy_guard.py
+          python3 tests/test_simple_workflow.py
           python3 tests/verify_ci.py
           python3 tests/test_strict_undo_codec.py
           python3 tests/test_completion_marker.py
@@ -56,12 +57,12 @@ jobs:
           jarfile=$(find build/libs -maxdepth 1 -type f -name 'BarttoloWorldExpansion-*.jar' | head -n 1)
           test -n "$jarfile"
           unzip -t "$jarfile" > /dev/null
-          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.6.11"'
+          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.6.12"'
           jar tf "$jarfile" | grep -F 'net/barttolo/bwe/BarttoloWorldExpansion.class'
           javap -verbose -classpath "$jarfile" net.barttolo.bwe.BarttoloWorldExpansion | grep -F 'major version: 61'
       - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.11
+          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.12
           path: build/libs/*.jar
           if-no-files-found: error
