@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.16. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.17. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -40,7 +40,7 @@ public final class BarttoloWorldExpansion {
 
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.END) { BuildEngine.serverTick(); TemplateSiteAudit.serverTick(); }
+        if(event.phase == TickEvent.Phase.END) { BuildEngine.serverTick(); TemplateSiteAudit.serverTick(); TemplateSurfaceSurvey.serverTick(); }
     }
 
     /** Drop stale level references when a test server is stopped and restarted
@@ -49,6 +49,7 @@ public final class BarttoloWorldExpansion {
     public void onServerStopped(ServerStoppedEvent event) {
         BuildEngine.resetForShutdown();
         TemplateSiteAudit.resetForShutdown();
+        TemplateSurfaceSurvey.resetForShutdown();
         PLANS.clear();
         SCANS.clear();
     }
@@ -67,6 +68,10 @@ public final class BarttoloWorldExpansion {
                 .executes(ctx -> verifyTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("auditarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(ctx -> auditTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("superficie").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(ctx -> surfaceTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("superficieestado").executes(ctx -> surfaceStatus(ctx.getSource())))
+            .then(Commands.literal("cancelarsuperficie").executes(ctx -> cancelSurface(ctx.getSource())))
             .then(Commands.literal("auditoria").executes(ctx -> auditStatus(ctx.getSource())))
             .then(Commands.literal("cancelarauditoria").executes(ctx -> cancelAudit(ctx.getSource())))
             .then(Commands.literal("plantillas").executes(ctx -> templates(ctx.getSource())))
@@ -126,7 +131,8 @@ public final class BarttoloWorldExpansion {
     private static int help(CommandSourceStack s) {
         say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
-        say(s,"Avanzado: /bwe verificarplantilla <namespace:id> | auditarplantilla <namespace:id> | auditoria | cancelarauditoria (solo lectura) | diagnosticar | asentamientos | plantillas");
+        say(s,"Avanzado: /bwe superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (solo lectura, margen 7)");
+        say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
         return 1;
     }
     private static int diagnose(CommandSourceStack s) {
@@ -322,6 +328,30 @@ public final class BarttoloWorldExpansion {
         TemplateSiteAudit.Result result=TemplateSiteAudit.start(s.getLevel(),
             s.getPlayerOrException().blockPosition(),found.get().getSize(),
             s.getPlayerOrException().getUUID(),key);
+        if(!result.ok()) return fail(s,result.message());
+        say(s,result.message());
+        return 1;
+    }
+    /** Heightmap-only terrain profile with seven-block buffer; never edits the world. */
+    private static int surfaceTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
+        if(verifyTemplate(s,id)!=1) return 0;
+        ResourceLocation key=ResourceLocation.tryParse(id);
+        if(key==null) return fail(s,"ID de plantilla invalido.");
+        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
+        if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
+        TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.start(s.getLevel(),
+            s.getPlayerOrException().blockPosition(),found.get().getSize(),
+            s.getPlayerOrException().getUUID(),key);
+        if(!result.ok()) return fail(s,result.message());
+        say(s,result.message());
+        return 1;
+    }
+    private static int surfaceStatus(CommandSourceStack s) {
+        say(s,TemplateSurfaceSurvey.status());
+        return 1;
+    }
+    private static int cancelSurface(CommandSourceStack s) {
+        TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.cancel();
         if(!result.ok()) return fail(s,result.message());
         say(s,result.message());
         return 1;
