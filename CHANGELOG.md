@@ -1,3 +1,10 @@
+## v0.6.10 — seguridad de cancelacion y respaldo vacio (2026-11-01)
+
+- `/bwe cancelar` ya no anuncia falsamente que detuvo una construccion: solo cancela planes no iniciados y rechaza trabajos activos o respaldos pendientes.
+- `/bwe estado` distingue respaldos completos e incompletos para evitar finalizar accidentalmente un trabajo interrumpido.
+- `BuildEngine.build` y `simulate` rechazan construcciones sin cambios; evita persistir un Undo vacio que bloquearia nuevos planes.
+- Prueba estatica nueva y CI actualizado. No implica prueba de construccion/rollback dentro de Minecraft.
+
 ## v0.6.9 — marca persistente de finalizacion (solo desarrollo)
 
 - `Undo.Completed` comienza en `false` y se persiste como `true` solo tras completar los bloques y aldeanos.

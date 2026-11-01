@@ -1,4 +1,4 @@
-# Barttolo World Expansion v0.6.9 — PRUEBAS EXPERIMENTALES
+# Barttolo World Expansion v0.6.10 — PRUEBAS EXPERIMENTALES
 
 **Minecraft 1.20.1 · Forge 47.4.10 · Java 17 · servidor RingWorld**
 
@@ -9,6 +9,12 @@
 Construir **sobre chunks existentes** sin volver a generar el mundo. Los 8 tipos originales del prototipo son `aldea`, `campamento`, `ruina`, `torre`, `refugio`, `altar`, `pozo` y `carreta`. Para una prueba inicial, usar primero un `campamento` en una copia del mundo. CTOV y Explorify solo aparecen como referencias a plantillas instaladas: **el constructor NO coloca aún estructuras externas ni ensambla aldeas CTOV**.
 
 El mod se plantea **solo en el servidor** (`displayTest="IGNORE_SERVER_VERSION"` en `mods.toml`), sin GUI ni paquetes de red propios; debe confirmarse la compatibilidad real con Forge/AutoModpack mediante una prueba.
+
+## Estado de pruebas
+
+El usuario mostro el 1 de noviembre de 2026 una captura de un mundo descartable donde `/bwe listar` respondia con las ocho estructuras y las referencias CTOV/Explorify. Es evidencia limitada de carga del JAR anterior v0.6.9, **no** demuestra que una construccion, restauracion o v0.6.10 funcione. La colocacion de plantillas externas continua desactivada.
+
+**v0.6.10:** `/bwe cancelar` ahora solo cancela un plan sin ejecutar. Rechaza la orden si existe una obra activa o un respaldo pendiente, para que nadie interprete el mensaje como si hubiese detenido la construccion. `/bwe estado` indica si el respaldo es completo o incompleto. El motor rechaza obras de cero cambios antes de crear un respaldo inutilizable.
 
 ## Correcciones de seguridad acumuladas
 
@@ -137,7 +143,7 @@ solo ha superado inspecciones estaticas; falta validar Forge y Minecraft.
 El workflow se prepara para ejecutarse tambien en PRs hacia `main` (sin ejecuciones duplicadas por push en dev).
 
 
-## Seguridad v0.6.9 — finalizacion persistente
+## Seguridad v0.6.10 — finalizacion persistente
 
 La copia de seguridad NBT incluye ahora `Undo.Completed`. Se guarda como `false` antes de cambiar bloques y solo pasa a `true` cuando todos los bloques y los aldeanos previstos se han colocado correctamente. `/bwe finalizar SI` rechaza respaldos incompletos y no descarta su capacidad de deshacer. Si falla la creacion de un aldeano, el proceso se detiene conservando el respaldo. Un respaldo anterior sin esta marca se considera incompleto por seguridad; primero se debe comprobar o deshacer en una copia aislada.
 

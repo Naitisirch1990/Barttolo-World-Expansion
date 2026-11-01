@@ -462,6 +462,7 @@ public final class BuildEngine {
             if(!old.equals(entry.getValue())) changed.put(entry.getKey(),entry.getValue());
         }
         if(changed.size()>MAX_CHANGES) return new Result(false,"Demasiados bloques a modificar: "+changed.size(),0);
+        if(changed.isEmpty()) return new Result(false,"La obra no modificaria ningun bloque; no se crea un respaldo vacio.",0);
         ArrayList<WorldData.StoredBlock> undoBlocks=new ArrayList<>(changed.size());
         for(var entry:changed.entrySet()) {
             BlockState before=world.getBlockState(BlockPos.of(entry.getKey()));
@@ -558,6 +559,7 @@ public final class BuildEngine {
             if(!old.equals(entry.getValue())) changed++;
         }
         if(changed>MAX_CHANGES) return new Result(false,"Limite de seguridad excedido",0);
+        if(changed==0) return new Result(false,"SIMULACION: no hay bloques que modificar. No se debe iniciar una obra vacia.",0);
         return new Result(true,"SIMULACION SIN CAMBIOS: "+p.kind()+" modificaria "+changed+" bloques. Area: " +
             (p.halfX()*2+1)+"x"+(p.halfZ()*2+1)+". Recuerda proteger bases y misiones.",changed);
     }

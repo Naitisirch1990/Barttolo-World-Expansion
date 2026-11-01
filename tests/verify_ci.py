@@ -12,11 +12,12 @@ assert 'python3 tests/test_undo_entity_guard.py' in yaml
 assert 'pull_request:' in yaml
 assert 'branches: [main]' in yaml
 assert 'python3 tests/test_template_command_id.py' in yaml
+assert 'python3 tests/test_command_safety.py' in yaml
 assert 'python3 tests/verify_no_third_party_assets.py' in yaml
 assert 'if-no-files-found: error' in yaml
 assert 'path: build/libs/*.jar' in yaml
 assert 'Validar version, integridad y bytecode del JAR' in yaml
-assert 'version="0.6.9"' in yaml
+assert 'version="0.6.10"' in yaml
 assert 'major version: 61' in yaml
 assert 'gradle --no-daemon --stacktrace build' in yaml
 assert 'if [[ ! -f build.gradle' in yaml, 'CI debe fallar si faltan los fuentes'

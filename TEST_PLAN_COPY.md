@@ -1,6 +1,6 @@
-# Plan de ensayo seguro — Barttolo World Expansion v0.6.9
+# Plan de ensayo seguro — Barttolo World Expansion v0.6.10
 
-Estado: **NO ejecutado**. No se ha proporcionado una copia del mundo. GitHub Actions compiló v0.6.8; v0.6.9 requiere verificación CI independiente.
+Estado: **pruebas de construccion/restauracion NO ejecutadas**. Hay captura del 01/11/2026 con `/bwe listar` funcionando en un mundo descartable usando v0.6.9; no se ha proporcionado copia del mundo para ensayos automatizados. v0.6.10 requiere compilacion CI independiente.
 
 ## Preparacion (fuera del servidor activo)
 
@@ -62,3 +62,11 @@ copia original. Esta prueba no se ha ejecutado en Minecraft.
 - Ejecutar `/bwe deshacer` con el area vacia y comprobar restauracion y limpieza de aldeanos rastreados.
 - Tras una obra terminada, comprobar `Undo.Completed=true` y que `/bwe finalizar SI` se habilita solo con estados de bloques intactos.
 - Respaldos antiguos sin `Completed` se consideran incompletos: no forzar finalizacion ni editar NBT manualmente.
+
+## Caso adicional v0.6.10: cancelar no detiene obras y respaldo vacio
+
+1. En mundo descartable, crear un plan sin confirmar y ejecutar `/bwe cancelar`: debe eliminar solo ese plan.
+2. Iniciar una obra de varios lotes y ejecutar `/bwe cancelar`: debe rechazar la orden, sin afirmar que detuvo el motor. Consultar `/bwe estado` y comprobar que sigue activa o conserva respaldo.
+3. Despues de una obra terminada y antes de finalizar/deshacer, ejecutar `/bwe cancelar`: debe rechazarla y conservar el respaldo.
+4. `/bwe estado` debe indicar `COMPLETO` o `INCOMPLETO` segun la marca persistida.
+5. Verificar que una simulacion sin cambios no permita crear un respaldo vacio. Estos escenarios todavia no se han ejecutado en Minecraft.

@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.9. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.10. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -111,7 +111,8 @@ public final class BarttoloWorldExpansion {
         say(s, BuildEngine.status());
         var snapshot=WorldData.get(s.getLevel()).undo();
         if(snapshot!=null) say(s,"Respaldo pendiente: "+snapshot.name()+" / "+snapshot.blocks().size()+
-            " bloques. /bwe deshacer o /bwe finalizar SI solo si esta completa.");
+            " bloques. "+(snapshot.completed() ? "COMPLETO: revisar antes de /bwe finalizar SI." :
+            "INCOMPLETO: /bwe finalizar SI bloqueado; conserva respaldo y usa /bwe deshacer."));
         return 1;
     }
     private static int completedSites(CommandSourceStack s) {
@@ -220,8 +221,16 @@ public final class BarttoloWorldExpansion {
         if(!result.ok()) return fail(s,result.message());
         PLANS.remove(player(s));say(s,result.message()+" | bloques="+result.count());return 1;
     }
+    /** Cancels only a plan that has NOT started. Never imply that a running build stopped. */
     private static int cancel(CommandSourceStack s) throws CommandSyntaxException {
-        PLANS.remove(player(s));say(s,"Plan cancelado. Terreno intacto.");return 1;
+        if(BuildEngine.busy())
+            return fail(s,"Hay una construccion o restauracion en curso. /bwe cancelar NO la detiene; espera y usa /bwe deshacer si corresponde.");
+        if(WorldData.get(s.getLevel()).undo()!=null)
+            return fail(s,"Existe un respaldo de obra. /bwe cancelar NO lo elimina; usa /bwe deshacer o revisa /bwe estado.");
+        if(PLANS.remove(player(s))==null)
+            return fail(s,"No tienes un plan sin ejecutar que cancelar.");
+        say(s,"Plan sin ejecutar cancelado. Esta orden no modifico el terreno.");
+        return 1;
     }
     private static int undo(CommandSourceStack s) {
         BuildEngine.Result r=BuildEngine.undo(s.getLevel());

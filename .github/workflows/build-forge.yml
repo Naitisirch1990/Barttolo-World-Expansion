@@ -44,6 +44,7 @@ jobs:
           python3 tests/test_server_lifecycle.py
           python3 tests/test_undo_entity_guard.py
           python3 tests/test_template_command_id.py
+          python3 tests/test_command_safety.py
           python3 tests/verify_no_third_party_assets.py
       - name: Compilar mod
         run: gradle --no-daemon --stacktrace build
@@ -54,12 +55,12 @@ jobs:
           jarfile=$(find build/libs -maxdepth 1 -type f -name 'BarttoloWorldExpansion-*.jar' | head -n 1)
           test -n "$jarfile"
           unzip -t "$jarfile" > /dev/null
-          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.6.9"'
+          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.6.10"'
           jar tf "$jarfile" | grep -F 'net/barttolo/bwe/BarttoloWorldExpansion.class'
           javap -verbose -classpath "$jarfile" net.barttolo.bwe.BarttoloWorldExpansion | grep -F 'major version: 61'
       - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.9
+          name: BarttoloWorldExpansion-Forge-1.20.1-v0.6.10
           path: build/libs/*.jar
           if-no-files-found: error
