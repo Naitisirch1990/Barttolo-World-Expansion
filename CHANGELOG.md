@@ -1,4 +1,11 @@
-# v0.6.17 — 2026-11-01
+## 0.6.18 — 2026-11-01 (experimental)
+
+- `/bwe margen [5..10]`: margen de comprobacion horizontal por operador, temporal hasta reinicio, predeterminado 7.
+- `/bwe superficie` muestrea solo la cimentacion de la pieza NBT. El margen se comprueba para chunks, limites y protecciones pero no afecta la mediana ni las estimaciones de corte/relleno.
+- Geometria `TemplateFootprint.expanded` con pruebas de margenes, coordenadas negativas y overflow; nuevas auditorias estaticas.
+- **Solo lectura.** No se ha implementado terraformacion, limpieza, pegado de plantillas ni respaldo/restauracion NBT. CI y pruebas en Minecraft deben verificarse por separado. No modificar servidor activo.
+
+# v0.6.18 — 2026-11-01
 - Medicion incremental de superficie para plantillas CTOV/Explorify con margen 7 y altura base mediana; sin escrituras ni carga de chunks.
 - Comandos `/bwe superficie <id>`, `/bwe superficieestado`, `/bwe cancelarsuperficie`.
 - Histograma puro Java 17 y pruebas de corte/relleno; auditoria estatica de lectura.
