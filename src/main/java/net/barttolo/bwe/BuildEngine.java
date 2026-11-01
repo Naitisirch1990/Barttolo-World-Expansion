@@ -23,6 +23,7 @@ import java.util.*;
 /** Original tiny settlement builder + optional placement of a single external NBT piece.
  *  No external mod assets are bundled in this project. */
 public final class BuildEngine {
+    private static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger();
     public static final Set<String> KINDS = Set.of("aldea", "campamento", "ruina", "torre", "refugio", "altar", "pozo", "carreta");
     private static final int MAX_CHANGES = 55_000;
     private static final int BLOCKS_PER_TICK = 200;
@@ -102,10 +103,27 @@ public final class BuildEngine {
                 // Avoid premature physics updates for multi-block beds and planted crops.
                 // Revalidate every block before changing it. If someone builds while
                 // the job runs, stop instead of overwriting their work.
-                if(!WorldData.encode(job.world.getBlockState(at)).equals(job.expectedBefore.get(entry.getKey())))
-                    throw new IllegalStateException("Bloque cambiado desde el plan en " + at);
+                var actual = WorldData.encode(job.world.getBlockState(at));
+                var desired = WorldData.encode(entry.getValue());
+                // A prior BWE block may have triggered a vanilla neighbour update.
+                // If the target is already exactly as planned, do not call setBlock
+                // (which can return false for an unchanged state). Never overwrite
+                // an unexpected third state; it may be a player's edit.
+                if(actual.equals(desired)) {
+                    job.placed++;
+                    continue;
+                }
+                if(!actual.equals(job.expectedBefore.get(entry.getKey())))
+                    throw new IllegalStateException("Bloque distinto del original y del destino en " + at
+                        + " | original=" + job.expectedBefore.get(entry.getKey())
+                        + " | actual=" + actual + " | destino=" + desired);
                 if(!job.world.setBlock(at, entry.getValue(), 2))
-                    throw new IllegalStateException("No se pudo colocar el bloque en " + at);
+                    throw new IllegalStateException("No se pudo colocar el bloque en " + at
+                        + " | original=" + actual + " | destino=" + desired);
+                // A placement affected by physics is not silently counted as correct.
+                if(!WorldData.encode(job.world.getBlockState(at)).equals(desired))
+                    throw new IllegalStateException("Estado distinto tras colocar en " + at
+                        + " | destino=" + desired + " | actual=" + WorldData.encode(job.world.getBlockState(at)));
                 job.placed++;
             }
             if(job.remaining.hasNext()) return;
@@ -140,9 +158,13 @@ public final class BuildEngine {
                  + " (" + job.total + " bloques). /bwe deshacer o /bwe finalizar SI"));
             running = null;
         } catch(Exception error) {
-            System.err.println("[BWE] Fallo durante construccion, snapshot conservado: " + error);
+            LOGGER.error("[BWE] Fallo durante construccion de {} tras {}/{} bloques; respaldo conservado",
+                job.plan.kind(), job.placed, job.total, error);
             var operator = job.world.getServer().getPlayerList().getPlayer(job.operator);
-            if(operator != null) operator.sendSystemMessage(Component.literal("[BWE] ERROR: obra detenida. No uses /bwe finalizar. Restaura copia del mundo si es necesario."));
+            if(operator != null) operator.sendSystemMessage(Component.literal("[BWE] ERROR tras "
+                + job.placed + "/" + job.total + " bloques: " + error.getClass().getSimpleName()
+                + ": " + String.valueOf(error.getMessage())
+                + ". Respaldo conservado. NO finalizar."));
             running = null;
         }
     }
@@ -184,7 +206,7 @@ public final class BuildEngine {
             System.out.println("[BWE] Restauracion completa de " + job.name + " (" + job.blocks.size() + " registros)");
             undoRunning = null;
         } catch(Exception e) {
-            System.err.println("[BWE] Restauracion incompleta; backup conservado. " + e);
+            LOGGER.error("[BWE] Restauracion incompleta; backup conservado", e);
             undoRunning = null;
         }
     }
@@ -479,6 +501,34 @@ public final class BuildEngine {
         world.getServer().overworld().getDataStorage().save();
         running = new Job(world,p,operator,changed,undoBlocks,reservedEntities);
         return new Result(true,"Obra iniciada por etapas. /bwe estado para ver el avance.",changed.size());
+    }
+
+    /** Read-only diagnosis for a pending undo. Does not load chunks or mutate blocks. */
+    public static Result diagnose(ServerLevel world) {
+        WorldData.Undo snapshot = WorldData.get(world).undo();
+        if(snapshot == null) return new Result(false,"No hay respaldo pendiente.",0);
+        if(!snapshot.dimension().equals(world.dimension().location().toString()))
+            return new Result(false,"El respaldo pertenece a " + snapshot.dimension()
+                + "; entra en esa dimension para diagnosticar.",0);
+        int original=0, target=0, conflict=0, unloaded=0;
+        String first="";
+        for(WorldData.StoredBlock b : snapshot.blocks()) {
+            BlockPos at=BlockPos.of(b.pos());
+            if(!world.hasChunk(at.getX() >> 4,at.getZ() >> 4)) { unloaded++; continue; }
+            var current=WorldData.encode(world.getBlockState(at));
+            if(current.equals(b.before())) original++;
+            else if(!b.after().isEmpty() && current.equals(b.after())) target++;
+            else {
+                conflict++;
+                if(first.isEmpty()) first=" | primer conflicto " + at
+                    + " | original=" + b.before() + " | destino=" + b.after() + " | actual=" + current;
+            }
+        }
+        return new Result(true,"Diagnostico SOLO LECTURA: " + snapshot.name()
+            + " | " + (snapshot.completed()?"COMPLETO":"INCOMPLETO")
+            + " | original=" + original + " | destino=" + target
+            + " | discrepancias=" + conflict + " | chunks sin cargar=" + unloaded
+            + first, snapshot.blocks().size());
     }
 
     public static Result undo(ServerLevel world) {

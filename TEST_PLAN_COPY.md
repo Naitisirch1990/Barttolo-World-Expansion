@@ -70,3 +70,8 @@ copia original. Esta prueba no se ha ejecutado en Minecraft.
 3. Despues de una obra terminada y antes de finalizar/deshacer, ejecutar `/bwe cancelar`: debe rechazarla y conservar el respaldo.
 4. `/bwe estado` debe indicar `COMPLETO` o `INCOMPLETO` segun la marca persistida.
 5. Verificar que una simulacion sin cambios no permita crear un respaldo vacio. Estos escenarios todavia no se han ejecutado en Minecraft.
+
+
+## Regresion de campamento tras fallo (v0.6.11)
+
+Conservar una copia de `Mundo nuevo` antes de abrirlo con otra version. En esa copia, ejecutar `/bwe diagnosticar` y registrar conteos y primer conflicto; no usar `/bwe finalizar SI` ni borrar el respaldo. En un **segundo mundo nuevo descartable** sin respaldo, despejar la huella, `/bwe planear campamento`, `/bwe simular`, `/bwe confirmar SI`, `/bwe estado`, `/bwe diagnosticar` y, si termina, `/bwe deshacer`. Revisar `latest.log` para mensajes `[BWE]` y excepciones completas. No interpretar un CI verde como prueba en Minecraft. El servidor activo permanece fuera del alcance.

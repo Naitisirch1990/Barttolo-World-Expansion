@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.10. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.11. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -57,6 +57,7 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("ayuda").executes(ctx -> help(ctx.getSource())))
             .then(Commands.literal("listar").executes(ctx -> listing(ctx.getSource())))
             .then(Commands.literal("estado").executes(ctx -> status(ctx.getSource())))
+            .then(Commands.literal("diagnosticar").executes(ctx -> diagnose(ctx.getSource())))
             .then(Commands.literal("asentamientos").executes(ctx -> completedSites(ctx.getSource())))
             .then(Commands.literal("olvidar").then(Commands.argument("numero",IntegerArgumentType.integer(1))
                 .then(Commands.literal("SI").executes(ctx -> forgetSite(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"numero"))))))
@@ -104,8 +105,13 @@ public final class BarttoloWorldExpansion {
 
     private static int help(CommandSourceStack s) {
         say(s,"analizar [radio] | planear <aldea|campamento|ruina|torre|refugio|altar|pozo|carreta> | buscar <tipo> <radio> | plantilla <id>");
-        say(s,"previsualizar | simular | confirmar SI | estado | cancelar | deshacer | finalizar SI | asentamientos | olvidar <numero> SI | proteger <radio> | protegidas | desproteger <numero> | protegerarea <x1> <z1> <x2> <z2> | areas | liberararea <numero> SI");
+        say(s,"previsualizar | simular | confirmar SI | estado | diagnosticar | cancelar | deshacer | finalizar SI | asentamientos | olvidar <numero> SI | proteger <radio> | protegidas | desproteger <numero> | protegerarea <x1> <z1> <x2> <z2> | areas | liberararea <numero> SI");
         return 1;
+    }
+    private static int diagnose(CommandSourceStack s) {
+        BuildEngine.Result r=BuildEngine.diagnose(s.getLevel());
+        if(!r.ok()) return fail(s,r.message());
+        say(s,r.message());return 1;
     }
     private static int status(CommandSourceStack s) {
         say(s, BuildEngine.status());

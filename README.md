@@ -1,4 +1,4 @@
-# Barttolo World Expansion v0.6.10 — PRUEBAS EXPERIMENTALES
+# Barttolo World Expansion v0.6.11 — PRUEBAS EXPERIMENTALES
 
 **Minecraft 1.20.1 · Forge 47.4.10 · Java 17 · servidor RingWorld**
 
@@ -148,3 +148,10 @@ El workflow se prepara para ejecutarse tambien en PRs hacia `main` (sin ejecucio
 La copia de seguridad NBT incluye ahora `Undo.Completed`. Se guarda como `false` antes de cambiar bloques y solo pasa a `true` cuando todos los bloques y los aldeanos previstos se han colocado correctamente. `/bwe finalizar SI` rechaza respaldos incompletos y no descarta su capacidad de deshacer. Si falla la creacion de un aldeano, el proceso se detiene conservando el respaldo. Un respaldo anterior sin esta marca se considera incompleto por seguridad; primero se debe comprobar o deshacer en una copia aislada.
 
 **Pruebas:** las comprobaciones estáticas y de geometría no sustituyen una ejecución en Minecraft. El arranque Forge, la integración con RingWorld, los reinicios a mitad de construcción y la restauración de entidades continúan pendientes de ensayo en una copia.
+
+
+## Incidente reproducido 01/11/2026 (mundo descartable)
+
+`latest(3).log` confirma que `/bwe confirmar SI` inició un campamento de 562 bloques a las 15:12:45.819 y reportó error a las 15:12:45.842 (23 ms después). No contiene la excepción interna. El rollback rechazó una discrepancia en x=150,y=66,z=-129 y posteriormente x=151,y=68,z=-133; el backup quedó protegido. El usuario no vio construcción visible. No está probado si la causa fue una actualización vecinal, entidad, error de `setBlock` u otra condición.
+
+**v0.6.11 (experimental):** si un bloque ya coincide exactamente con el destino previsto, la construcción lo cuenta sin invocar `setBlock` nuevamente. Si no coincide ni con el original ni con el destino, detiene la obra sin sobrescribirlo. Los errores ahora registran excepción y traza con logger de Minecraft y muestran al operador causa/progreso. `/bwe diagnosticar` es SOLO LECTURA y cuenta originales, destinos, discrepancias y chunks descargados del respaldo pendiente. No desbloquea ni fuerza restauración. Se requieren pruebas en mundo descartable antes de declarar corregido el fallo.
