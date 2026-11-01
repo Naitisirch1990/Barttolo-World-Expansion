@@ -1,0 +1,27 @@
+"""Static regression audit for the read-only dynamic CTOV/Explorify catalog.
+
+This checks source wiring only. It is NOT a Forge runtime or modpack integration test.
+"""
+from pathlib import Path
+
+src = Path("src/main/java/net/barttolo/bwe/BarttoloWorldExpansion.java").read_text()
+engine = Path("src/main/java/net/barttolo/bwe/BuildEngine.java").read_text()
+
+assert 'Commands.literal("listar").executes(ctx -> listing(ctx.getSource(),1))' in src
+assert 'Commands.argument("pagina",IntegerArgumentType.integer(1))' in src
+assert 'Commands.literal("inspeccionar")' in src
+assert 'getStructureManager().listTemplates()' in src
+assert 'key.getNamespace().equals("ctov")' in src
+assert 'key.getNamespace().equals("explorify")' in src
+assert '.distinct().sorted(Comparator.comparing(ResourceLocation::toString)).toList()' in src
+assert 'CATALOG_PAGE_SIZE = 8' in src
+assert 'Math.min(ids.size(),begin+CATALOG_PAGE_SIZE)' in src
+assert 'size.getX()+" x "+size.getZ()+" bloques"' in src
+assert '"/bwe inspeccionar "+id' in src
+assert '"/bwe listar "+(page+1)' in src
+assert '"/bwe listar "+(page-1)' in src
+assert 'NO construye' in src
+assert 'Plantillas CTOV/Explorify solo en catalogo' in engine
+assert 'new StructurePlaceSettings' not in engine
+assert not any(p.suffix == ".nbt" for p in Path("src").rglob("*"))
+print("OK: catalogo dinamico paginado e inspeccion XZ; colocacion externa deshabilitada (solo auditoria estatica)")
