@@ -10,40 +10,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Comprobar disponibilidad de fuentes
-        id: sources
+      - name: Exigir fuentes completos
         shell: bash
         run: |
-          if [[ -f build.gradle && -f settings.gradle && -d src/main/java ]]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::El repositorio esta inicializado; faltan los fuentes del mod."
+          if [[ ! -f build.gradle || ! -f settings.gradle || ! -f src/main/java/net/barttolo/bwe/BarttoloWorldExpansion.java ]]; then
+            echo "::error::Faltan fuentes BWE. Sube el contenido descomprimido del ZIP antes de compilar."
+            exit 1
           fi
       - name: Preparar Java 17
-        if: steps.sources.outputs.ready == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
       - name: Preparar Gradle 8.8
-        if: steps.sources.outputs.ready == 'true'
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.8'
       - name: Verificaciones estaticas y geometria
-        if: steps.sources.outputs.ready == 'true'
         shell: bash
         run: |
           python3 tests/verify_source.py
           python3 tests/verify_toml.py
           python3 tests/test_chunk_guard.py
+          python3 tests/verify_simulation_parity.py
+          python3 tests/verify_ci.py
           bash tests/run_geometry_tests.sh
       - name: Compilar y reobfuscar Forge 1.20.1
-        if: steps.sources.outputs.ready == 'true'
         run: gradle --no-daemon --stacktrace build
       - name: Adjuntar JAR experimental
-        if: steps.sources.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: BarttoloWorldExpansion-Forge-1.20.1-EXPERIMENTAL
