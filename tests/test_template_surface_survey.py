@@ -29,7 +29,10 @@ for forbidden in ('setBlock(', 'placeInWorld(', 'getChunk(', 'getBlockEntity(', 
 assert 'NO se terraformo ni coloco NBT' in survey
 print('OK: medicion solo de base con margen configurable, sin escrituras ni cargas de chunks (auditoria estatica)')
 
-assert 'TerrainColumnProbe.findGround' in survey
+assert 'TerrainColumnProbe.findGroundLayered' in survey
+assert 'classifyNaturalGround' in survey
+assert 'TerrainColumnProbe.ROCK' in survey
+assert 'TerrainColumnProbe.SOIL' in survey
 assert 's.unresolved>s.total/10L' in survey
 assert 'isLikelyNaturalGround' in survey
 assert 'SIN BASE SUGERIDA' in survey
