@@ -158,7 +158,7 @@ public final class BuildEngine {
                  + " (" + job.total + " bloques). /bwe deshacer o /bwe finalizar SI"));
             running = null;
         } catch(Exception error) {
-            LOGGER.error("[BWE] Fallo durante construccion de {} tras {}/{} bloques; respaldo conservado",
+            LOGGER.error("[BWE] Fallo durante construccion de {} tras {}/{} bloques; snapshot conservado",
                 job.plan.kind(), job.placed, job.total, error);
             var operator = job.world.getServer().getPlayerList().getPlayer(job.operator);
             if(operator != null) operator.sendSystemMessage(Component.literal("[BWE] ERROR tras "
