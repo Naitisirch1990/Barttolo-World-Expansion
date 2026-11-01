@@ -35,4 +35,4 @@ assert 'palette.roofSlab' in e and 'ACACIA_PLANKS' in e and 'MANGROVE_LOG' in e
 assert 'Blocks.FURNACE' not in e and 'Blocks.BARREL' not in e, 'No dejar inventarios originales sin copia de NBT'
 for name,code in s.items():
     assert code.count('{')==code.count('}'),name
-print('OK: verificaciones estáticas v0.6.17 (NO compilación Forge).')
+print('OK: verificaciones estáticas v0.6.18 (NO compilación Forge).')
