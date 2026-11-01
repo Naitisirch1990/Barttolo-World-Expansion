@@ -1,3 +1,14 @@
+## Prueba pendiente — sondeo bajo tejados (desarrollo posterior a 0.6.18)
+
+**No ejecutada en Minecraft. Solo sobre copia aislada.**
+
+1. En una aldea vanilla existente, identificar una pieza de plantilla CTOV/Explorify en el catalogo. Usar el mismo anclaje y margen 7 en todas las mediciones.
+2. Medir una zona con tejados de madera sobre suelo de tierra: comprobar si el resumen informa `obstaculos sobre base` y recomienda una altura cercana al suelo, no al tejado.
+3. Repetir sobre edificio de piedra o arenisca: esos materiales pueden confundirse con terreno. **No usar la altura sugerida como permiso para terraformar**.
+4. Repetir sobre superficie modded/no reconocida y sobre una columna con mas de 48 bloques de obstaculos. Si mas del 10% queda sin clasificar, debe mostrar `SIN BASE SUGERIDA`.
+5. Comparar las regiones antes y despues: este comando debe seguir siendo exclusivamente de lectura.
+6. Medir MSPT en un area cargada con muchas estructuras: el sondeo procesa 256 columnas por tick, con un maximo de 48 lecturas de bloque por columna.
+
 ## Prueba adicional v0.6.18 — cimentacion frente a margen (PENDIENTE EN JUEGO)
 
 Usar **solo una copia aislada** del mundo con Forge 1.20.1 y los mods originales CTOV/Explorify instalados por su propietario. No instalar en el servidor activo.
