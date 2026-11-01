@@ -7,6 +7,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.slf4j.Logger;
 import java.util.UUID;
 import java.util.Map;
@@ -16,7 +18,7 @@ import java.util.HashMap;
  *  A median is a suggestion, not authorization to terraform or place NBT. */
 public final class TemplateSurfaceSurvey {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int COLUMNS_PER_TICK = 1024;
+    private static final int COLUMNS_PER_TICK = 256; // up to 48 terrain checks per column
     private static final long MAX_COLUMNS = 1_000_000L;
     private static final long MAX_CHUNKS = 1024L;
     private static final int DEFAULT_MARGIN = 7;
@@ -35,6 +37,8 @@ public final class TemplateSurfaceSurvey {
         final SurfaceProfile profile;
         final long total;
         long processed;
+        long unresolved;
+        long coveredObstacles;
         Survey(ServerLevel world, UUID operator, ResourceLocation id,
                TemplateFootprint.Bounds foundation, TemplateFootprint.Bounds clearance, int margin) {
             this.world=world; this.operator=operator; this.id=id;
@@ -139,26 +143,60 @@ public final class TemplateSurfaceSurvey {
                     stop(s,"Medicion interrumpida: chunk descargado; no se genero terreno.");
                     return;
                 }
-                int surface=s.world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);
-                s.profile.add(surface);
+                int topY=s.world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);
+                TerrainColumnProbe.Result candidate=TerrainColumnProbe.findGround(
+                    topY,s.world.getMinBuildHeight(),
+                    y -> isLikelyNaturalGround(s.world.getBlockState(new BlockPos(x,y,z))));
+                if(candidate.found()) {
+                    s.profile.add(candidate.groundY());
+                    if(candidate.ignoredAbove()>0) s.coveredObstacles++;
+                } else s.unresolved++;
                 s.processed++;
             }
             if(s.processed==s.total) {
+                String coverage=" | suelo reconocido="+s.profile.count()+"/"+s.total
+                    +" | obstaculos sobre base="+s.coveredObstacles
+                    +" | sin clasificar="+s.unresolved;
+                if(s.profile.count()==0 || s.unresolved>s.total/10L) {
+                    stop(s,"SUPERFICIE "+s.id+coverage
+                        +" | SIN BASE SUGERIDA: terreno no identificable con seguridad"
+                        +" (profundidad maxima "+TerrainColumnProbe.MAX_DEPTH+")."
+                        +" No se modificaron bloques.");
+                    return;
+                }
                 int median=s.profile.median();
                 stop(s,"SUPERFICIE "+s.id+" | base="+s.total+" columnas"
                     +" | margen de despeje="+s.margin+" (area "+s.clearance.area()+")"
-                    +" | Y="+s.profile.low()+".."+s.profile.high()
+                    +coverage+" | Y="+s.profile.low()+".."+s.profile.high()
                     +" | base sugerida Y="+median
                     +" | corte aprox="+s.profile.cut(median)
                     +" | relleno aprox="+s.profile.fill(median)
-                    +". SOLO LECTURA. La altura del mapa no identifica cuevas, cimientos,"
-                    +" casas ni liquidos. NO se terraformo ni coloco NBT.");
+                    +(s.unresolved>0?" (solo columnas reconocidas)":"")
+                    +". SOLO LECTURA. Heuristica: piedra natural de edificios puede"
+                    +" confundirse con terreno. No detecta cuevas ni garantiza cimientos."
+                    +" NO se terraformo ni coloco NBT.");
             }
         } catch(Exception error) {
             LOGGER.error("[BWE] Error midiendo superficie {}",s.id,error);
             stop(s,"Medicion abortada por "+error.getClass().getSimpleName()
                 +"; no se modificaron bloques.");
         }
+    }
+    /** Conservative vanilla-ground heuristic; unknown modded blocks remain unknown.
+     *  This is not an assertion that a block was generated naturally. */
+    private static boolean isLikelyNaturalGround(BlockState state) {
+        return state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.DIRT)
+            || state.is(Blocks.COARSE_DIRT) || state.is(Blocks.PODZOL)
+            || state.is(Blocks.ROOTED_DIRT) || state.is(Blocks.MYCELIUM)
+            || state.is(Blocks.MOSS_BLOCK) || state.is(Blocks.MUD)
+            || state.is(Blocks.PACKED_MUD) || state.is(Blocks.SAND)
+            || state.is(Blocks.RED_SAND) || state.is(Blocks.GRAVEL)
+            || state.is(Blocks.CLAY) || state.is(Blocks.STONE)
+            || state.is(Blocks.DEEPSLATE) || state.is(Blocks.GRANITE)
+            || state.is(Blocks.ANDESITE) || state.is(Blocks.DIORITE)
+            || state.is(Blocks.TUFF) || state.is(Blocks.CALCITE)
+            || state.is(Blocks.TERRACOTTA) || state.is(Blocks.SANDSTONE)
+            || state.is(Blocks.RED_SANDSTONE) || state.is(Blocks.SNOW_BLOCK);
     }
     private static void stop(Survey s,String message) {
         if(active==s) active=null;
