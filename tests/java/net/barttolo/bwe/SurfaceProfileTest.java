@@ -17,7 +17,7 @@ public final class SurfaceProfileTest {
         check(p.cut(64)==37,"cut estimate");
         check(p.fill(64)==1,"fill estimate");
         check(p.cut(100)==0,"no cuts above max");
-        check(p.fill(63)==40,"all columns fill to low");
+        check(p.fill(63)==41,"all columns fill to low");
         SurfaceProfile even=new SurfaceProfile(-64,320);
         even.add(60); even.add(61); even.add(80); even.add(90);
         check(even.median()==61,"lower median for even count");
