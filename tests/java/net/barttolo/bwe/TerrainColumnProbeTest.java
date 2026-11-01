@@ -24,7 +24,7 @@ public final class TerrainColumnProbeTest {
         check(!unknown.found() && unknown.ignoredAbove() == 48, "unrecognized column");
         AtomicInteger reads = new AtomicInteger();
         TerrainColumnProbe.findGround(120, -64, y -> { reads.incrementAndGet(); return false; });
-        check(reads.get() == TerrainColumnProbe.MAX_DEPTH + 1, "maximum 49 block reads");
+        check(reads.get() == TerrainColumnProbe.MAX_DEPTH, "maximum 48 block reads");
         var deep = TerrainColumnProbe.findGround(120, -64, y -> y <= 64);
         check(!deep.found(), "bounded depth");
         var negative = TerrainColumnProbe.findGround(-58, -64, y -> y <= -59);
