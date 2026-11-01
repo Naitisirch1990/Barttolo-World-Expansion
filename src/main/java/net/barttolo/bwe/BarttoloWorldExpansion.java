@@ -9,6 +9,8 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
@@ -24,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.13. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.6.14. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -34,15 +36,6 @@ public final class BarttoloWorldExpansion {
     private static final List<String> ORDERED_KINDS = List.of(
         "campamento", "refugio", "pozo", "carreta", "torre", "ruina", "altar", "aldea");
     private static final int CATALOG_PAGE_SIZE = 8;
-    private static final List<String> OPTIONAL_TEMPLATES = List.of(
-        "explorify:campsite/main/01", "explorify:campsite/main/02", "explorify:campsite/main/03",
-        "explorify:campsite/tent/01", "explorify:guide_post/warm/whole", "explorify:guide_post/cold/whole", "explorify:ruins/house/ruins_01",
-        "explorify:ruins/house/ruins_02", "explorify:ruins/monument/01",
-        "explorify:farmstead/main/01", "explorify:ruins/square/01",
-        "ctov:village/plains/house/small_1", "ctov:village/plains/house/small_2",
-        "ctov:village/plains/jobsite/bakery", "ctov:village/plains/decos/well"
-    );
-
     public BarttoloWorldExpansion() { MinecraftForge.EVENT_BUS.register(this); }
 
     @SubscribeEvent
@@ -172,21 +165,10 @@ public final class BarttoloWorldExpansion {
         }
     }
     private static int listing(CommandSourceStack s,int page) {
-        if(page==1) {
-            say(s,"Estructuras BWE construibles (clic para seleccionar; antes /bwe escanear):");
-            for(String type : ORDERED_KINDS) {
-                Component option = Component.literal("  [" + type.toUpperCase(Locale.ROOT) + "]")
-                    .withStyle(style -> style.withColor(ChatFormatting.AQUA)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe seleccionar " + type))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Component.literal("Seleccionar " + type))));
-                s.sendSuccess(() -> option,false);
-            }
-        }
         List<ResourceLocation> ids=externalTemplates(s.getLevel());
         int pages=Math.max(1,(ids.size()+CATALOG_PAGE_SIZE-1)/CATALOG_PAGE_SIZE);
         if(page>pages) return fail(s,"Pagina inexistente. Ultima pagina: "+pages);
-        say(s,"CTOV/Explorify: "+ids.size()+" plantillas detectadas | pagina "+page+"/"+pages
+        say(s,"Catalogo CTOV/Explorify: "+ids.size()+" plantillas detectadas | pagina "+page+"/"+pages
             +" | INSPECCION SOLAMENTE: construccion externa aun bloqueada.");
         int begin=(page-1)*CATALOG_PAGE_SIZE;
         for(int i=begin;i<Math.min(ids.size(),begin+CATALOG_PAGE_SIZE);i++) {
@@ -204,6 +186,17 @@ public final class BarttoloWorldExpansion {
                         Component.literal("Ver dimensiones; NO construye"))));
             s.sendSuccess(() -> option,false);
         }
+        if(page==1) {
+            say(s,"Estructuras BWE construibles (clic para seleccionar; antes /bwe escanear):");
+            for(String type : ORDERED_KINDS) {
+                Component option = Component.literal("  [" + type.toUpperCase(Locale.ROOT) + "]")
+                    .withStyle(style -> style.withColor(ChatFormatting.AQUA)
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe seleccionar " + type))
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            Component.literal("Seleccionar " + type))));
+                s.sendSuccess(() -> option,false);
+            }
+        }
         if(page>1) {
             Component prev=Component.literal("  [Pagina anterior]")
                 .withStyle(style -> style.withColor(ChatFormatting.GREEN)
@@ -220,6 +213,7 @@ public final class BarttoloWorldExpansion {
         return 1;
     }
     private static int templates(CommandSourceStack s) { return listing(s,1); }
+    /** Read-only preflight of ONE NBT piece; jigsaw connectors do not describe a whole village. */
     private static int inspectTemplate(CommandSourceStack s,String id) {
         ResourceLocation key=ResourceLocation.tryParse(id);
         if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
@@ -228,10 +222,30 @@ public final class BarttoloWorldExpansion {
             return fail(s,"La plantilla no aparece en los recursos cargados: "+id);
         Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
         if(found.isEmpty()) return fail(s,"La plantilla existe en el catalogo pero no se pudo leer: "+id);
-        Vec3i size=found.get().getSize();
+        StructureTemplate template=found.get();
+        Vec3i size=template.getSize();
+        if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
+            return fail(s,"Plantilla sin dimensiones validas: "+id);
+        long area=(long)size.getX()*size.getZ();
         say(s,"Plantilla "+id+" | huella X x Z: "+size.getX()+" x "+size.getZ()
-            +" bloques | altura: "+size.getY()+" (solo informativa).");
-        say(s,"Solo inspeccion: no hay colocacion externa ni terraformacion todavia. /bwe crear NO construye esta plantilla.");
+            +" bloques ("+area+" bloques cuadrados) | altura: "+size.getY()+" (informativa).");
+        // Targeted inspection of one loaded NBT; no world blocks are read or written.
+        try {
+            StructurePlaceSettings settings=new StructurePlaceSettings();
+            int jigsaws=template.filterBlocks(BlockPos.ZERO,settings,Blocks.JIGSAW,true).size();
+            int structureMarkers=template.filterBlocks(BlockPos.ZERO,settings,Blocks.STRUCTURE_BLOCK,true).size();
+            int vanillaContainers=template.filterBlocks(BlockPos.ZERO,settings,Blocks.CHEST,true).size()
+                +template.filterBlocks(BlockPos.ZERO,settings,Blocks.BARREL,true).size();
+            say(s,"Indicadores: conectores jigsaw="+jigsaws+" | bloques structure="+structureMarkers
+                +" | cofres/barriles vanilla="+vanillaContainers+".");
+            if(jigsaws>0) say(s,"PIEZA JIGSAW: dimensiones de esta pieza NBT, NO de la aldea completa.");
+            if(structureMarkers>0 || vanillaContainers>0)
+                say(s,"Bloques especiales: requiere respaldo NBT/entidades antes de permitir colocacion.");
+        } catch(RuntimeException error) {
+            return fail(s,"No se pudo inspeccionar la paleta: "+error.getClass().getSimpleName());
+        }
+        if(area>22500L) say(s,"Huella superior a 150 x 150: catalogada sin limite artificial, no autorizada para colocar.");
+        say(s,"SOLO LECTURA: no coloca, no terraforma y /bwe crear NO construye plantillas externas.");
         return 1;
     }
     private static int scan(CommandSourceStack s,int r) throws CommandSyntaxException {
@@ -311,26 +325,9 @@ public final class BarttoloWorldExpansion {
         }
         return fail(s,"No se encontro zona apta entre chunks cargados.");
     }
-    private static int planTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
-        if(!OPTIONAL_TEMPLATES.contains(id)) return fail(s,"Plantilla no permitida en esta version; consulta /bwe listar");
-        if(WorldData.get(s.getLevel()).undo()!=null) return fail(s,"Hay una obra sin finalizar");
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null) return fail(s,"ID invalido");
-        Optional<StructureTemplate> optional=s.getLevel().getStructureManager().get(key);
-        if(optional.isEmpty()) return fail(s,"No existe esta plantilla. Instala el mod original en servidor: "+id);
-        Vec3i size=optional.get().getSize();
-        if(size.getX()<1||size.getY()<1||size.getZ()<1||size.getX()>32||size.getY()>32||size.getZ()>32)
-            return fail(s,"Tamano no admitido: "+size);
-        int halfX=(size.getX()+1)/2,halfZ=(size.getZ()+1)/2;
-        BlockPos center=s.getPlayerOrException().blockPosition();
-        var survey=WorldChecks.scan(s.getLevel(),center,halfX,halfZ,4);
-        if(!survey.ok()) return fail(s,"Zona no apta: "+survey.reason());
-        if(survey.groundY()+size.getY()>=s.getLevel().getMaxBuildHeight())
-            return fail(s,"Plantilla supera el limite superior del mundo");
-        BuildEngine.Plan plan=new BuildEngine.Plan("plantilla",id,center,dim(s.getLevel()),survey.groundY(),halfX,halfZ,System.currentTimeMillis());
-        PLANS.put(player(s),plan);
-        say(s,"Plantilla seleccionada: "+id+" dimensiones "+size);
-        return preview(s);
+    /** Legacy alias: no misleading plan for an unimplemented feature. */
+    private static int planTemplate(CommandSourceStack s,String id) {
+        return inspectTemplate(s,id);
     }
     private static int preview(CommandSourceStack s) throws CommandSyntaxException {
         BuildEngine.Plan p=PLANS.get(player(s));

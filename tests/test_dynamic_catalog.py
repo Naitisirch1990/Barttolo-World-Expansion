@@ -21,6 +21,12 @@ assert '"/bwe inspeccionar "+id' in src
 assert '"/bwe listar "+(page+1)' in src
 assert '"/bwe listar "+(page-1)' in src
 assert 'NO construye' in src
+assert 'Blocks.JIGSAW' in src and 'Blocks.STRUCTURE_BLOCK' in src
+assert 'filterBlocks(BlockPos.ZERO,settings,Blocks.JIGSAW,true)' in src
+assert 'PIEZA JIGSAW' in src
+assert 'area>22500L' in src
+assert 'return inspectTemplate(s,id);' in src
+assert 'OPTIONAL_TEMPLATES' not in src
 assert 'Plantillas CTOV/Explorify solo en catalogo' in engine
 assert 'new StructurePlaceSettings' not in engine
 assert not any(p.suffix == ".nbt" for p in Path("src").rglob("*"))
