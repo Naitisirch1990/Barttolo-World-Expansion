@@ -144,9 +144,9 @@ public final class TemplateSurfaceSurvey {
                     return;
                 }
                 int topY=s.world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z);
-                TerrainColumnProbe.Result candidate=TerrainColumnProbe.findGround(
+                TerrainColumnProbe.Result candidate=TerrainColumnProbe.findGroundLayered(
                     topY,s.world.getMinBuildHeight(),
-                    y -> isLikelyNaturalGround(s.world.getBlockState(new BlockPos(x,y,z))));
+                    y -> classifyNaturalGround(s.world.getBlockState(new BlockPos(x,y,z))));
                 if(candidate.found()) {
                     s.profile.add(candidate.groundY());
                     if(candidate.ignoredAbove()>0) s.coveredObstacles++;
@@ -172,7 +172,7 @@ public final class TemplateSurfaceSurvey {
                     +" | corte aprox="+s.profile.cut(median)
                     +" | relleno aprox="+s.profile.fill(median)
                     +(s.unresolved>0?" (solo columnas reconocidas)":"")
-                    +". SOLO LECTURA. Heuristica: piedra natural de edificios puede"
+                    +". SOLO LECTURA. Heuristica: techos gruesos de piedra pueden"
                     +" confundirse con terreno. No detecta cuevas ni garantiza cimientos."
                     +" NO se terraformo ni coloco NBT.");
             }
@@ -181,6 +181,19 @@ public final class TemplateSurfaceSurvey {
             stop(s,"Medicion abortada por "+error.getClass().getSimpleName()
                 +"; no se modificaron bloques.");
         }
+    }
+    /** Treat masonry-like natural blocks as uncertain unless at least four
+     *  consecutive layers exist. Two layers of sandstone/stone may be a roof.
+     *  This remains a heuristic, never permission to replace a building. */
+    private static int classifyNaturalGround(BlockState state) {
+        if(state.is(Blocks.STONE) || state.is(Blocks.DEEPSLATE)
+            || state.is(Blocks.GRANITE) || state.is(Blocks.ANDESITE)
+            || state.is(Blocks.DIORITE) || state.is(Blocks.TUFF)
+            || state.is(Blocks.CALCITE) || state.is(Blocks.SANDSTONE)
+            || state.is(Blocks.RED_SANDSTONE) || state.is(Blocks.TERRACOTTA)
+            || state.is(Blocks.PACKED_MUD) || state.is(Blocks.SNOW_BLOCK))
+            return TerrainColumnProbe.ROCK;
+        return isLikelyNaturalGround(state) ? TerrainColumnProbe.SOIL : TerrainColumnProbe.NONE;
     }
     /** Conservative vanilla-ground heuristic; unknown modded blocks remain unknown.
      *  This is not an assertion that a block was generated naturally. */
