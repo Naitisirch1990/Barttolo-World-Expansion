@@ -75,3 +75,15 @@ copia original. Esta prueba no se ha ejecutado en Minecraft.
 ## Regresion de campamento tras fallo (v0.6.11)
 
 Conservar una copia de `Mundo nuevo` antes de abrirlo con otra version. En esa copia, ejecutar `/bwe diagnosticar` y registrar conteos y primer conflicto; no usar `/bwe finalizar SI` ni borrar el respaldo. En un **segundo mundo nuevo descartable** sin respaldo, despejar la huella, `/bwe planear campamento`, `/bwe simular`, `/bwe confirmar SI`, `/bwe estado`, `/bwe diagnosticar` y, si termina, `/bwe deshacer`. Revisar `latest.log` para mensajes `[BWE]` y excepciones completas. No interpretar un CI verde como prueba en Minecraft. El servidor activo permanece fuera del alcance.
+
+
+## v0.6.17: medicion de superficie CTOV/Explorify (SOLO LECTURA)
+
+En una instancia descartable, instalar los mods originales CTOV y/o Explorify **por separado y con sus licencias**. No incluir sus NBT en el JAR BWE.
+
+1. Verificar `/bwe listar` y seleccionar un ID real del catalogo. Colocarse en el centro de la ubicacion propuesta, con la huella y 7 bloques extra por lado ya cargados.
+2. Ejecutar `/bwe superficie <namespace:id>` y consultar `/bwe superficieestado` durante el escaneo. Al terminar, registrar Y minima, maxima, mediana y estimaciones de corte/relleno. Comprobar visualmente si hay hojas, agua, cuevas, viviendas o tejados que el heightmap no describe.
+3. Probar `/bwe cancelarsuperficie` durante una medicion grande; debe detenerse sin tocar bloques.
+4. Repetir con un chunk del margen descargado, junto a worldborder, spawn y zonas protegidas. Debe fallar sin cargar/generar terreno ni mover entidades.
+5. Comparar hashes y archivos de regiones antes y despues de la medicion. Verificar que no cambia el mundo. La medicion NO autoriza terraformacion ni colocacion de NBT.
+6. Registrar `latest.log`, resultados y capturas. No pasar a produccion hasta disponer de pruebas de colocacion y deshacer de NBT y entidades.
