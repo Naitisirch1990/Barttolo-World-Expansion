@@ -43,6 +43,35 @@ public final class ClearanceVolumeTest {
         catch(IllegalArgumentException expected) { checks++; }
         try { ClearanceVolume.calculate(Long.MAX_VALUE, 2, 1, 0, 70, -64, 320); throw new AssertionError("overflow"); }
         catch(ArithmeticException expected) { checks++; }
+
+        // Destructive cut/fill is geometry only: no inventory/entity snapshots.
+        var lowGround = ClearanceVolume.planColumn(64, 68, 72, 12, 7, -64, 320);
+        check(lowGround.fillFromY() == 65 && lowGround.fillToY() == 71,
+            "fill supports a raised foundation");
+        check(lowGround.fillPositions() == 7, "seven foundation fill positions");
+        check(lowGround.clearFromY() == 72 && lowGround.clearToY() == 90,
+            "clearance includes full template and overhead");
+        check(lowGround.clearPositions() == 19 && lowGround.totalPositions() == 26,
+            "work budget includes air and support positions");
+        var oldVillage = ClearanceVolume.planColumn(69, 104, 70, 10, 5, -64, 320);
+        check(oldVillage.clearToY() == 104, "tall old building cleared above template");
+        check(oldVillage.fillPositions() == 0, "no fill when ground meets foundation");
+        var hill = ClearanceVolume.planColumn(90, 92, 70, 10, 5, -64, 320);
+        check(hill.clearFromY() == 70 && hill.clearToY() == 92,
+            "cut extends through hill above proposed roof");
+        check(hill.fillPositions() == 0, "hill does not create negative fill");
+        var atBedrock = ClearanceVolume.planColumn(-64, -64, -63, 1, 0, -64, 320);
+        check(atBedrock.clearPositions() == 1 && atBedrock.fillPositions() == 0,
+            "minimum world height accepted");
+        try { ClearanceVolume.planColumn(300, 310, 315, 8, 7, -64, 320);
+            throw new AssertionError("ceiling clearance"); }
+        catch(IllegalArgumentException expected) { checks++; }
+        try { ClearanceVolume.planColumn(70, 69, 72, 3, 7, -64, 320);
+            throw new AssertionError("obstruction below ground"); }
+        catch(IllegalArgumentException expected) { checks++; }
+        try { ClearanceVolume.planColumn(-65, 70, 72, 3, 7, -64, 320);
+            throw new AssertionError("ground outside world"); }
+        catch(IllegalArgumentException expected) { checks++; }
         System.out.println("OK: " + checks + " clearance volume checks (Java 17)");
     }
 }
