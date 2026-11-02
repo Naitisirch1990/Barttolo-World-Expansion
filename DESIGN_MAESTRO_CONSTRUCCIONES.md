@@ -83,3 +83,16 @@ La primera entrega funcional contemplara **solo piezas NBT cargadas de CTOV y Ex
 
 Conectar las celdas decodificadas con un plan de escritura incremental, despeje total del volumen, relleno bajo la base, snapshot persistente de estados y `/bwe deshacer`. Mantener el primer uso destructivo deshabilitado hasta validar una copia aislada del mundo y comprobar el caso de una pieza con bloques de contenedor.
 
+
+## Avance: plan real de cambios para una pieza NBT (SIN ESCRITURA)
+
+- \`/bwe seleccionar <ctov:id|explorify:id>\` guarda la ubicacion del operador, la altura Y y el margen configurado; **no construye**.
+- \`/bwe simular\` llama a \`TemplatePieceDraft.prepare\`, que lee la pieza real del gestor de estructuras y calcula un mapa de **estados finales por bloque** sin editar el mundo.
+- Todo bloque no declarado dentro de la pieza se interpreta como aire; se despeja tambien el margen horizontal y cualquier obstaculo cuya altura supere el tejado de la pieza. Los conectores jigsaw y marcadores structure se convierten a aire para la futura colocacion individual.
+- Los huecos bajo la cota de cimentacion se rellenarian con tierra hasta hallar soporte (profundidad de ensayo 12 bloques); si no existe, la simulacion falla en lugar de inventar una base suspendida.
+- Se rechazan piezas situadas sobre jugadores, zonas protegidas, asentamientos BWE, la reserva de spawn, coordenadas/worldborder fuera de rango o chunks descargados. No se generan chunks nuevos para inspeccionarlos.
+- Mientras el motor definitivo no sea incremental en lectura y escritura, la simulacion tiene presupuesto de **160.000 bloques examinados** y **55.000 cambios**. Ese limite no borra del catalogo las plantillas mas grandes.
+- La salida muestra aire, cimentacion, otros bloques, NBT de block entities y entidades **no instaladas**. La paleta inicial es determinista, las alternativas todavia no se utilizan.
+- \`/bwe crear\` y \`/bwe confirmar SI\` siguen rechazando el NBT externo. Una simulacion exitosa **NO** autoriza la terraformacion.
+- La integracion Forge/CI verifica compilacion, pero aun falta una instancia aislada con copia del mundo para validar comportamiento visual, fisica, concurrencia, restauracion y rendimiento.
+
