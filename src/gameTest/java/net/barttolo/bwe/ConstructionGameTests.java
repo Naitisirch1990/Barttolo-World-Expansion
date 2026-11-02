@@ -34,9 +34,9 @@ public final class ConstructionGameTests {
             world.setBlock(anchor.offset(x,-1,z),Blocks.STONE.defaultBlockState(),50);
         // The old release stopped here when actual state differed from both BEFORE and AFTER.
         BlockPos stale=anchor.above();
-        world.setBlock(stale,Blocks.DIAMOND_BLOCK.defaultBlockState(),50);
+        world.setBlock(stale,Blocks.GLASS_PANE.defaultBlockState(),50);
         var old=new WorldData.StoredBlock(stale.asLong(),WorldData.encode(Blocks.AIR.defaultBlockState()),
-            WorldData.encode(Blocks.OAK_PLANKS.defaultBlockState()));
+            WorldData.encode(Blocks.GLASS_PANE.defaultBlockState().setValue(net.minecraft.world.level.block.IronBarsBlock.SOUTH,true)));
         WorldData.get(world).setUndo(new WorldData.Undo(world.dimension().location().toString(),"legacy_conflict",List.of(old),List.of(),true));
         var recovered=BuildEngine.undo(world);
         helper.assertTrue(recovered.ok(),"Legacy conflict rejected: "+recovered.message());

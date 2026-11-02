@@ -81,7 +81,10 @@ public final class BuildEngine {
             this.originals = originals;
             this.reservedEntities = reservedEntities;
             this.total = changes.size();
-            this.workArea = undoFootprint(new WorldData.Undo(plan.dimension(),plan.kind(),originals,reservedEntities));
+            this.workArea = externalClearance == null
+                ? undoFootprint(new WorldData.Undo(plan.dimension(),plan.kind(),originals,reservedEntities))
+                : new AABB(externalClearance.minX(),externalClearance.minY(),externalClearance.minZ(),
+                    externalClearance.maxX()+1.0,world.getMaxBuildHeight(),externalClearance.maxZ()+1.0);
         }
     }
     /** Never retain a ServerLevel from a stopped integrated/dedicated server.
