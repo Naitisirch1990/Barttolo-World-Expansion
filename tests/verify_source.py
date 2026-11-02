@@ -3,8 +3,10 @@ from pathlib import Path
 r=Path(__file__).resolve().parents[1]
 p=r/'src/main/java/net/barttolo/bwe'
 s={x.stem:x.read_text() for x in p.glob('*.java')}
-assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume'}, s.keys()
+assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume','TerraformColumnCursor'}, s.keys()
 m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
+assert 'planColumnFromSurface' in s['ClearanceVolume'], 'Convertir primer bloque libre en ultimo solido'
+assert 'public Step peek()' in s['TerraformColumnCursor'] and 'public void advance()' in s['TerraformColumnCursor'], 'Cursor sin saltar pasos ante fallos'
 for cmd in ('escanear','seleccionar','crear','listar','analizar','buscar','planear','plantilla','previsualizar','simular','confirmar','cancelar','deshacer','proteger','estado','finalizar','asentamientos','olvidar','protegerarea','areas','liberararea'):
     assert f'Commands.literal("{cmd}")' in m,cmd
 for kind in ('aldea','campamento','ruina','torre','refugio','altar','pozo','carreta'):
