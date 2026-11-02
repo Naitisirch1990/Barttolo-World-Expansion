@@ -1,3 +1,21 @@
+
+## Ensayo siguiente — simulacion de pieza NBT CTOV/Explorify (NO EXECUTADA)
+
+**Este ensayo todavia NO se ha ejecutado dentro de Minecraft y NO autoriza /bwe crear sobre NBT.**
+Preparar solo un mundo descartable con los archivos CTOV/Explorify autenticos ya instalados; conservar un respaldo completo e inmovil antes del primer comando.
+
+1. Identificar un ID individual en \`/bwe listar\` y comprobar la informacion de \`/bwe inspeccionar <id>\`. No confundir una pieza jigsaw con una aldea completa.
+2. Situarse en la base Y elegida, lejos del spawn y de protecciones, con los chunks del margen cargados. Ejecutar \`/bwe margen 7\` y \`/bwe seleccionar <id>\`.
+3. Alejarse de la zona de construccion **sin seleccionar una posicion nueva**. Ejecutar \`/bwe simular\`. El informe debe distinguir aire, tierra/cimentacion, bloques restantes y NBT especial ignorado.
+4. Repetir con margen 5 y 10, volviendo a seleccionar el ID en el mismo anclaje. Confirmar que cambian los limites horizontales y el conteo, y que la ubicacion Y permanece constante.
+5. Ensayar junto a un techo alto, arboles, agua y desniveles. La simulacion no debe dejar estructuras flotantes ni omitir techos por encima de la nueva pieza. Si no existe soporte hasta 12 bloques debajo, debe **rechazar** la propuesta.
+6. Entrar al volumen con otro jugador: debe rechazarse. Repetir al lado de un chunk descargado, worldborder, spawn, area protegida y sitio BWE finalizado; ningun caso debe cargar/generar chunks ni cambiar bloques.
+7. Comprobar que \`/bwe crear\` **sigue bloqueado para NBT externo**, incluso despues de una simulacion exitosa. Este paso prueba que la nueva funcionalidad es exclusivamente preparatoria.
+8. Comparar el mundo antes y despues (bloques, NBT, entidades, ficheros region y \`latest.log\`). Cualquier diferencia de bloques producida por BWE es un fallo.
+
+Limites provisionales: 160.000 posiciones examinadas, 55.000 cambios calculados. Los casos mayores deben permanecer en el catalogo, pero rechazarse en esta simulacion hasta implementar escaneo por lotes. Las capturas anteriores del campamento BWE original no prueban la construccion con NBT externos.
+
+
 ## Regresion de auditoria 3D — revalidacion al terminar (PENDIENTE EN JUEGO)
 
 **No ejecutada en Minecraft. Usar exclusivamente copia aislada.**
