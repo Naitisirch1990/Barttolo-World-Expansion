@@ -52,3 +52,14 @@ assert 16 * 48 <= 768
 assert 'public static boolean isRunning()' in survey
 assert 'TemplateSiteAudit.isRunning()' in survey
 assert 'auditoria 3D en curso' in survey
+
+# The clearance margin can unload or become protected during a long scan.
+# Revalidate at completion before returning a suggested foundation level.
+assert 'for(long cx=s.clearance.minX()>>4;cx<=s.clearance.maxX()>>4;cx++)' in survey
+assert 'for(long cz=s.clearance.minZ()>>4;cz<=s.clearance.maxZ()>>4;cz++)' in survey
+assert 'Medicion invalidada: chunk del margen descargado' in survey
+assert 'current.protectedFootprint' in survey
+assert 'current.overlapsCompleted' in survey
+assert 'Medicion invalidada: el margen ahora sale del worldborder.' in survey
+assert survey.index('if(s.processed==s.total)') < survey.index('Medicion invalidada: chunk del margen descargado') < survey.index('String coverage=')
+print('OK: margen y protecciones revalidados al terminar (estatico)')
