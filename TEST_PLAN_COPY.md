@@ -1,3 +1,19 @@
+# PRIORIDAD — prueba de colocacion de UNA pieza NBT CTOV/Explorify (PENDIENTE EN MINECRAFT)
+
+**Cambio posterior al plan read-only historico:** la rama de desarrollo contiene ya una ruta **DESTRUCTIVA EXPERIMENTAL** conectada a \`/bwe crear\` y \`/bwe confirmar SI\` para una pieza CTOV/Explorify. Los procedimientos historicos de mas abajo que dicen "crear sigue bloqueado" se redactaron antes de esta implementacion. **NO hay prueba runtime ni autorizacion para usarlo en el servidor activo.**
+
+1. Preparar copia nueva e INDEPENDIENTE de RingWorld, mods, configuraciones y dimensiones, mas un segundo respaldo inmutable para restaurar. No compartir AutoModpack del ensayo con clientes activos.
+2. Verificar \`/bwe listar\`, \`/bwe inspeccionar ctov:<id>\`, \`/bwe margen 7\`, \`/bwe seleccionar ctov:<id>\` con una pieza pequena y terreno desechable. La ubicacion debe ser lejana al spawn, zonas protegidas y otros jugadores.
+3. Salir del volumen de despeje sin cambiar la seleccion. Ejecutar \`/bwe simular\`. Registrar bloques de aire, cimentacion, construccion, limite de changes, y advertencias sobre NBT. Cambiar el terreno y volver a simular para confirmar que el plan se calcula de nuevo.
+4. **Solo en copia** ejecutar \`/bwe crear\`. Inspeccionar \`/bwe estado\` y \`latest.log\`, contar bloques colocados y comprobar que no quedan restos de arboles/tejados dentro del despeje. Anotar si la fisica de bloques causa discrepancias.
+5. Detener cuando termine; retirar entidades ajenas y ejecutar \`/bwe deshacer\`. Comparar estados de bloques en el volumen contra la copia previa; no se espera recuperacion de contenidos de cofres, block-entity NBT ni entidades.
+6. Repetir con techos superiores al edificio, colinas, agua, base sin soporte, marcador jigsaw, variaciones de paleta, worldborder, chunks descargados, proteccion, spawn y un jugador que entra DURANTE la obra. Debe detenerse o rechazar segun corresponda, conservando el respaldo.
+7. Reiniciar a mitad de obra en una **segunda copia desechable**, verificar que el snapshot conserva BEFORE/AFTER y que \`/bwe deshacer\` puede funcionar con los chunks cargados; cualquier fallo debe permitir restaurar la copia externa. Evaluar MSPT y memoria.
+8. No pasar a produccion hasta confirmar todo lo anterior y auditar que el JAR no incluye NBT CTOV/Explorify.
+
+
+---
+
 
 ## Ensayo siguiente — simulacion de pieza NBT CTOV/Explorify (NO EXECUTADA)
 
