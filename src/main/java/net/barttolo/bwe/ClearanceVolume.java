@@ -26,7 +26,7 @@ public final class ClearanceVolume {
     }
 
     /** Deterministic geometry for one column of a future destructive terraform job.
-     *  groundY is the chosen supporting terrain; occupiedTopY is the highest
+     *  groundY is the LAST SOLID supporting block (not the first free Y returned by TerrainColumnProbe); occupiedTopY is the highest
      *  obstruction (roof/tree included), not necessarily the ground surface.
      *  Clearing includes AIR positions deliberately: it is an upper work bound,
      *  not a prediction of how many setBlock calls will be necessary.
@@ -62,4 +62,19 @@ public final class ClearanceVolume {
         return new ColumnPlan(foundationY, clearTop, fillStart, fillEnd);
     }
 
+    /** TerrainColumnProbe.Result.groundY() is the FIRST FREE Y above ground,
+     *  while planColumn requires the LAST SOLID Y. Convert explicitly so
+     *  a raised foundation does not retain a one-block air gap beneath it.
+     *  occupiedTopY is the highest occupied block (heightmap first-free Y - 1).
+     *  Read-only geometry: no chunks accessed or blocks modified.
+     */
+    public static ColumnPlan planColumnFromSurface(int firstFreeY, int occupiedTopY,
+                                                   int foundationY, int templateHeight,
+                                                   int overheadMargin, int minBuildHeight,
+                                                   int maxBuildHeight) {
+        if (firstFreeY <= minBuildHeight || firstFreeY > maxBuildHeight)
+            throw new IllegalArgumentException("Surface has no valid supporting block");
+        return planColumn(firstFreeY - 1, occupiedTopY, foundationY,
+            templateHeight, overheadMargin, minBuildHeight, maxBuildHeight);
+    }
 }

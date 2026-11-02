@@ -41,3 +41,10 @@ El único respaldo interno requerido para `/bwe deshacer` es de **estados de blo
 - Confirmar que no hay NBT de terceros dentro del JAR y que el servidor activo permanece intacto.
 
 Este documento describe objetivos y límites de recuperación; **no** certifica que los comandos futuros ya funcionen.
+
+## Avance 02/11/2026 — normalizacion de superficie y cursor incremental (SIN escritura)
+
+- Detectada una incompatibilidad de cotas: `TerrainColumnProbe.Result.groundY()` representa el **primer bloque libre** encima del suelo, mientras que `ClearanceVolume.planColumn` recibe el **ultimo bloque solido**. Pasar la cota directamente deja un bloque sin rellenar bajo una cimentacion elevada. El nuevo `planColumnFromSurface` convierte explicitamente esa cota y rechaza una superficie sin bloque de apoyo valido.
+- Nuevo `TerraformColumnCursor`: recorre primero las posiciones de despeje (aire) y despues las de relleno, sin crear una lista gigante. `peek()` no avanza; `advance()` debe ejecutarse **solo despues** de completar una operacion, para no saltarse bloques si hay un fallo.
+- Prueba Java 17 de 60 comprobaciones para orden, recuento, soporte, colinas y reintentos. Integrada en `tests/run_geometry_tests.sh`.
+- **Solo geometria y planificacion:** no se conecto al motor Forge, no se ejecutaron comandos destructivos, no se colocaron NBT y no se hizo prueba en copia del mundo. El cursor tampoco persiste por reinicio; antes de escribir se necesita snapshot de estados de bloques y revalidacion por tick.
