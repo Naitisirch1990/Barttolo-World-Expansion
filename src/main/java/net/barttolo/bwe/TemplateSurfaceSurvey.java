@@ -34,15 +34,17 @@ public final class TemplateSurfaceSurvey {
         final TemplateFootprint.Bounds bounds; // ONLY the structure's foundation
         final TemplateFootprint.Bounds clearance; // foundation + safety margin
         final int margin;
+        final int templateHeight;
         final SurfaceProfile profile;
         final long total;
         long processed;
         long unresolved;
         long coveredObstacles;
         Survey(ServerLevel world, UUID operator, ResourceLocation id,
-               TemplateFootprint.Bounds foundation, TemplateFootprint.Bounds clearance, int margin) {
+               TemplateFootprint.Bounds foundation, TemplateFootprint.Bounds clearance, int margin, int templateHeight) {
             this.world=world; this.operator=operator; this.id=id;
             this.bounds=foundation; this.clearance=clearance; this.margin=margin;
+            this.templateHeight=templateHeight;
             this.total=foundation.area();
             this.profile=new SurfaceProfile(world.getMinBuildHeight(), world.getMaxBuildHeight());
         }
@@ -68,7 +70,7 @@ public final class TemplateSurfaceSurvey {
         if(active!=null) return new Result(false,"Ya hay una medicion: "+status());
         if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
             return new Result(false,"Hay una obra o respaldo pendiente.");
-        if(size.getX()<1 || size.getZ()<1)
+        if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
             return new Result(false,"Huella invalida.");
         int margin=marginFor(operator);
         TemplateFootprint.Bounds base, area;
@@ -101,7 +103,7 @@ public final class TemplateSurfaceSurvey {
             for(long cz=area.minZ()>>4;cz<=area.maxZ()>>4;cz++)
                 if(!world.hasChunk((int)cx,(int)cz))
                     return new Result(false,"Chunk sin cargar dentro del margen: no se genero terreno.");
-        active=new Survey(world,operator,id,base,area,margin);
+        active=new Survey(world,operator,id,base,area,margin,size.getY());
         return new Result(true,"Medicion SOLO LECTURA iniciada para "+id
             +" | base="+base.width()+"x"+base.length()+" ("+base.area()+" columnas)"
             +" | zona de despeje propuesta="+area.width()+"x"+area.length()
@@ -165,9 +167,23 @@ public final class TemplateSurfaceSurvey {
                     return;
                 }
                 int median=s.profile.median();
+                // This is only a geometric estimate. It does not count actual block
+                // changes or reserve undo storage; never authorize edits from it.
+                ClearanceVolume.Estimate clearance=ClearanceVolume.calculate(
+                    s.clearance.width(),s.clearance.length(),s.templateHeight,s.margin,
+                    median,s.world.getMinBuildHeight(),s.world.getMaxBuildHeight());
+                if(!clearance.withinWorld()) {
+                    stop(s,"SUPERFICIE "+s.id+coverage
+                        +" | SIN BASE SUGERIDA: volumen vertical propuesto Y="
+                        +clearance.minY()+".."+clearance.maxY()
+                        +" excede limites del mundo. SOLO LECTURA.");
+                    return;
+                }
                 stop(s,"SUPERFICIE "+s.id+" | base="+s.total+" columnas"
                     +" | margen de despeje="+s.margin+" (area "+s.clearance.area()+")"
-                    +coverage+" | Y="+s.profile.low()+".."+s.profile.high()
+                    +coverage+" | despeje geometrico="+clearance.blocks()+" bloques (Y="
+                    +clearance.minY()+".."+clearance.maxY()+", NO son cambios reales)"
+                    +" | Y="+s.profile.low()+".."+s.profile.high()
                     +" | base sugerida Y="+median
                     +" | corte aprox="+s.profile.cut(median)
                     +" | relleno aprox="+s.profile.fill(median)
