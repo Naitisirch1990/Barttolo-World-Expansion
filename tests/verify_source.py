@@ -3,7 +3,7 @@ from pathlib import Path
 r=Path(__file__).resolve().parents[1]
 p=r/'src/main/java/net/barttolo/bwe'
 s={x.stem:x.read_text() for x in p.glob('*.java')}
-assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume','TerraformColumnCursor','TerraformAreaCursor','TerraformStepGuard','TerraformBackupFile','TemplatePlacementVolume','TemplateNbtPiece'}, s.keys()
+assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume','TerraformColumnCursor','TerraformAreaCursor','TerraformStepGuard','TerraformBackupFile','TemplatePlacementVolume','TemplateNbtPiece','TemplatePieceDraft'}, s.keys()
 assert 'StandardCopyOption.ATOMIC_MOVE' in s['TerraformBackupFile'], 'Publicar respaldo mediante movimiento atomico'
 assert 'MessageDigest.isEqual' in s['TerraformBackupFile'], 'Validar integridad de respaldo'
 assert 'Terraform backup already exists' in s['TerraformBackupFile'], 'Evitar reemplazo deliberado del respaldo'
@@ -13,6 +13,14 @@ assert 'NbtUtils.readBlockState' in s['TemplateNbtPiece'], 'Interpretar estados 
 assert 'Duplicate block position' in s['TemplateNbtPiece'] and 'Palette index outside bounds' in s['TemplateNbtPiece'], 'Rechazar NBT malformed'
 assert 'TemplateNbtPiece.read(template)' in s['BarttoloWorldExpansion'], 'Usar decodificador en inspeccion'
 assert 'setBlock(' not in s['TemplateNbtPiece'] and 'placeInWorld(' not in s['TemplateNbtPiece'], 'Decodificador solo lectura'
+assert 'public static Prepared prepare(ServerLevel world, BuildEngine.Plan plan)' in s['TemplatePieceDraft'], 'Plantilla NBT con calculo real de cambios'
+assert 'world.hasChunk' in s['TemplatePieceDraft'] and 'world.getHeight' in s['TemplatePieceDraft'], 'No generar chunks inadvertidamente'
+assert 'protectedFootprint' in s['TemplatePieceDraft'] and 'overlapsCompleted' in s['TemplatePieceDraft'], 'Preflight de protecciones'
+assert 'getEntitiesOfClass(ServerPlayer.class' in s['TemplatePieceDraft'], 'Proteger a jugadores durante preparacion'
+assert 'MAX_CHANGES' in s['TemplatePieceDraft'] and 'MAX_EXAMINED' in s['TemplatePieceDraft'], 'Limites de trabajo por comando'
+assert 'setBlock(' not in s['TemplatePieceDraft'] and 'placeInWorld(' not in s['TemplatePieceDraft'], 'Preparacion NBT aun SOLO LECTURA'
+assert 'TemplatePieceDraft.prepare(world,p)' in s['BuildEngine'], 'Simulacion NBT debe usar el mismo plan de bloques'
+assert 'private static int selectNbt(' in s['BarttoloWorldExpansion'], 'Seleccion real del ID NBT instalado'
 m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
 assert 'planColumnFromSurface' in s['ClearanceVolume'], 'Convertir primer bloque libre en ultimo solido'
 assert 'public int execute(int budget, StepWriter writer)' in s['TerraformAreaCursor'], 'Presupuesto por lote para un area completa'
