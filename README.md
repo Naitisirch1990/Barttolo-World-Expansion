@@ -9,8 +9,11 @@ El JAR CI contiene el motor; el entregable privado se completa con los archivos 
 
 ## Flujo
 
-En la zona elegida: `/bwe listar`, clic en la construccion, alejarse horizontalmente del
-rectangulo indicado y `/bwe crear`. No hay auditorias, simulaciones ni finalizacion.
+En la zona elegida: `/bwe listar`, clic en `[Ver]` para abrir el esquema de planta o en
+`[Elegir]` para seleccionar directamente. La ventana muestra una imagen esquematica
+superior, el estilo/bioma indicado y las dimensiones. También se puede abrir con
+`/bwe vista <id>`. Luego alejarse horizontalmente del rectangulo indicado y
+`/bwe crear`. No hay auditorias, simulaciones ni finalizacion.
 La lista muestra ancho x largo exactos de cada ensamblaje. Su altura no se muestra.
 La seleccion calcula la mediana de suelo natural; las plantillas conservan la cota de
 entrada declarada en el plan. Se limpia el rectangulo mas 5 bloques de margen y se
@@ -34,6 +37,8 @@ entidades de las plantillas. Las particulas/funciones/datapacks originales no se
 
 Mantener config/bwe/ctov.jar, explorify.jar y catalogo.json juntos. `/bwe recargar`
 actualiza el catalogo tras cambios. Los archivos originales se usan sin modificarlos.
+`tools/build_previews.py CTOV.jar Explorify.jar catalogo.json carpeta_previews`
+genera las vistas superiores privadas usadas por la ventana del juego; no copia NBT.
 `tools/build_catalog.py CTOV.jar Explorify.jar catalogo.json` prepara SOLO planes JSON
 (identificadores, coordenadas y rotaciones) sin copiar las plantillas. Usa los pools y
 conectores de los archivos aportados; descarta recursos de add-ons no disponibles y

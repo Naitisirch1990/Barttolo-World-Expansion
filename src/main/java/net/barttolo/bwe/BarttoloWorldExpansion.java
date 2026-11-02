@@ -23,7 +23,7 @@ public final class BarttoloWorldExpansion {
     private static final Map<UUID,Selection> SELECTED=new HashMap<>();
     private static final Map<UUID,BlockPos> SITES=new HashMap<>();
     private static final Map<UUID,Integer> MARGINS=new HashMap<>();
-    public BarttoloWorldExpansion(){MinecraftForge.EVENT_BUS.register(this);}
+    public BarttoloWorldExpansion(){BweNetwork.register();MinecraftForge.EVENT_BUS.register(this);}
     @SubscribeEvent public void onTick(TickEvent.ServerTickEvent event){
         if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();}
     }
@@ -35,6 +35,8 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("ayuda").executes(c->help(c.getSource())))
             .then(Commands.literal("listar").executes(c->listing(c.getSource(),1))
                 .then(Commands.argument("pagina",IntegerArgumentType.integer(1)).executes(c->listing(c.getSource(),IntegerArgumentType.getInteger(c,"pagina")))))
+            .then(Commands.literal("vista").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(c->preview(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("seleccionar").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(c->select(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
@@ -65,15 +67,22 @@ public final class BarttoloWorldExpansion {
         if(page>pages)return fail(s,"Ultima pagina: "+pages);
         say(s,"Construcciones reales CTOV / Explorify: "+entries.size()+" | pagina "+page+"/"+pages);
         for(var e:entries.subList((page-1)*6,Math.min(entries.size(),page*6))){
-            Component option=Component.literal("["+e.title()+"] "+e.sizeX()+" x "+e.sizeZ()+" bloques")
+            Component option=Component.literal("[Ver] "+e.title()+" "+e.sizeX()+" x "+e.sizeZ()+" ")
                 .withStyle(style->style.withColor(ChatFormatting.AQUA)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe vista "+e.id()))
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,Component.literal("Abrir esquema de la construccion"))))
+                .append(Component.literal("[Elegir]").withStyle(style->style.withColor(ChatFormatting.GREEN)
                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe seleccionar "+e.id()))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,Component.literal(e.description()+". Clic para elegir en tu ubicacion."))));
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,Component.literal(e.description()+". Elegir en tu ubicacion."))));
             s.sendSuccess(()->option,false);
         }
         if(page>1)s.sendSuccess(()->Component.literal("[Anterior]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page-1)))),false);
         if(page<pages)s.sendSuccess(()->Component.literal("[Siguiente]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page+1)))),false);
         return 1;
+    }
+    private static int preview(CommandSourceStack s,String name)throws CommandSyntaxException{
+        var e=BweCatalog.find(name.trim());if(e==null)return fail(s,"Construccion no encontrada. /bwe listar");
+        BweNetwork.openPreview(s.getPlayerOrException(),e);return 1;
     }
     private static int scan(CommandSourceStack s)throws CommandSyntaxException{
         SITES.put(id(s),s.getPlayerOrException().blockPosition());say(s,"Ubicacion guardada. /bwe listar y elige una construccion.");return 1;

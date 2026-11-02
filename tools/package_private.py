@@ -1,7 +1,7 @@
 """Complete a tested BWE engine with the user's unchanged source JARs. Never upload output to GitHub."""
 import argparse,zipfile,pathlib,hashlib,json
 
-def package(engine,ctov,explorify,catalog,output):
+def package(engine,ctov,explorify,catalog,previews,output):
     originals={'ctov.jar':pathlib.Path(ctov),'explorify.jar':pathlib.Path(explorify)}
     manifest=json.loads(pathlib.Path(catalog).read_text())
     for s in manifest['sources']:
@@ -13,6 +13,11 @@ def package(engine,ctov,explorify,catalog,output):
         prefix='assets/barttoloworldexpansion/'
         for name,p in originals.items():dest.write(p,prefix+name)
         dest.write(catalog,prefix+'catalogo.json')
+        preview_root=pathlib.Path(previews)
+        preview_files=sorted(preview_root.glob('*.png'))
+        assert len(preview_files)==len(manifest['entries']), 'Cada construccion necesita una imagen previa'
+        for preview in preview_files:
+            dest.write(preview,prefix+'textures/gui/previews/'+preview.name)
         # Loot tables alone cannot place structures or regenerate chunks.
         tables=0
         for p in originals.values():
@@ -32,6 +37,6 @@ def package(engine,ctov,explorify,catalog,output):
         for n in source.namelist():assert dest.read(n)==source.read(n)
         for name,p in originals.items():assert dest.read('assets/barttoloworldexpansion/'+name)==p.read_bytes()
         assert not any('/worldgen/' in n for n in dest.namelist())
-    print(json.dumps({'file':str(output),'bytes':pathlib.Path(output).stat().st_size,'sha256':hashlib.sha256(pathlib.Path(output).read_bytes()).hexdigest(),'entries':len(manifest['entries']),'loot_tables':tables}))
+    print(json.dumps({'file':str(output),'bytes':pathlib.Path(output).stat().st_size,'sha256':hashlib.sha256(pathlib.Path(output).read_bytes()).hexdigest(),'entries':len(manifest['entries']),'previews':len(preview_files),'loot_tables':tables}))
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('engine');p.add_argument('ctov');p.add_argument('explorify');p.add_argument('catalog');p.add_argument('output');a=p.parse_args();package(a.engine,a.ctov,a.explorify,a.catalog,a.output)
+    p=argparse.ArgumentParser();p.add_argument('engine');p.add_argument('ctov');p.add_argument('explorify');p.add_argument('catalog');p.add_argument('previews');p.add_argument('output');a=p.parse_args();package(a.engine,a.ctov,a.explorify,a.catalog,a.previews,a.output)
