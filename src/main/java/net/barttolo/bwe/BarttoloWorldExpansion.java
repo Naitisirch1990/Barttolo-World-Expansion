@@ -174,7 +174,7 @@ public final class BarttoloWorldExpansion {
         return 1;
     }
     /** Read-only discovery: use templates already exposed by the server's resource manager.
-     *  Do not copy third-party NBT or offer placement without block-entity-safe undo.
+     *  Do not copy third-party NBT. External placement remains disabled until a tested cut/fill engine exists.
      *  Only the visible page loads NBT, keeping command execution bounded.
      */
     private static List<ResourceLocation> externalTemplates(ServerLevel level) {
@@ -260,7 +260,7 @@ public final class BarttoloWorldExpansion {
                 +" | cofres/barriles vanilla="+vanillaContainers+".");
             if(jigsaws>0) say(s,"PIEZA JIGSAW: dimensiones de esta pieza NBT, NO de la aldea completa.");
             if(structureMarkers>0 || vanillaContainers>0)
-                say(s,"Bloques especiales: requiere respaldo NBT/entidades antes de permitir colocacion.");
+                say(s,"Bloques especiales: su contenido NBT y entidades NO seran restaurados por /bwe deshacer; se exigira copia externa del mundo.");
         } catch(RuntimeException error) {
             return fail(s,"No se pudo inspeccionar la paleta: "+error.getClass().getSimpleName());
         }
