@@ -47,3 +47,8 @@ assert 'lastResult="Auditoria "+id+" cancelada' in audit
 assert 'lastResult="No hay auditoria de plantilla anterior."' in audit
 assert 'posibles block entities=' in audit
 print("OK: resultado de auditoria recuperable hasta reinicio (solo memoria)")
+
+# Do not let an audit start while the other read-only scanner is active.
+assert 'public static boolean isRunning()' in audit
+assert 'TemplateSurfaceSurvey.isRunning()' in audit
+assert 'medicion de superficie en curso' in audit

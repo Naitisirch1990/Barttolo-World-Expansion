@@ -9,7 +9,7 @@ assert 'Commands.literal("cancelarsuperficie")' in main
 assert 'TemplateSurfaceSurvey.serverTick()' in main
 assert 'TemplateSurfaceSurvey.resetForShutdown()' in main
 assert 'Heightmap.Types.MOTION_BLOCKING_NO_LEAVES' in survey
-assert 'DEFAULT_MARGIN = 7' in survey and 'COLUMNS_PER_TICK = 256' in survey
+assert 'DEFAULT_MARGIN = 7' in survey and 'COLUMNS_PER_TICK = 16' in survey
 assert 'Commands.literal("margen")' in main
 assert 'IntegerArgumentType.integer(5,10)' in main
 assert 'TemplateSurfaceSurvey.configureMargin' in main
@@ -44,3 +44,11 @@ assert 's.templateHeight' in survey
 assert 'size.getY()<1' in survey
 assert 'SIN BASE SUGERIDA: volumen vertical propuesto' in survey
 assert 'despeje geometrico=' in survey
+
+# The layered probe can read up to 48 blocks per column. Cap its per-tick work.
+probe=(root/'src/main/java/net/barttolo/bwe/TerrainColumnProbe.java').read_text()
+assert 'MAX_DEPTH = 48' in probe
+assert 16 * 48 <= 768
+assert 'public static boolean isRunning()' in survey
+assert 'TemplateSiteAudit.isRunning()' in survey
+assert 'auditoria 3D en curso' in survey

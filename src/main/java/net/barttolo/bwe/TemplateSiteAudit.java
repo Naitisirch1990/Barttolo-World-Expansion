@@ -36,6 +36,9 @@ public final class TemplateSiteAudit {
     public record Result(boolean ok, String message) {}
     private TemplateSiteAudit() {}
 
+    /** Server-thread-only guard: avoid running two expensive read-only scans at once. */
+    public static boolean isRunning() { return active != null; }
+
     public static Result start(ServerLevel world, BlockPos anchor, Vec3i size,
                                UUID operator, ResourceLocation templateId) {
         return startInternal(world, anchor, size, operator, templateId, false);
@@ -53,6 +56,8 @@ public final class TemplateSiteAudit {
                                         UUID operator, ResourceLocation templateId,
                                         boolean clearance) {
         if(active!=null) return new Result(false,"Ya hay una auditoria: "+status());
+        if(TemplateSurfaceSurvey.isRunning())
+            return new Result(false,"Hay una medicion de superficie en curso; espera o cancelala antes de auditar.");
         if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
             return new Result(false,"Hay una obra o respaldo pendiente.");
         if(size.getX()<1 || size.getY()<1 || size.getZ()<1)

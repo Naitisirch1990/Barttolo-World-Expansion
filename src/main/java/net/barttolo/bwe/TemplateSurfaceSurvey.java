@@ -18,7 +18,7 @@ import java.util.HashMap;
  *  A median is a suggestion, not authorization to terraform or place NBT. */
 public final class TemplateSurfaceSurvey {
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final int COLUMNS_PER_TICK = 256; // up to 48 terrain checks per column
+    private static final int COLUMNS_PER_TICK = 16; // <= 16 * 48 = 768 block-state reads/tick
     private static final long MAX_COLUMNS = 1_000_000L;
     private static final long MAX_CHUNKS = 1024L;
     private static final int DEFAULT_MARGIN = 7;
@@ -51,6 +51,9 @@ public final class TemplateSurfaceSurvey {
     }
     private TemplateSurfaceSurvey() {}
 
+    /** Server-thread-only guard: only one expensive read-only scan at a time. */
+    public static boolean isRunning() { return active != null; }
+
     /** Operator preference is temporary and affects read-only surveys only.
      *  Future terraform/build commands MUST NOT assume this grants permission to write.
      */
@@ -68,6 +71,8 @@ public final class TemplateSurfaceSurvey {
     public static Result start(ServerLevel world, BlockPos anchor, Vec3i size,
                                UUID operator, ResourceLocation id) {
         if(active!=null) return new Result(false,"Ya hay una medicion: "+status());
+        if(TemplateSiteAudit.isRunning())
+            return new Result(false,"Hay una auditoria 3D en curso; espera o cancelala antes de medir superficie.");
         if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
             return new Result(false,"Hay una obra o respaldo pendiente.");
         if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
