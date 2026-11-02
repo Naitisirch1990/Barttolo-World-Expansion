@@ -139,3 +139,19 @@ En una copia descartable de RingWorld con CTOV/Explorify instalados legalmente:
 4. Inspeccionar `latest.log`, hashes de archivos de region y NBT antes/despues. No ejecutar comandos destructivos, ni fusionar el PR ni desplegar en el servidor activo.
 
 Las comprobaciones estaticas de CI verifican la presencia de estos guardias; **no sustituyen estas pruebas dentro de Minecraft**.
+
+## Persistencia de terraformacion (prototipo de almacenamiento, 02/11/2026)
+
+La clase Java 17 `TerraformBackupFile` guarda y comprueba una carga binaria opaca
+mediante SHA-256, longitud, version y renombrado atomico. Rechaza archivos
+truncados, alterados y respaldos vacios; no sobrescribe deliberadamente un
+respaldo existente. El archivo debe escribirse y verificarse **antes** de
+modificar cualquier bloque. Se prohíbe usar un sistema de archivos que no
+admita el renombrado atomico; la durabilidad ante corte electrico requiere
+sincronizacion de directorio y soporte fiable del almacenamiento.
+
+**Aun no hay un serializador de estados Minecraft, ni un trabajo Forge de
+terraformacion, ni una restauracion conectada a esta clase.** Los tests
+`TerraformBackupFileTest` trabajan con archivos temporales y NO son pruebas
+de una copia del mundo. Inventarios y entidades quedan fuera del contrato
+solicitado; solo se proyecta restaurar estados de bloques.
