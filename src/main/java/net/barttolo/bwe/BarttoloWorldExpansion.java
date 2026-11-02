@@ -249,6 +249,20 @@ public final class BarttoloWorldExpansion {
         long area=(long)size.getX()*size.getZ();
         say(s,"Plantilla "+id+" | huella X x Z: "+size.getX()+" x "+size.getZ()
             +" bloques ("+area+" bloques cuadrados) | altura: "+size.getY()+" (informativa).");
+        // Read-only placement envelope at the command source position.
+        // This is only a SINGLE NBT piece; jigsaw villages need multiple pieces.
+        var anchor=s.getPosition();
+        var volume=TemplatePlacementVolume.centered((int)Math.floor(anchor.x),
+            (int)Math.floor(anchor.y), (int)Math.floor(anchor.z),
+            size.getX(), size.getY(), size.getZ(), false);
+        var clearance=TemplatePlacementVolume.clearance(volume, 7, 8);
+        boolean fits=clearance.withinWorld(s.getLevel().getMinBuildHeight(),
+            s.getLevel().getMaxBuildHeight());
+        say(s,"VOLUMEN PROPUESTO (solo lectura, margen 7, base hasta 8): "
+            + clearance.width()+"x"+clearance.height()+"x"+clearance.length()
+            +" | bloques maximos="+clearance.blockCount()
+            +" | limites del mundo="+(fits?"OK":"FUERA DE LIMITES")
+            +". NO autoriza construir.");
         // Targeted inspection of one loaded NBT; no world blocks are read or written.
         try {
             StructurePlaceSettings settings=new StructurePlaceSettings();
