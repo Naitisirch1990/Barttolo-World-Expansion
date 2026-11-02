@@ -66,3 +66,21 @@ assert 'data.protectedFootprint(dim,x0,z0,x1,z1,8)' in audit
 assert 'data.overlapsCompleted(dim,x0,z0,x1,z1,16)' in audit
 assert 'data.protectedFootprint(dim,x0,z0,x1,z1,0)' not in audit
 print('OK: despeje 3D respeta separacion de zonas protegidas (estatico)')
+
+# Long-running clearance scans must revalidate protections and chunk residency
+# immediately before publishing a completed report (not just at start).
+assert 'final TemplateFootprint.Bounds clearanceBounds;' in audit
+assert 'clearance?bounds:null' in audit
+assert 'String invalidation=clearanceInvalidation(a);' in audit
+assert 'Auditoria de despeje INVALIDADA:' in audit
+assert 'private static String clearanceInvalidation(Audit a)' in audit
+recheck=audit.split('private static String clearanceInvalidation(Audit a)',1)[1].split('private static void stop(',1)[0]
+for guard in ('data.protectedFootprint(dim,x0,z0,x1,z1,8)',
+              'data.overlapsCompleted(dim,x0,z0,x1,z1,16)',
+              'SiteMath.circleIntersectsRect',
+              'getWorldBorder().isWithinBounds',
+              'a.world.hasChunk'):
+    assert guard in recheck, guard
+assert audit.index('String invalidation=clearanceInvalidation(a);') < audit.index('AUDITORIA COMPLETA (solo lectura)')
+assert 'if(bounds==null) return null;' in recheck
+print('OK: despeje 3D revalida protecciones, spawn, worldborder y chunks antes del informe (estatico)')
