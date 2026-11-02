@@ -48,3 +48,11 @@ Este documento describe objetivos y límites de recuperación; **no** certifica 
 - Nuevo `TerraformColumnCursor`: recorre primero las posiciones de despeje (aire) y despues las de relleno, sin crear una lista gigante. `peek()` no avanza; `advance()` debe ejecutarse **solo despues** de completar una operacion, para no saltarse bloques si hay un fallo.
 - Prueba Java 17 de 60 comprobaciones para orden, recuento, soporte, colinas y reintentos. Integrada en `tests/run_geometry_tests.sh`.
 - **Solo geometria y planificacion:** no se conecto al motor Forge, no se ejecutaron comandos destructivos, no se colocaron NBT y no se hizo prueba en copia del mundo. El cursor tampoco persiste por reinicio; antes de escribir se necesita snapshot de estados de bloques y revalidacion por tick.
+
+## Avance 02/11/2026 — recorrido incremental del area (SIN escritura real)
+
+- Nuevo `TerraformAreaCursor`: recorre por columnas un rectangulo X/Z, usando `TerraformColumnCursor` para despejar y rellenar. No construye un mapa gigante de posiciones; el proveedor de planes se consulta por columna.
+- `execute(presupuesto, writer)` ejecuta como maximo el numero de operaciones indicado. Si el escritor falla, el paso queda pendiente y se puede reintentar.
+- `checkpoint()` y `resume(...)` permiten reconstruir la posicion logica del recorrido con los **mismos planes de columna inmutables**. Esto NO es por si solo recuperacion segura tras un crash: faltan persistencia de los planes, backup previo de estados, comprobaciones de conflictos y un escritor Forge idempotente.
+- Pruebas Java 17 con un escritor falso: lotes, fallo simulado, reanudacion, orden X/Z, coordenadas extremas y rectangulo de 10.000 millones de columnas sin materializarlo.
+- No se han ejecutado cambios de bloques ni pruebas en una copia real de RingWorld; no se autoriza aun `/bwe terraformar`.
