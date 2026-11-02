@@ -37,3 +37,10 @@ assert 's.unresolved>s.total/10L' in survey
 assert 'isLikelyNaturalGround' in survey
 assert 'SIN BASE SUGERIDA' in survey
 assert 'coveredObstacles' in survey
+
+# The proposed 3D clearance is a read-only estimate, not a write authorization.
+assert 'ClearanceVolume.calculate(' in survey
+assert 's.templateHeight' in survey
+assert 'size.getY()<1' in survey
+assert 'SIN BASE SUGERIDA: volumen vertical propuesto' in survey
+assert 'despeje geometrico=' in survey
