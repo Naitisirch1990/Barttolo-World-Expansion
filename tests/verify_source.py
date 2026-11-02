@@ -45,7 +45,12 @@ assert 'undoRunning' in e and 'undoTick()' in e
 assert 'current.equals(b.before())' in e and 'current.equals(b.after())' in e
 assert 'b.after().isEmpty() || !b.after().equals' in e
 assert 'job.expectedBefore.get(entry.getKey())' in e
-assert 'Plantillas CTOV/Explorify solo en catalogo' in e
+assert 'private static Result buildExternal(ServerLevel world, Plan p, UUID operator)' in e, 'Colocacion NBT experimental disponible'
+assert 'data.setUndo(new WorldData.Undo(p.dimension(),p.template(),originals,List.of()))' in e, 'Respaldo de estados previo a NBT'
+assert 'world.getServer().overworld().getDataStorage().save();' in e, 'Guardar respaldo antes de iniciar obra'
+assert 'running=new Job(world,p,operator,changed,originals,List.of(),draft.volume());' in e, 'Usar exactamente el plan revisado'
+assert 'job.externalClearance != null' in e and 'getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class' in e, 'Revalidar jugadores durante cada lote'
+assert 'data.protectedFootprint(dim' in e and 'data.overlapsCompleted(dim' in e, 'Revalidar protecciones durante escritura'
 assert 'setUndo(new WorldData.Undo' in e
 assert 'new StructurePlaceSettings' not in e, 'Plantilla externa no se puede colocar sin rollback de NBT'
 assert 'reservedEntities.add(UUID.randomUUID())' in e, 'Reservar UUIDs persistentes antes de crear aldeanos'
