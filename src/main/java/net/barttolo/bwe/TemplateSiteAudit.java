@@ -29,9 +29,14 @@ public final class TemplateSiteAudit {
         final UUID operator;
         final String templateId;
         final TemplateScanCursor cursor;
+        // Only clearance audits need a final safety recheck. Piece audits are
+        // observational and have no site-approval semantics.
+        final TemplateFootprint.Bounds clearanceBounds;
         long air, fluids, blockEntities, nonNatural;
-        Audit(ServerLevel world, UUID operator, String templateId, TemplateScanCursor cursor) {
+        Audit(ServerLevel world, UUID operator, String templateId, TemplateScanCursor cursor,
+              TemplateFootprint.Bounds clearanceBounds) {
             this.world=world; this.operator=operator; this.templateId=templateId; this.cursor=cursor;
+            this.clearanceBounds=clearanceBounds;
         }
     }
     public record Result(boolean ok, String message) {}
@@ -120,7 +125,8 @@ public final class TemplateSiteAudit {
                 if(!world.hasChunk((int)cx,(int)cz))
                     return new Result(false,"Chunk sin cargar: auditoria no iniciada.");
         active=new Audit(world,operator,templateId.toString()
-            +(clearance?" [DESPEJE COMPLETO]":" [PIEZA]"),cursor);
+            +(clearance?" [DESPEJE COMPLETO]":" [PIEZA]"),cursor,
+            clearance?bounds:null);
         return new Result(true,"Auditoria SOLO LECTURA iniciada: "+templateId
             +(clearance?" | despeje con margen "+TemplateSurfaceSurvey.marginFor(operator)
                 +" y Y provisional del operador (NO base mediana)":" | solo volumen de la pieza")
@@ -175,6 +181,14 @@ public final class TemplateSiteAudit {
                     a.nonNatural++;
             }
             if(!a.cursor.hasNext()) {
+                // A long scan can outlive changes to claims, spawn, border, or
+                // chunk residency. Do not publish a stale clearance report.
+                String invalidation=clearanceInvalidation(a);
+                if(invalidation!=null) {
+                    stop(a,"Auditoria de despeje INVALIDADA: "+invalidation
+                        +". No se modificaron bloques. Repetir la auditoria.");
+                    return;
+                }
                 stop(a,"AUDITORIA COMPLETA (solo lectura) "+a.templateId
                     +" | volumen="+a.cursor.total()+" | aire="+a.air
                     +" | liquidos="+a.fluids+" | bloques con block entity="+a.blockEntities
@@ -188,6 +202,35 @@ public final class TemplateSiteAudit {
             stop(a,"Auditoria abortada por error "+error.getClass().getSimpleName()
                 +"; NO se modificaron bloques.");
         }
+    }
+
+    /** Final read-only recheck; never force-load chunks or approve demolition. */
+    private static String clearanceInvalidation(Audit a) {
+        TemplateFootprint.Bounds bounds=a.clearanceBounds;
+        if(bounds==null) return null;
+        if(BuildEngine.busy() || WorldData.get(a.world).undo()!=null)
+            return "otra obra o respaldo pendiente";
+        String dim=a.world.dimension().location().toString();
+        if(!dim.equals("minecraft:overworld"))
+            return "dimension distinta del Overworld";
+        int x0=(int)bounds.minX(), z0=(int)bounds.minZ();
+        int x1=(int)bounds.maxX(), z1=(int)bounds.maxZ();
+        WorldData data=WorldData.get(a.world);
+        if(data.protectedFootprint(dim,x0,z0,x1,z1,8)
+            || data.overlapsCompleted(dim,x0,z0,x1,z1,16))
+            return "area protegida o asentamiento BWE ahora intersecta el despeje";
+        BlockPos spawn=a.world.getSharedSpawnPos();
+        if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1))
+            return "reserva de spawn ahora intersecta el despeje";
+        for(long x:new long[]{bounds.minX(),bounds.maxX()})
+            for(long z:new long[]{bounds.minZ(),bounds.maxZ()})
+                if(!a.world.getWorldBorder().isWithinBounds(new BlockPos((int)x,0,(int)z)))
+                    return "worldborder cambio durante la auditoria";
+        for(long cx=bounds.minX()>>4;cx<=bounds.maxX()>>4;cx++)
+            for(long cz=bounds.minZ()>>4;cz<=bounds.maxZ()>>4;cz++)
+                if(!a.world.hasChunk((int)cx,(int)cz))
+                    return "chunk descargado durante la auditoria";
+        return null;
     }
 
     private static void stop(Audit a,String message) {
