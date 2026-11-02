@@ -139,6 +139,7 @@ public final class BarttoloWorldExpansion {
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
         say(s,"Avanzado: /bwe margen [5..10] (temporal) | superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (SOLO LECTURA)");
         say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditarvolumen <id> (margen y altura provisional, SOLO LECTURA)");
+        say(s,"NBT (ensayo SIN escritura): /bwe margen 7 -> /bwe seleccionar ctov:id o explorify:id -> alejarse -> /bwe simular");
         say(s,"/bwe auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
         return 1;
     }
@@ -446,8 +447,48 @@ public final class BarttoloWorldExpansion {
         if(result.ok()) say(s,"Zona guardada. Usa /bwe listar, elige una construccion y luego /bwe crear.");
         return result.ok()?1:0;
     }
+    /** Select one real NBT piece from mods installed on the server.
+     *  This stores an immutable operator position and configured margin, but
+     *  NEVER starts destructive placement. /bwe simular is the next step. */
+    private static int selectNbt(CommandSourceStack s,String id) throws CommandSyntaxException {
+        ResourceLocation key=ResourceLocation.tryParse(id);
+        if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
+            return fail(s,"Solo CTOV y Explorify, con identificador namespace:ruta.");
+        ServerLevel world=s.getLevel();
+        if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
+            return fail(s,"Hay una obra o respaldo pendiente.");
+        if(!externalTemplates(world).contains(key))
+            return fail(s,"La plantilla no aparece en los recursos instalados: "+id);
+        Optional<StructureTemplate> found=world.getStructureManager().get(key);
+        if(found.isEmpty()) return fail(s,"No se pudo cargar la plantilla: "+id);
+        Vec3i size=found.get().getSize();
+        if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
+            return fail(s,"Dimensiones de plantilla invalidas.");
+        UUID playerId=player(s);
+        BlockPos center=s.getPlayerOrException().blockPosition();
+        int margin=TemplateSurfaceSurvey.marginFor(playerId);
+        try {
+            var bounds=TemplatePlacementVolume.centered(center.getX(),center.getY(),
+                center.getZ(),size.getX(),size.getY(),size.getZ(),false);
+            var clear=TemplatePlacementVolume.clearance(bounds,margin,12);
+            if(!clear.withinWorld(world.getMinBuildHeight(),world.getMaxBuildHeight()))
+                return fail(s,"La estructura no cabe en los limites del mundo.");
+            PLANS.put(playerId,new BuildEngine.Plan("plantilla",id,center,
+                dim(world),center.getY(),(size.getX()+1)/2,(size.getZ()+1)/2,
+                System.currentTimeMillis(),margin));
+            say(s,"PIEZA NBT SELECCIONADA (no construida): "+id
+                +" | ancla "+center.getX()+","+center.getY()+","+center.getZ()
+                +" | "+size.getX()+"x"+size.getY()+"x"+size.getZ()
+                +" | margen="+margin
+                +". Alejate de la zona y usa /bwe simular. /bwe crear sigue BLOQUEADO para NBT.");
+            return 1;
+        } catch(IllegalArgumentException | ArithmeticException error) {
+            return fail(s,"No se puede seleccionar pieza: "+error.getMessage());
+        }
+    }
     /** Selects a type for the LAST scanned location, even after the player walks away. */
     private static int select(CommandSourceStack s,String type) throws CommandSyntaxException {
+        if(type.contains(":")) return selectNbt(s,type);
         if(!BuildEngine.KINDS.contains(type)) return fail(s,"Tipo desconocido. /bwe listar");
         if(BuildEngine.busy() || WorldData.get(s.getLevel()).undo()!=null)
             return fail(s,"Primero termina o deshaz la obra pendiente.");
