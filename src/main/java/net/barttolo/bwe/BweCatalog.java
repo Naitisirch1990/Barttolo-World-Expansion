@@ -121,12 +121,17 @@ public final class BweCatalog {
             }
             for(var c:blueprint.cells()) {
                 CompoundTag data=metadata.get(BlockPos.asLong(c.x(),c.y(),c.z()));BlockState state=c.state();
+                String npcPool=state.is(Blocks.JIGSAW)&&data!=null?data.getString("pool"):"";
                 if(state.is(Blocks.STRUCTURE_VOID))continue;
                 if(state.is(Blocks.JIGSAW)) { state=finalState(data==null?"minecraft:air":data.getString("final_state"));data=null; }
-                if(state.is(Blocks.STRUCTURE_BLOCK))continue;
+                if(state.is(Blocks.STRUCTURE_BLOCK)||state.is(Blocks.STRUCTURE_VOID))continue;
                 BlockPos pos=rotate(c.x(),c.y(),c.z(),p.rotation()).offset(p.x(),p.y(),p.z());
                 if(pos.getX()<0||pos.getX()>=entry.sizeX()||pos.getY()<0||pos.getY()>=entry.sizeY()||pos.getZ()<0||pos.getZ()>=entry.sizeZ())
                     throw new IOException("Plan fuera de limites en "+entry.id()+": "+pos);
+                if(npcPool.startsWith("minecraft:village/")&&npcPool.endsWith("/villagers")) {
+                    CompoundTag villager=new CompoundTag();villager.putString("id","minecraft:villager");
+                    entities.add(new Spawn(villager,pos.getX()+0.5,pos.getY()+1.0,pos.getZ()+0.5,0));
+                }
                 if(c.y()==0 && !state.isAir() && state.getFluidState().isEmpty()
                     && !state.canBeReplaced() && !state.hasBlockEntity()
                     && !state.is(net.minecraft.tags.BlockTags.LEAVES)) supports.add(pos);
