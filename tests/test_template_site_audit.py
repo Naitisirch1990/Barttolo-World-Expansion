@@ -52,3 +52,11 @@ print("OK: resultado de auditoria recuperable hasta reinicio (solo memoria)")
 assert 'public static boolean isRunning()' in audit
 assert 'TemplateSurfaceSurvey.isRunning()' in audit
 assert 'medicion de superficie en curso' in audit
+
+# Waterlogged artificial blocks must be counted as fluid AND non-natural.
+# This is a static regression; integration in a Forge test world is still required.
+assert 'if(!state.getFluidState().isEmpty()) a.fluids++;' in audit
+assert 'if(!WorldChecks.natural(state) && !state.is(Blocks.WATER) && !state.is(Blocks.LAVA))' in audit
+assert 'else if(!WorldChecks.natural(state))' not in audit
+assert 'categorias no excluyentes' in audit
+print('OK: fluidos y bloques no naturales se contabilizan independientemente (estatico)')

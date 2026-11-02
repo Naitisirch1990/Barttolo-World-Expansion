@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
 
 import java.util.UUID;
@@ -165,15 +166,18 @@ public final class TemplateSiteAudit {
                 BlockState state=a.world.getBlockState(new BlockPos(p.x(),p.y(),p.z()));
                 if(state.isAir()) a.air++;
                 if(state.hasBlockEntity()) a.blockEntities++;
+                // Count categories independently: waterlogged stairs/chests are
+                // both fluid-bearing AND non-natural. Exclude only pure fluid blocks.
                 if(!state.getFluidState().isEmpty()) a.fluids++;
-                else if(!WorldChecks.natural(state)) a.nonNatural++;
+                if(!WorldChecks.natural(state) && !state.is(Blocks.WATER) && !state.is(Blocks.LAVA))
+                    a.nonNatural++;
             }
             if(!a.cursor.hasNext()) {
                 stop(a,"AUDITORIA COMPLETA (solo lectura) "+a.templateId
                     +" | volumen="+a.cursor.total()+" | aire="+a.air
                     +" | liquidos="+a.fluids+" | bloques con block entity="+a.blockEntities
                     +" | bloques no clasificados como naturales="+a.nonNatural
-                    +". NO demuestra que el sitio sea seguro para construir: minerales, "
+                    +" (categorias no excluyentes). NO demuestra que el sitio sea seguro para construir: minerales, "
                     +"jigsaw, inventarios NBT, entidades y cambios posteriores requieren "
                     +"comprobaciones adicionales. NO se coloco ninguna plantilla.");
             }
