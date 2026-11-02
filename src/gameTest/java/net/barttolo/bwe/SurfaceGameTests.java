@@ -25,7 +25,12 @@ public final class SurfaceGameTests {
     public static void archiveRotationGroundAndRemoval(GameTestHelper helper)throws Exception {
         ServerLevel w=helper.getLevel();BlockPos center=new BlockPos(1024,80,1024),source=new BlockPos(1100,80,1100);
         for(int x=61;x<=70;x++)for(int z=61;z<=70;z++){w.setChunkForced(x,z,true);w.getChunk(x,z);}
-        for(int x=-20;x<=20;x++)for(int z=-20;z<=20;z++)w.setBlock(center.offset(x,-1,z),Blocks.STONE.defaultBlockState(),50);
+        for(int x=-20;x<=20;x++)for(int z=-20;z<=20;z++){
+            int top=w.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE,center.getX()+x,center.getZ()+z);
+            for(int y=80;y<top;y++)w.setBlock(new BlockPos(center.getX()+x,y,center.getZ()+z),Blocks.AIR.defaultBlockState(),50);
+            w.setBlock(center.offset(x,-1,z),Blocks.STONE.defaultBlockState(),50);
+        }
+        for(int x=0;x<7;x++)for(int y=0;y<6;y++)for(int z=0;z<7;z++)w.setBlock(source.offset(x,y,z),Blocks.AIR.defaultBlockState(),50);
         for(int x=0;x<7;x++)for(int z=0;z<7;z++)w.setBlock(source.offset(x,0,z),Blocks.OAK_PLANKS.defaultBlockState(),50);
         w.setBlock(source.offset(1,1,1),Blocks.RED_BED.defaultBlockState().setValue(BedBlock.PART,BedPart.FOOT),50);
         // Default bed points north; matching head is one block to the north.
