@@ -1,4 +1,4 @@
-"""Static regression audit for the read-only dynamic CTOV/Explorify catalog.
+"""Static regression audit for dynamic CTOV/Explorify catalog and experimental placement.
 
 This checks source wiring only. It is NOT a Forge runtime or modpack integration test.
 """
@@ -27,7 +27,10 @@ assert 'PIEZA JIGSAW' in src
 assert 'area>22500L' in src
 assert 'return inspectTemplate(s,id);' in src
 assert 'OPTIONAL_TEMPLATES' not in src
-assert 'Plantillas CTOV/Explorify solo en catalogo' in engine
+assert 'buildExternal(world,p,operator)' in engine
+assert 'TemplatePieceDraft.prepare(world,p)' in engine
+assert 'running=new Job(world,p,operator,changed,originals,List.of(),draft.volume());' in engine
+assert 'data.setUndo(new WorldData.Undo(p.dimension(),p.template(),originals,List.of()))' in engine
 assert 'new StructurePlaceSettings' not in engine
 assert not any(p.suffix == ".nbt" for p in Path("src").rglob("*"))
-print("OK: catalogo dinamico paginado e inspeccion XZ; colocacion externa deshabilitada (solo auditoria estatica)")
+print("OK: catalogo paginado, seleccion externa y respaldo previo (auditoria estatica; NO es prueba en Minecraft)")
