@@ -1,3 +1,17 @@
+## Regresion de auditoria 3D — revalidacion al terminar (PENDIENTE EN JUEGO)
+
+**No ejecutada en Minecraft. Usar exclusivamente copia aislada.**
+
+1. Iniciar `/bwe auditarvolumen <id>` en una zona cargada y autorizada, con un volumen suficientemente grande para que tarde varios ticks.
+2. Antes de que termine, proteger una parte de la zona mediante los comandos BWE; al finalizar debe indicar `Auditoria de despeje INVALIDADA`, sin presentar un informe como vigente.
+3. Repetir desplazando el worldborder hasta intersectar el margen; debe invalidarse.
+4. Repetir descargando un chunk del margen ya examinado (sin forzar su carga); debe invalidarse.
+5. Repetir cambiando la reserva de spawn si el entorno de pruebas permite hacerlo; debe invalidarse.
+6. Repetir sin cambios de estado; debe completar la auditoria en modo solo lectura.
+7. Comparar regiones, entidades y block entities antes/despues; ninguna auditoria debe modificar el mundo.
+
+La revalidacion ocurre **al terminar**; no es un bloqueo transaccional y no autoriza colocar estructuras ni terraformar.
+
 ## Prueba pendiente — sondeo bajo tejados (desarrollo posterior a 0.6.18)
 
 **No ejecutada en Minecraft. Solo sobre copia aislada.**
@@ -7,7 +21,7 @@
 3. Repetir sobre edificio de piedra o arenisca: esos materiales pueden confundirse con terreno. **No usar la altura sugerida como permiso para terraformar**.
 4. Repetir sobre superficie modded/no reconocida y sobre una columna con mas de 48 bloques de obstaculos. Si mas del 10% queda sin clasificar, debe mostrar `SIN BASE SUGERIDA`.
 5. Comparar las regiones antes y despues: este comando debe seguir siendo exclusivamente de lectura.
-6. Medir MSPT en un area cargada con muchas estructuras: el sondeo procesa 256 columnas por tick, con un maximo de 48 lecturas de bloque por columna.
+6. Medir MSPT en un area cargada con muchas estructuras: el sondeo procesa 16 columnas por tick, con un maximo de 48 lecturas de bloque por columna.
 
 ## Prueba adicional v0.6.18 — cimentacion frente a margen (PENDIENTE EN JUEGO)
 
