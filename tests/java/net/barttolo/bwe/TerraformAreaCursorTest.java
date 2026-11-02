@@ -2,6 +2,7 @@ package net.barttolo.bwe;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** Java 17 geometry tests; fake writer only, no Minecraft or world mutations. */
 public final class TerraformAreaCursorTest {
@@ -65,6 +66,32 @@ public final class TerraformAreaCursorTest {
             (x, z) -> new ClearanceVolume.ColumnPlan(70, 70, 1, 0));
         check(large.columns() == 10_000_000_000L, "large area count uses long");
         check(large.execute(1, writes::add) == 1, "large area is lazy");
+        // Restart must not reread earlier columns, which may have been modified.
+        var restart = TerraformAreaCursor.resume(10, -2, 2, 2, (x, z) -> {
+            if (x == 10 && z == -2) throw new AssertionError("Reread an already edited column");
+            return plan(x, z);
+        }, new TerraformAreaCursor.Checkpoint(1, 0, 8));
+        check(restart.peek().x() == 11, "resume only loads the checkpoint column");
+
+        // A plan-provider failure while switching columns must not replay
+        // the successfully written final step of the previous column.
+        AtomicInteger failures = new AtomicInteger();
+        var transientCursor = new TerraformAreaCursor(0, 0, 2, 1, (x, z) -> {
+            if (x == 1 && failures.getAndIncrement() == 0)
+                throw new IllegalStateException("transient plan read");
+            return new ClearanceVolume.ColumnPlan(70, 70, 1, 0);
+        });
+        ArrayList<TerraformAreaCursor.Step> transientWrites = new ArrayList<>();
+        try {
+            transientCursor.execute(2, transientWrites::add);
+            throw new AssertionError("expected provider failure");
+        } catch (IllegalStateException expected) { checks++; }
+        check(transientCursor.checkpoint().columnIndex() == 1
+            && transientCursor.checkpoint().stepInColumn() == 0
+            && transientCursor.completedSteps() == 1, "failed column load retains progress");
+        check(transientCursor.execute(2, transientWrites::add) == 1
+            && transientWrites.size() == 2 && !transientCursor.hasNext(),
+            "transient provider failure is retryable without duplicate writes");
         System.out.println("OK: " + checks + " terraform area cursor checks (Java 17)");
     }
 }
