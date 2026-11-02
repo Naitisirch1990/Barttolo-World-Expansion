@@ -33,6 +33,11 @@ public final class TerraformAreaCursor {
     private TerraformColumnCursor column;
 
     public TerraformAreaCursor(int minX, int minZ, int width, int length, ColumnPlans plans) {
+        this(minX, minZ, width, length, plans, true);
+    }
+
+    private TerraformAreaCursor(int minX, int minZ, int width, int length,
+                                ColumnPlans plans, boolean initialize) {
         if (width <= 0 || length <= 0
             || (long) minX + width - 1 > Integer.MAX_VALUE
             || (long) minZ + length - 1 > Integer.MAX_VALUE)
@@ -43,10 +48,11 @@ public final class TerraformAreaCursor {
         this.length = length;
         this.columns = Math.multiplyExact((long) width, (long) length);
         this.plans = Objects.requireNonNull(plans, "plans");
-        loadColumn();
+        if (initialize) loadColumn();
     }
 
     private void loadColumn() {
+        column = null;
         while (columnIndex < columns) {
             int x = (int) ((long) minX + columnIndex % width);
             int z = (int) ((long) minZ + columnIndex / width);
@@ -59,7 +65,12 @@ public final class TerraformAreaCursor {
 
     public long columns() { return columns; }
     public long completedSteps() { return completedSteps; }
-    public boolean hasNext() { return column != null; }
+    public boolean hasNext() {
+        // Retry a transient plan-provider failure at the next column. The
+        // already-committed step must never be replayed by this cursor.
+        if (column == null && columnIndex < columns) loadColumn();
+        return column != null;
+    }
 
     /** Does not consume the next step. */
     public Step peek() {
@@ -105,7 +116,7 @@ public final class TerraformAreaCursor {
     public static TerraformAreaCursor resume(int minX, int minZ, int width, int length,
                                              ColumnPlans plans, Checkpoint checkpoint) {
         Objects.requireNonNull(checkpoint, "checkpoint");
-        TerraformAreaCursor result = new TerraformAreaCursor(minX, minZ, width, length, plans);
+        TerraformAreaCursor result = new TerraformAreaCursor(minX, minZ, width, length, plans, false);
         if (checkpoint.columnIndex() < 0 || checkpoint.columnIndex() > result.columns
             || checkpoint.stepInColumn() < 0 || checkpoint.completedSteps() < checkpoint.stepInColumn())
             throw new IllegalArgumentException("Invalid terraform checkpoint");
