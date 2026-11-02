@@ -2,6 +2,9 @@
 from pathlib import Path
 root = Path(__file__).resolve().parents[1]
 yaml = (root / '.github/workflows/build-forge.yml').read_text()
+assert 'TerraformBackupFileTest.java' in (root / 'tests/run_geometry_tests.sh').read_text()
+assert 'TerraformBackupFileTest' in (root / 'tests/run_geometry_tests.sh').read_text()
+assert (root / 'src/main/java/net/barttolo/bwe/TerraformBackupFile.java').is_file()
 assert 'python3 tests/verify_simulation_parity.py' in yaml
 assert 'python3 tests/verify_ci.py' in yaml
 assert 'python3 tests/test_live_occupancy_guard.py' in yaml
