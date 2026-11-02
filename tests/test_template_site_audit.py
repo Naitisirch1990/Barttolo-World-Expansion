@@ -60,3 +60,9 @@ assert 'if(!WorldChecks.natural(state) && !state.is(Blocks.WATER) && !state.is(B
 assert 'else if(!WorldChecks.natural(state))' not in audit
 assert 'categorias no excluyentes' in audit
 print('OK: fluidos y bloques no naturales se contabilizan independientemente (estatico)')
+
+# Clearance must keep the same protected-area buffers as the piece preflight.
+assert 'data.protectedFootprint(dim,x0,z0,x1,z1,8)' in audit
+assert 'data.overlapsCompleted(dim,x0,z0,x1,z1,16)' in audit
+assert 'data.protectedFootprint(dim,x0,z0,x1,z1,0)' not in audit
+print('OK: despeje 3D respeta separacion de zonas protegidas (estatico)')
