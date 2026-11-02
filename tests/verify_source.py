@@ -7,7 +7,8 @@ assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData'
 assert 'StandardCopyOption.ATOMIC_MOVE' in s['TerraformBackupFile'], 'Publicar respaldo mediante movimiento atomico'
 assert 'MessageDigest.isEqual' in s['TerraformBackupFile'], 'Validar integridad de respaldo'
 assert 'Terraform backup already exists' in s['TerraformBackupFile'], 'Evitar reemplazo deliberado del respaldo'
-assert 'withinWorld' in s['TemplatePlacementVolume'] and 'clearance' in s['TemplatePlacementVolume'], 'Validar limites y volumen antes de colocar esquemas'\nm=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
+assert 'withinWorld' in s['TemplatePlacementVolume'] and 'clearance' in s['TemplatePlacementVolume'], 'Validar limites y volumen antes de colocar esquemas'
+m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
 assert 'planColumnFromSurface' in s['ClearanceVolume'], 'Convertir primer bloque libre en ultimo solido'
 assert 'public int execute(int budget, StepWriter writer)' in s['TerraformAreaCursor'], 'Presupuesto por lote para un area completa'
 assert 'public static TerraformAreaCursor resume(' in s['TerraformAreaCursor'], 'Cursor de area con punto de reanudacion'
