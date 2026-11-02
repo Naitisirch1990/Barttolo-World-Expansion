@@ -278,6 +278,26 @@ public final class BarttoloWorldExpansion {
         } catch(RuntimeException error) {
             return fail(s,"No se pudo inspeccionar la paleta: "+error.getClass().getSimpleName());
         }
+        // Parse actual palette positions and block states from the installed NBT.
+        // This is a strict inspection ONLY: no entity or block placement.
+        try {
+            TemplateNbtPiece.Blueprint piece=TemplateNbtPiece.read(template);
+            say(s,"PIEZA NBT leida: bloques declarados="+piece.cells().size()
+                +" | aire explicito="+piece.explicitAir()
+                +" | aire implicito="+piece.implicitAir()
+                +" | paletas alternativas="+piece.paletteVariants()+".");
+            say(s,"Metadatos: jigsaws="+piece.jigsaws()
+                +" | structure blocks="+piece.structureBlocks()
+                +" | bloques con NBT="+piece.blockEntityNbt()
+                +" | entidades NBT="+piece.entities()+".");
+            if(piece.paletteVariants()>1)
+                say(s,"ADVERTENCIA: hay paletas alternativas; inspeccionada solo la primera. NO colocar todavia.");
+            if(piece.blockEntityNbt()>0 || piece.entities()>0)
+                say(s,"ADVERTENCIA: datos de inventarios/bloques especiales y entidades NO estan respaldados ni colocados.");
+        } catch (IllegalArgumentException error) {
+            say(s,"PIEZA NBT no apta para planificar: "+error.getMessage()
+                +". Sigue visible en el catalogo; no se construira.");
+        }
         if(area>22500L) say(s,"Huella superior a 150 x 150: catalogada sin limite artificial, no autorizada para colocar.");
         say(s,"SOLO LECTURA: no coloca, no terraforma y /bwe crear NO construye plantillas externas.");
         return 1;
