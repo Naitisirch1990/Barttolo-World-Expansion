@@ -113,3 +113,15 @@ En una instancia descartable, instalar los mods originales CTOV y/o Explorify **
 4. Repetir con un chunk del margen descargado, junto a worldborder, spawn y zonas protegidas. Debe fallar sin cargar/generar terreno ni mover entidades.
 5. Comparar hashes y archivos de regiones antes y despues de la medicion. Verificar que no cambia el mundo. La medicion NO autoriza terraformacion ni colocacion de NBT.
 6. Registrar `latest.log`, resultados y capturas. No pasar a produccion hasta disponer de pruebas de colocacion y deshacer de NBT y entidades.
+
+## Regresion 2026-11-02: margen cambiante durante auditoria (SOLO LECTURA)
+
+Estas comprobaciones son **procedimientos pendientes**, no pruebas ya ejecutadas.
+En una copia descartable de RingWorld con CTOV/Explorify instalados legalmente:
+
+1. Elegir una pieza NBT del catalogo y una zona cuyo despeje expandido (5..10 bloques) quede a menos de 8 bloques de una proteccion manual, o a menos de 16 bloques de una obra BWE finalizada. Ejecutar `/bwe auditarvolumen <namespace:id>`. Debe rechazar la auditoria del despeje; `/bwe auditarplantilla` conserva su verificacion independiente de la huella.
+2. Iniciar `/bwe superficie <namespace:id>` en un area grande y, antes de que termine, descargar un chunk que solo pertenezca al **margen** (sin descargar la huella). El resultado final debe invalidarse, no mostrar una base sugerida. Repetir con los chunks cargados para verificar que no se produce un falso rechazo.
+3. Repetir el escaneo y, durante su ejecucion, agregar una zona protegida que intersecte el margen. Debe invalidarse al terminar. Probar tambien un worldborder reducido despues de iniciar el escaneo.
+4. Inspeccionar `latest.log`, hashes de archivos de region y NBT antes/despues. No ejecutar comandos destructivos, ni fusionar el PR ni desplegar en el servidor activo.
+
+Las comprobaciones estaticas de CI verifican la presencia de estos guardias; **no sustituyen estas pruebas dentro de Minecraft**.
