@@ -3,7 +3,7 @@ from pathlib import Path
 r=Path(__file__).resolve().parents[1]
 p=r/'src/main/java/net/barttolo/bwe'
 s={x.stem:x.read_text() for x in p.glob('*.java')}
-assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe'}, s.keys()
+assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume'}, s.keys()
 m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
 for cmd in ('escanear','seleccionar','crear','listar','analizar','buscar','planear','plantilla','previsualizar','simular','confirmar','cancelar','deshacer','proteger','estado','finalizar','asentamientos','olvidar','protegerarea','areas','liberararea'):
     assert f'Commands.literal("{cmd}")' in m,cmd
