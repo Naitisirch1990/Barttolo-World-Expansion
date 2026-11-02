@@ -58,10 +58,17 @@ public final class BuildEngine {
         final Map<Long, net.minecraft.nbt.CompoundTag> expectedBefore = new HashMap<>();
         final int total;
         final CollisionZone collisionZone;
+        final TemplatePlacementVolume.Bounds externalClearance;
         boolean waitingForEntities;
         int placed;
         Job(ServerLevel world, Plan plan, UUID operator, Map<Long,BlockState> changes,
             List<WorldData.StoredBlock> originals, List<UUID> reservedEntities) {
+            this(world,plan,operator,changes,originals,reservedEntities,null);
+        }
+        Job(ServerLevel world, Plan plan, UUID operator, Map<Long,BlockState> changes,
+            List<WorldData.StoredBlock> originals, List<UUID> reservedEntities,
+            TemplatePlacementVolume.Bounds externalClearance) {
+            this.externalClearance = externalClearance;
             this.world = world;
             this.plan = plan;
             this.operator = operator;
@@ -93,6 +100,32 @@ public final class BuildEngine {
         Job job = running;
         if(job == null) return;
         try {
+            // External pieces may clear AIR under players: check the ENTIRE
+            // clearance, not just collisionZone's future solid blocks.
+            if (job.externalClearance != null) {
+                var b=job.externalClearance;
+                AABB area=new AABB(b.minX(),b.minY(),b.minZ(),
+                    b.maxX()+1.0,job.world.getMaxBuildHeight(),b.maxZ()+1.0);
+                if (!job.world.getEntitiesOfClass(net.minecraft.server.level.ServerPlayer.class,area).isEmpty()) {
+                    job.waitingForEntities=true;
+                    return;
+                }
+                String dim=job.world.dimension().location().toString();
+                WorldData data=WorldData.get(job.world);
+                if (!dim.equals(job.plan.dimension())
+                    || data.protectedFootprint(dim,(int)b.minX(),(int)b.minZ(),(int)b.maxX(),(int)b.maxZ(),8)
+                    || data.overlapsCompleted(dim,(int)b.minX(),(int)b.minZ(),(int)b.maxX(),(int)b.maxZ(),16))
+                    throw new IllegalStateException("Cambio de dimension o proteccion durante obra NBT");
+                var spawn=job.world.getSharedSpawnPos();
+                if (SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,
+                    (int)b.minX(),(int)b.minZ(),(int)b.maxX(),(int)b.maxZ()))
+                    throw new IllegalStateException("Reserva de spawn afecta obra NBT");
+                for (long x:new long[]{b.minX(),b.maxX()})
+                    for (long z:new long[]{b.minZ(),b.maxZ()})
+                        if (!job.world.getWorldBorder().isWithinBounds(
+                            new BlockPos((int)x,job.plan.y(),(int)z)))
+                            throw new IllegalStateException("Worldborder cambiado durante obra NBT");
+            }
             // Pause (do not fail or discard the backup) while an entity overlaps
             // a SOLID block still pending placement. Nearby slimes are harmless.
             if (occupied(job.world, job.collisionZone)) {
@@ -106,6 +139,8 @@ public final class BuildEngine {
                 BlockPos at = BlockPos.of(entry.getKey());
                 if (!job.world.hasChunk(at.getX() >> 4, at.getZ() >> 4))
                     throw new IllegalStateException("Chunk descargado durante la obra en " + at);
+                if (job.externalClearance != null && !job.world.getWorldBorder().isWithinBounds(at))
+                    throw new IllegalStateException("Worldborder excluyo bloque NBT " + at);
                 // Avoid premature physics updates for multi-block beds and planted crops.
                 // Revalidate every block before changing it. If someone builds while
                 // the job runs, stop instead of overwriting their work.
@@ -509,13 +544,12 @@ public final class BuildEngine {
     public static Result build(ServerLevel world, Plan p, UUID operator) {
         if(busy()) return new Result(false,"Ya existe una construccion en curso: "+status(),0);
         if(WorldData.get(world).undo()!=null) return new Result(false,"Hay una obra sin finalizar: /bwe deshacer o /bwe finalizar",0);
+        // External pieces have their own destructive, bounded and protection-aware
+        // preparation. They do NOT use the natural-only vanilla survey above.
+        if(!p.template().isEmpty()) return buildExternal(world,p,operator);
         WorldChecks.Survey review=WorldChecks.scanFull(world,p.center(),p.halfX(),p.halfZ(),4);
         if(!review.ok() || review.groundY()!=p.y()) return new Result(false,"La revision cambio: "+review.reason(),0);
-        // Entity overlap is handled as a non-destructive WAIT during server ticks.
-        // External NBT pieces often contain jigsaws, chests and loot/BE metadata.
-        // External placement is still unimplemented; the owner explicitly accepts loss of inventories/entities.
-        if(!p.template().isEmpty()) return new Result(false,
-            "Plantillas CTOV/Explorify solo en catalogo: falta motor de terraformacion y colocacion por lotes. Deshacer no recuperara inventarios ni entidades.",0);
+
         Drawing drawing=new Drawing(world,p.center(),p.y());
         try { drawing.draw(p.kind()); }
         catch (IllegalArgumentException e) { return new Result(false,"Terreno inseguro: "+e.getMessage(),0); }
@@ -546,6 +580,42 @@ public final class BuildEngine {
         world.getServer().overworld().getDataStorage().save();
         running = new Job(world,p,operator,changed,undoBlocks,reservedEntities);
         return new Result(true,"Obra iniciada. Esperara sin modificar bloques ocupados; /bwe estado muestra el avance.",changed.size());
+    }
+
+    /** EXPERIMENTAL: first single-piece CTOV/Explorify placement.
+     *  Operates ONLY after the admin explicitly uses /bwe crear or /bwe confirmar SI.
+     *  All final changes are materialized/read before snapshotting and no block is
+     *  edited until the original state snapshot has been saved to server storage.
+     *  CTOV/Explorify structure files are read from installed resources, never bundled.
+     *  Inventory contents and entities are not part of the rollback contract.
+     */
+    private static Result buildExternal(ServerLevel world, Plan p, UUID operator) {
+        try {
+            TemplatePieceDraft.Prepared draft=TemplatePieceDraft.prepare(world,p);
+            Map<Long,BlockState> changed=draft.changed();
+            if(changed.isEmpty()) return new Result(false,"No hay cambios; respaldo vacio rechazado.",0);
+            if(changed.size()>MAX_CHANGES)
+                return new Result(false,"Pieza NBT supera limite de cambios: "+changed.size(),0);
+            ArrayList<WorldData.StoredBlock> originals=new ArrayList<>(changed.size());
+            for(var entry:changed.entrySet()) {
+                BlockPos at=BlockPos.of(entry.getKey());
+                if(!world.hasChunk(at.getX()>>4,at.getZ()>>4))
+                    throw new IllegalArgumentException("Chunk descargado antes de respaldar "+at);
+                originals.add(new WorldData.StoredBlock(entry.getKey(),
+                    WorldData.encode(world.getBlockState(at)),WorldData.encode(entry.getValue())));
+            }
+            WorldData data=WorldData.get(world);
+            // Persist BEFORE the first edit; remains after a failed job for undo.
+            data.setUndo(new WorldData.Undo(p.dimension(),p.template(),originals,List.of()));
+            world.getServer().overworld().getDataStorage().save();
+            running=new Job(world,p,operator,changed,originals,List.of(),draft.volume());
+            return new Result(true,"Colocacion NBT experimental iniciada por lotes (200 bloques/tick): "
+                +p.template()+". NO se recuperan NBT de inventarios ni entidades. "
+                +"Consulta /bwe estado y luego /bwe deshacer ANTES de finalizar.",changed.size());
+        } catch(RuntimeException error) {
+            LOGGER.error("[BWE] Preparacion NBT cancelada SIN modificar terreno: {}",p.template(),error);
+            return new Result(false,"No se inicio la obra NBT: "+error.getMessage(),0);
+        }
     }
 
     /** Read-only diagnosis for a pending undo. Does not load chunks or mutate blocks. */
@@ -649,7 +719,7 @@ public final class BuildEngine {
                     +" | NBT especial="+draft.ignoredBlockEntities()
                     +" | entidades NBT="+draft.ignoredEntities()
                     +" | paletas="+draft.alternativePalettes()
-                    +". La colocacion NBT permanece DESHABILITADA.", draft.changed().size());
+                    +". PREPARADO PARA PRUEBA EN COPIA: /bwe crear o /bwe confirmar SI.", draft.changed().size());
             } catch(IllegalArgumentException error) {
                 return new Result(false,"SIMULACION NBT CANCELADA: "+error.getMessage(),0);
             }
