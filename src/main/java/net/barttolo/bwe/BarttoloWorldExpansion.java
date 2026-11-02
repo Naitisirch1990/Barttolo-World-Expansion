@@ -139,7 +139,7 @@ public final class BarttoloWorldExpansion {
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
         say(s,"Avanzado: /bwe margen [5..10] (temporal) | superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (SOLO LECTURA)");
         say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditarvolumen <id> (margen y altura provisional, SOLO LECTURA)");
-        say(s,"NBT (ensayo SIN escritura): /bwe margen 7 -> /bwe seleccionar ctov:id o explorify:id -> alejarse -> /bwe simular");
+        say(s,"NBT EXPERIMENTAL SOLO EN COPIA: /bwe margen 7 -> /bwe seleccionar ctov:id -> alejarse -> /bwe simular -> /bwe crear -> /bwe deshacer");
         say(s,"/bwe auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
         return 1;
     }
@@ -190,7 +190,7 @@ public final class BarttoloWorldExpansion {
         int pages=Math.max(1,(ids.size()+CATALOG_PAGE_SIZE-1)/CATALOG_PAGE_SIZE);
         if(page>pages) return fail(s,"Pagina inexistente. Ultima pagina: "+pages);
         say(s,"Catalogo CTOV/Explorify: "+ids.size()+" plantillas detectadas | pagina "+page+"/"+pages
-            +" | INSPECCION SOLAMENTE: construccion externa aun bloqueada.");
+            +" | clic INSPECCIONA; /bwe seleccionar <id> prepara obra EXPERIMENTAL en copia.");
         int begin=(page-1)*CATALOG_PAGE_SIZE;
         for(int i=begin;i<Math.min(ids.size(),begin+CATALOG_PAGE_SIZE);i++) {
             ResourceLocation key=ids.get(i);
@@ -300,7 +300,7 @@ public final class BarttoloWorldExpansion {
                 +". Sigue visible en el catalogo; no se construira.");
         }
         if(area>22500L) say(s,"Huella superior a 150 x 150: catalogada sin limite artificial, no autorizada para colocar.");
-        say(s,"SOLO LECTURA: no coloca, no terraforma y /bwe crear NO construye plantillas externas.");
+        say(s,"ESTE COMANDO SOLO INSPECCIONA. Para ensayar una PIEZA: /bwe seleccionar "+id+"; alejate y usa /bwe simular. /bwe crear puede MODIFICAR el mundo; SOLO COPIA AISLADA.");
         return 1;
     }
     /** Read-only preflight at the operator's current block, for ONE unrotated NBT piece.
@@ -480,7 +480,7 @@ public final class BarttoloWorldExpansion {
                 +" | ancla "+center.getX()+","+center.getY()+","+center.getZ()
                 +" | "+size.getX()+"x"+size.getY()+"x"+size.getZ()
                 +" | margen="+margin
-                +". Alejate de la zona y usa /bwe simular. /bwe crear sigue BLOQUEADO para NBT.");
+                +". Alejate de la zona y usa /bwe simular. /bwe crear MODIFICARA BLOQUES: SOLO COPIA AISLADA.");
             return 1;
         } catch(IllegalArgumentException | ArithmeticException error) {
             return fail(s,"No se puede seleccionar pieza: "+error.getMessage());
