@@ -46,7 +46,7 @@ public final class ConstructionGameTests {
             List<WorldData.StoredBlock> before;
             @Override public void run() {
                 try {
-                    if(BuildEngine.busy()) { helper.runAfterDelay(1,this);return; }
+                    if(BuildEngine.busy()) { helper.runAfterDelay(1,() -> this.run());return; }
                     if(!started && index==0)
                         helper.assertTrue(world.getBlockState(stale).isAir(),"Legacy conflicting state not restored");
                     if(index==kinds.size()) { helper.succeed();return; }
@@ -97,7 +97,7 @@ public final class ConstructionGameTests {
                         // The next iteration replaces the exact same previously occupied volume.
                         index++;started=false;restoring=false;
                     }
-                    helper.runAfterDelay(1,this);
+                    helper.runAfterDelay(1,() -> this.run());
                 } catch(Exception error) { helper.fail(error.toString()); }
             }
         });

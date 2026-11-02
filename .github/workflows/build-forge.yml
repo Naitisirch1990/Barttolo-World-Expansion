@@ -65,7 +65,18 @@ jobs:
           jar tf "$jarfile" | grep -F 'net/barttolo/bwe/BarttoloWorldExpansion.class'
           javap -verbose -classpath "$jarfile" net.barttolo.bwe.BarttoloWorldExpansion | grep -F 'major version: 61'
       - name: Ensayo real Forge - 15 construcciones y restauracion
-        run: gradle --no-daemon --stacktrace runGameTestServer
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace runGameTestServer | tee gametest.log
+          python3 - <<'PYTEST'
+          from pathlib import Path
+          text=Path('gametest.log').read_text()
+          kinds=('aldea','aldea_grande','altar','campamento','carreta','establo','fortin','granja','herreria','mercado','posada','pozo','refugio','ruina','torre')
+          for kind in kinds:
+              assert f'[BWE-GAMETEST] PASS {kind} |' in text, f'Falta ensayo runtime: {kind}'
+          print('15 construcciones verificadas con Forge real')
+          PYTEST
       - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
