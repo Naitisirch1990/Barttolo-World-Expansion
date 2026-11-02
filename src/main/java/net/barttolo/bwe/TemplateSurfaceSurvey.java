@@ -161,6 +161,34 @@ public final class TemplateSurfaceSurvey {
                 s.processed++;
             }
             if(s.processed==s.total) {
+                // The margin may have unloaded while the footprint was scanned.
+                // Recheck every clearance chunk before presenting a site estimate.
+                // This never force-loads or generates terrain.
+                for(long cx=s.clearance.minX()>>4;cx<=s.clearance.maxX()>>4;cx++)
+                    for(long cz=s.clearance.minZ()>>4;cz<=s.clearance.maxZ()>>4;cz++)
+                        if(!s.world.hasChunk((int)cx,(int)cz)) {
+                            stop(s,"Medicion invalidada: chunk del margen descargado durante el analisis. "
+                                +"No se modificaron bloques.");
+                            return;
+                        }
+                // Protections and worldborder can change during a long survey.
+                String dimension=s.world.dimension().location().toString();
+                int x0=(int)s.clearance.minX(), z0=(int)s.clearance.minZ();
+                int x1=(int)s.clearance.maxX(), z1=(int)s.clearance.maxZ();
+                WorldData current=WorldData.get(s.world);
+                if(current.protectedFootprint(dimension,x0,z0,x1,z1,0)
+                    || current.overlapsCompleted(dimension,x0,z0,x1,z1,0)
+                    || SiteMath.circleIntersectsRect(s.world.getSharedSpawnPos().getX(),
+                        s.world.getSharedSpawnPos().getZ(),160,x0,z0,x1,z1)) {
+                    stop(s,"Medicion invalidada: el margen ahora toca una zona reservada o protegida.");
+                    return;
+                }
+                for(long x:new long[]{s.clearance.minX(),s.clearance.maxX()})
+                    for(long z:new long[]{s.clearance.minZ(),s.clearance.maxZ()})
+                        if(!s.world.getWorldBorder().isWithinBounds(new BlockPos((int)x,0,(int)z))) {
+                            stop(s,"Medicion invalidada: el margen ahora sale del worldborder.");
+                            return;
+                        }
                 String coverage=" | suelo reconocido="+s.profile.count()+"/"+s.total
                     +" | obstaculos sobre base="+s.coveredObstacles
                     +" | sin clasificar="+s.unresolved;
