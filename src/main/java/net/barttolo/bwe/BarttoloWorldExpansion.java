@@ -1,654 +1,108 @@
 package net.barttolo.bwe;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.ChatFormatting;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
+import net.minecraft.commands.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.network.chat.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
 import java.util.*;
 
-/** Barttolo World Expansion 0.7.0. Test server only, operator-only commands. */
+/** Manual placement in existing chunks. No audit or worldgen commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
-    public static final String MOD_ID = "barttoloworldexpansion";
-    private static final Map<UUID, BuildEngine.Plan> PLANS = new HashMap<>();
-    private record ScanSite(BlockPos center, String dimension, long created) {}
-    private static final Map<UUID, ScanSite> SCANS = new HashMap<>();
-    private static final List<String> ORDERED_KINDS = List.of(
-        "campamento", "refugio", "pozo", "carreta", "torre", "ruina", "altar", "aldea", "herreria", "posada", "granja", "establo", "fortin", "mercado", "aldea_grande");
-    private static final int CATALOG_PAGE_SIZE = 8;
-    public BarttoloWorldExpansion() { MinecraftForge.EVENT_BUS.register(this); }
-
-    @SubscribeEvent
-    public void onTick(TickEvent.ServerTickEvent event) {
-        if(event.phase == TickEvent.Phase.END) { BuildEngine.serverTick(); TemplateSiteAudit.serverTick(); TemplateSurfaceSurvey.serverTick(); }
+    public static final String MOD_ID="barttoloworldexpansion";
+    private record Selection(BweCatalog.Entry entry,BlockPos center,String dimension,int ground,int margin) {}
+    private static final Map<UUID,Selection> SELECTED=new HashMap<>();
+    private static final Map<UUID,BlockPos> SITES=new HashMap<>();
+    private static final Map<UUID,Integer> MARGINS=new HashMap<>();
+    public BarttoloWorldExpansion(){MinecraftForge.EVENT_BUS.register(this);}
+    @SubscribeEvent public void onTick(TickEvent.ServerTickEvent event){
+        if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();}
     }
-
-    /** Drop stale level references when a test server is stopped and restarted
-     *  inside the same JVM. The durable undo snapshot remains on disk. */
-    @SubscribeEvent
-    public void onServerStopped(ServerStoppedEvent event) {
-        BuildEngine.resetForShutdown();
-        TemplateSiteAudit.resetForShutdown();
-        TemplateSurfaceSurvey.resetForShutdown();
-        PLANS.clear();
-        SCANS.clear();
+    @SubscribeEvent public void onStopped(ServerStoppedEvent event){
+        BuildEngine.resetForShutdown();SurfaceBuilder.reset();BweCatalog.reset();SELECTED.clear();SITES.clear();MARGINS.clear();
     }
-
-    @SubscribeEvent
-    public void onCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher=event.getDispatcher();
-        dispatcher.register(Commands.literal("bwe").requires(s -> s.hasPermission(2))
-            .then(Commands.literal("ayuda").executes(ctx -> help(ctx.getSource())))
-            .then(Commands.literal("listar").executes(ctx -> listing(ctx.getSource(),1))
-                .then(Commands.argument("pagina",IntegerArgumentType.integer(1))
-                    .executes(ctx -> listing(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"pagina")))))
-            .then(Commands.literal("inspeccionar").then(Commands.argument("id",StringArgumentType.greedyString())
-                .executes(ctx -> inspectTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
-            .then(Commands.literal("verificarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
-                .executes(ctx -> verifyTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
-            .then(Commands.literal("auditarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
-                .executes(ctx -> auditTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
-            .then(Commands.literal("auditarvolumen").then(Commands.argument("id",StringArgumentType.greedyString())
-                .executes(ctx -> auditClearanceTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
-            .then(Commands.literal("superficie").then(Commands.argument("id",StringArgumentType.greedyString())
-                .executes(ctx -> surfaceTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
-            .then(Commands.literal("margen").executes(ctx -> marginStatus(ctx.getSource()))
-                .then(Commands.argument("bloques",IntegerArgumentType.integer(5,10))
-                    .executes(ctx -> configureMargin(ctx.getSource(),
-                        IntegerArgumentType.getInteger(ctx,"bloques")))))
-            .then(Commands.literal("superficieestado").executes(ctx -> surfaceStatus(ctx.getSource())))
-            .then(Commands.literal("cancelarsuperficie").executes(ctx -> cancelSurface(ctx.getSource())))
-            .then(Commands.literal("auditoria").executes(ctx -> auditStatus(ctx.getSource())))
-            .then(Commands.literal("cancelarauditoria").executes(ctx -> cancelAudit(ctx.getSource())))
-            .then(Commands.literal("plantillas").executes(ctx -> templates(ctx.getSource())))
-            .then(Commands.literal("escanear").executes(ctx -> scan(ctx.getSource(),12))
-                .then(Commands.argument("radio",IntegerArgumentType.integer(4,32))
-                    .executes(ctx -> scan(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"radio")))))
-            .then(Commands.literal("seleccionar").then(Commands.argument("tipo",StringArgumentType.word())
-                .executes(ctx -> select(ctx.getSource(),StringArgumentType.getString(ctx,"tipo")))))
-            .then(Commands.literal("crear").executes(ctx -> create(ctx.getSource())))
-            .then(Commands.literal("estado").executes(ctx -> status(ctx.getSource())))
-            .then(Commands.literal("diagnosticar").executes(ctx -> diagnose(ctx.getSource())))
-            .then(Commands.literal("asentamientos").executes(ctx -> completedSites(ctx.getSource())))
-            .then(Commands.literal("olvidar").then(Commands.argument("numero",IntegerArgumentType.integer(1))
-                .then(Commands.literal("SI").executes(ctx -> forgetSite(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"numero"))))))
-            .then(Commands.literal("analizar").executes(ctx -> scan(ctx.getSource(), 12))
-                .then(Commands.argument("radio",IntegerArgumentType.integer(4,32))
-                .executes(ctx -> scan(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"radio")))))
-            .then(Commands.literal("planear").then(Commands.argument("tipo",StringArgumentType.word())
-                .executes(ctx -> planOriginal(ctx.getSource(),StringArgumentType.getString(ctx,"tipo"),null))))
-            .then(Commands.literal("buscar").then(Commands.argument("tipo",StringArgumentType.word())
-                .then(Commands.argument("radio",IntegerArgumentType.integer(32,128))
-                    .executes(ctx -> find(ctx.getSource(),StringArgumentType.getString(ctx,"tipo"),IntegerArgumentType.getInteger(ctx,"radio"))))))
-            .then(Commands.literal("plantilla").then(Commands.argument("id",StringArgumentType.greedyString())
-                .executes(ctx -> planTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
-            .then(Commands.literal("previsualizar").executes(ctx -> preview(ctx.getSource())))
-            .then(Commands.literal("simular").executes(ctx -> simulate(ctx.getSource())))
-            .then(Commands.literal("confirmar").then(Commands.literal("SI").executes(ctx -> confirm(ctx.getSource()))))
-            .then(Commands.literal("cancelar").executes(ctx -> cancel(ctx.getSource())))
-            .then(Commands.literal("deshacer").executes(ctx -> undo(ctx.getSource())))
-            .then(Commands.literal("finalizar").then(Commands.literal("SI").executes(ctx -> finalizeWork(ctx.getSource()))))
-            .then(Commands.literal("proteger").then(Commands.argument("radio",IntegerArgumentType.integer(16,512))
-                .executes(ctx -> protect(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"radio")))))
-            .then(Commands.literal("protegidas").executes(ctx -> protectedAreas(ctx.getSource())))
-            .then(Commands.literal("protegerarea")
-                .then(Commands.argument("x1",IntegerArgumentType.integer())
-                .then(Commands.argument("z1",IntegerArgumentType.integer())
-                .then(Commands.argument("x2",IntegerArgumentType.integer())
-                .then(Commands.argument("z2",IntegerArgumentType.integer())
-                .executes(ctx -> protectRect(ctx.getSource(),
-                    IntegerArgumentType.getInteger(ctx,"x1"),IntegerArgumentType.getInteger(ctx,"z1"),
-                    IntegerArgumentType.getInteger(ctx,"x2"),IntegerArgumentType.getInteger(ctx,"z2"))))))))
-            .then(Commands.literal("areas").executes(ctx -> rectangleAreas(ctx.getSource())))
-            .then(Commands.literal("liberararea")
-                .then(Commands.argument("numero",IntegerArgumentType.integer(1))
-                .then(Commands.literal("SI")
-                    .executes(ctx -> unprotectRect(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"numero"))))))
+    @SubscribeEvent public void onCommands(RegisterCommandsEvent event){
+        event.getDispatcher().register(Commands.literal("bwe").requires(s->s.hasPermission(2)).executes(c->help(c.getSource()))
+            .then(Commands.literal("ayuda").executes(c->help(c.getSource())))
+            .then(Commands.literal("listar").executes(c->listing(c.getSource(),1))
+                .then(Commands.argument("pagina",IntegerArgumentType.integer(1)).executes(c->listing(c.getSource(),IntegerArgumentType.getInteger(c,"pagina")))))
+            .then(Commands.literal("seleccionar").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(c->select(c.getSource(),StringArgumentType.getString(c,"id")))))
+            .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
+            .then(Commands.literal("crear").executes(c->create(c.getSource())))
+            .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
+            .then(Commands.literal("deshacer").executes(c->undo(c.getSource())))
+            .then(Commands.literal("margen").executes(c->{say(c.getSource(),"Margen: "+MARGINS.getOrDefault(id(c.getSource()),5)+" bloques");return 1;})
+                .then(Commands.argument("bloques",IntegerArgumentType.integer(5,10)).executes(c->{MARGINS.put(id(c.getSource()),IntegerArgumentType.getInteger(c,"bloques"));say(c.getSource(),"Margen actualizado; selecciona la construccion otra vez");return 1;})))
+            .then(Commands.literal("recargar").executes(c->{if(SurfaceBuilder.busy())return fail(c.getSource(),"Espera a que termine la obra");BweCatalog.reset();return listing(c.getSource(),1);}))
+            .then(Commands.literal("proteger").then(Commands.argument("radio",IntegerArgumentType.integer(1,512))
+                .executes(c->{int n=WorldData.get(c.getSource().getLevel()).protect(c.getSource().getLevel().dimension().location().toString(),c.getSource().getPlayerOrException().blockPosition(),IntegerArgumentType.getInteger(c,"radio"));say(c.getSource(),"Proteccion #"+n);return 1;})))
             .then(Commands.literal("desproteger").then(Commands.argument("numero",IntegerArgumentType.integer(1))
-                .executes(ctx -> unprotect(ctx.getSource(),IntegerArgumentType.getInteger(ctx,"numero")))))
+                .executes(c->{boolean ok=WorldData.get(c.getSource().getLevel()).unprotect(IntegerArgumentType.getInteger(c,"numero"));if(!ok)return fail(c.getSource(),"Proteccion no encontrada");say(c.getSource(),"Proteccion retirada");return 1;})))
         );
     }
-
-    private static void say(CommandSourceStack s,String msg) { s.sendSuccess(() -> Component.literal("[BWE] "+msg),false); }
-    private static int fail(CommandSourceStack s,String msg) { s.sendFailure(Component.literal("[BWE] "+msg)); return 0; }
-    private static UUID player(CommandSourceStack s) throws CommandSyntaxException { return s.getPlayerOrException().getUUID(); }
-    private static String dim(ServerLevel level) {return level.dimension().location().toString();}
-
-    private static int help(CommandSourceStack s) {
-        say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
-        say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
-        say(s,"Avanzado: /bwe margen [5..10] (temporal) | superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (SOLO LECTURA)");
-        say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditarvolumen <id> (margen y altura provisional, SOLO LECTURA)");
-        say(s,"NBT EXPERIMENTAL SOLO EN COPIA: /bwe margen 7 -> /bwe seleccionar ctov:id -> alejarse -> /bwe simular -> /bwe crear -> /bwe deshacer");
-        say(s,"/bwe auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
+    private static UUID id(CommandSourceStack s)throws CommandSyntaxException{return s.getPlayerOrException().getUUID();}
+    private static void say(CommandSourceStack s,String text){s.sendSuccess(()->Component.literal("[BWE] "+text),false);}
+    private static int fail(CommandSourceStack s,String text){s.sendFailure(Component.literal("[BWE] "+text));return 0;}
+    private static int help(CommandSourceStack s){
+        say(s,"En el lugar elegido: /bwe listar -> clic en una construccion -> alejarse -> /bwe crear");
+        say(s,"/bwe estado | /bwe deshacer (RETIRA, sin restaurar terreno) | /bwe margen 5");
+        say(s,"La altura del suelo se calcula automaticamente. Se limpian bloques y entidades excepto jugadores.");
         return 1;
     }
-    private static int diagnose(CommandSourceStack s) {
-        BuildEngine.Result r=BuildEngine.diagnose(s.getLevel());
-        if(!r.ok()) return fail(s,r.message());
-        say(s,r.message());return 1;
-    }
-    private static int status(CommandSourceStack s) {
-        say(s, BuildEngine.status());
-        var snapshot=WorldData.get(s.getLevel()).undo();
-        if(snapshot!=null) say(s,"Respaldo pendiente: "+snapshot.name()+" / "+snapshot.blocks().size()+
-            " bloques. "+(snapshot.completed() ? "COMPLETO: revisar antes de /bwe finalizar SI." :
-            "INCOMPLETO: /bwe finalizar SI bloqueado; conserva respaldo y usa /bwe deshacer."));
-        return 1;
-    }
-    private static int completedSites(CommandSourceStack s) {
-        List<WorldData.Site> sites=WorldData.get(s.getLevel()).completedSites();
-        if(sites.isEmpty()) { say(s,"No hay obras finalizadas registradas por BWE."); return 1; }
-        say(s,"Asentamientos registrados: "+sites.size()+" (incluyen separacion adicional de 16 bloques)");
-        int index=0;
-        for(WorldData.Site a:sites) {
-            if(++index>30) { say(s,"Mostrando 30. Total: "+sites.size()); break; }
-            say(s,"#"+index+" "+a.name()+" "+a.dimension()+" X="+a.minX()+".."+a.maxX()+" Z="+a.minZ()+".."+a.maxZ());
+    private static int listing(CommandSourceStack s,int page){
+        var entries=BweCatalog.entries();int pages=Math.max(1,(entries.size()+5)/6);
+        if(entries.isEmpty())return fail(s,BweCatalog.problem()+". Usa el JAR completo con las plantillas incluidas.");
+        if(page>pages)return fail(s,"Ultima pagina: "+pages);
+        say(s,"Construcciones reales CTOV / Explorify: "+entries.size()+" | pagina "+page+"/"+pages);
+        for(var e:entries.subList((page-1)*6,Math.min(entries.size(),page*6))){
+            Component option=Component.literal("["+e.title()+"] "+e.sizeX()+" x "+e.sizeZ()+" bloques")
+                .withStyle(style->style.withColor(ChatFormatting.AQUA)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe seleccionar "+e.id()))
+                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,Component.literal(e.description()+". Clic para elegir en tu ubicacion."))));
+            s.sendSuccess(()->option,false);
         }
+        if(page>1)s.sendSuccess(()->Component.literal("[Anterior]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page-1)))),false);
+        if(page<pages)s.sendSuccess(()->Component.literal("[Siguiente]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page+1)))),false);
         return 1;
     }
-    private static int forgetSite(CommandSourceStack s,int number) {
-        if(BuildEngine.busy() || WorldData.get(s.getLevel()).undo()!=null)
-            return fail(s,"Primero termina o revierte la obra pendiente.");
-        if(!WorldData.get(s.getLevel()).forgetSite(number)) return fail(s,"Asentamiento inexistente.");
-        say(s,"Registro #"+number+" olvidado. Los edificios no se han modificado.");
-        return 1;
+    private static int scan(CommandSourceStack s)throws CommandSyntaxException{
+        SITES.put(id(s),s.getPlayerOrException().blockPosition());say(s,"Ubicacion guardada. /bwe listar y elige una construccion.");return 1;
     }
-    /** Read-only discovery: use templates already exposed by the server's resource manager.
-     *  Do not copy third-party NBT. External placement remains disabled until a tested cut/fill engine exists.
-     *  Only the visible page loads NBT, keeping command execution bounded.
-     */
-    private static List<ResourceLocation> externalTemplates(ServerLevel level) {
-        try (var stream = level.getStructureManager().listTemplates()) {
-            return stream.filter(key -> key.getNamespace().equals("ctov")
-                    || key.getNamespace().equals("explorify"))
-                .distinct().sorted(Comparator.comparing(ResourceLocation::toString)).toList();
-        }
+    private static int select(CommandSourceStack s,String name)throws CommandSyntaxException{
+        if(SurfaceBuilder.busy()||BuildEngine.busy())return fail(s,"Espera a que termine la obra");
+        var e=BweCatalog.find(name.trim());if(e==null)return fail(s,"Construccion no encontrada. /bwe listar");
+        UUID player=id(s);BlockPos center=SITES.getOrDefault(player,s.getPlayerOrException().blockPosition());
+        int margin=MARGINS.getOrDefault(player,5);
+        try{
+            int ground=SurfaceBuilder.ground(s.getLevel(),center,e,margin);
+            SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin));
+            say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | suelo Y="+(ground-1));
+            say(s,"Se limpiaran "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques incluyendo margen. Alejate horizontalmente y usa /bwe crear.");return 1;
+        }catch(Exception error){return fail(s,error.getMessage());}
     }
-    private static int listing(CommandSourceStack s,int page) {
-        List<ResourceLocation> ids=externalTemplates(s.getLevel());
-        int pages=Math.max(1,(ids.size()+CATALOG_PAGE_SIZE-1)/CATALOG_PAGE_SIZE);
-        if(page>pages) return fail(s,"Pagina inexistente. Ultima pagina: "+pages);
-        say(s,"Catalogo CTOV/Explorify: "+ids.size()+" plantillas detectadas | pagina "+page+"/"+pages
-            +" | clic INSPECCIONA; /bwe seleccionar <id> prepara obra EXPERIMENTAL en copia.");
-        int begin=(page-1)*CATALOG_PAGE_SIZE;
-        for(int i=begin;i<Math.min(ids.size(),begin+CATALOG_PAGE_SIZE);i++) {
-            ResourceLocation key=ids.get(i);
-            Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
-            String dimensions=found.map(t -> {
-                Vec3i size=t.getSize();
-                return size.getX()+" x "+size.getZ()+" bloques";
-            }).orElse("dimensiones no disponibles");
-            String id=key.toString();
-            Component option=Component.literal("  ["+id+"] "+dimensions)
-                .withStyle(style -> style.withColor(ChatFormatting.YELLOW)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe inspeccionar "+id))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                        Component.literal("Ver dimensiones; NO construye"))));
-            s.sendSuccess(() -> option,false);
-        }
-        if(page==1) {
-            say(s,"Estructuras BWE construibles (clic para seleccionar; antes /bwe escanear):");
-            for(String type : ORDERED_KINDS) {
-                Component option = Component.literal("  [" + type.toUpperCase(Locale.ROOT) + "]")
-                    .withStyle(style -> style.withColor(ChatFormatting.AQUA)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bwe seleccionar " + type))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                            Component.literal("Seleccionar " + type))));
-                s.sendSuccess(() -> option,false);
-            }
-        }
-        if(page>1) {
-            Component prev=Component.literal("  [Pagina anterior]")
-                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page-1))));
-            s.sendSuccess(() -> prev,false);
-        }
-        if(page<pages) {
-            Component next=Component.literal("  [Pagina siguiente]")
-                .withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page+1))));
-            s.sendSuccess(() -> next,false);
-        }
-        if(ids.isEmpty()) say(s,"CTOV/Explorify no estan disponibles. Instala sus JAR y dependencias para sus piezas NBT; las 15 construcciones BWE de arriba funcionan sin ellos.");
-        return 1;
+    private static int create(CommandSourceStack s)throws CommandSyntaxException{
+        UUID player=id(s);Selection selected=SELECTED.get(player);
+        if(selected==null)return fail(s,"Primero /bwe listar y elige una construccion");
+        if(!selected.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
+        String problem=SurfaceBuilder.start(s.getLevel(),selected.entry(),selected.center(),selected.ground(),selected.margin(),player);
+        if(problem!=null)return fail(s,problem);
+        SELECTED.remove(player);SITES.remove(player);say(s,"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
     }
-    private static int templates(CommandSourceStack s) { return listing(s,1); }
-    /** Read-only preflight of ONE NBT piece; jigsaw connectors do not describe a whole village. */
-    private static int inspectTemplate(CommandSourceStack s,String id) {
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
-            return fail(s,"Solo se inspeccionan plantillas CTOV y Explorify.");
-        if(!externalTemplates(s.getLevel()).contains(key))
-            return fail(s,"La plantilla no aparece en los recursos cargados: "+id);
-        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
-        if(found.isEmpty()) return fail(s,"La plantilla existe en el catalogo pero no se pudo leer: "+id);
-        StructureTemplate template=found.get();
-        Vec3i size=template.getSize();
-        if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
-            return fail(s,"Plantilla sin dimensiones validas: "+id);
-        long area=(long)size.getX()*size.getZ();
-        say(s,"Plantilla "+id+" | huella X x Z: "+size.getX()+" x "+size.getZ()
-            +" bloques ("+area+" bloques cuadrados) | altura: "+size.getY()+" (informativa).");
-        // Read-only placement envelope at the command source position.
-        // This is only a SINGLE NBT piece; jigsaw villages need multiple pieces.
-        var anchor=s.getPosition();
-        var volume=TemplatePlacementVolume.centered((int)Math.floor(anchor.x),
-            (int)Math.floor(anchor.y), (int)Math.floor(anchor.z),
-            size.getX(), size.getY(), size.getZ(), false);
-        var clearance=TemplatePlacementVolume.clearance(volume, 7, 8);
-        boolean fits=clearance.withinWorld(s.getLevel().getMinBuildHeight(),
-            s.getLevel().getMaxBuildHeight());
-        say(s,"VOLUMEN PROPUESTO (solo lectura, margen 7, base hasta 8): "
-            + clearance.width()+"x"+clearance.height()+"x"+clearance.length()
-            +" | bloques maximos="+clearance.blockCount()
-            +" | limites del mundo="+(fits?"OK":"FUERA DE LIMITES")
-            +". NO autoriza construir.");
-        // Targeted inspection of one loaded NBT; no world blocks are read or written.
-        try {
-            StructurePlaceSettings settings=new StructurePlaceSettings();
-            int jigsaws=template.filterBlocks(BlockPos.ZERO,settings,Blocks.JIGSAW,true).size();
-            int structureMarkers=template.filterBlocks(BlockPos.ZERO,settings,Blocks.STRUCTURE_BLOCK,true).size();
-            int vanillaContainers=template.filterBlocks(BlockPos.ZERO,settings,Blocks.CHEST,true).size()
-                +template.filterBlocks(BlockPos.ZERO,settings,Blocks.BARREL,true).size();
-            say(s,"Indicadores: conectores jigsaw="+jigsaws+" | bloques structure="+structureMarkers
-                +" | cofres/barriles vanilla="+vanillaContainers+".");
-            if(jigsaws>0) say(s,"PIEZA JIGSAW: dimensiones de esta pieza NBT, NO de la aldea completa.");
-            if(structureMarkers>0 || vanillaContainers>0)
-                say(s,"Bloques especiales: su contenido NBT y entidades NO seran restaurados por /bwe deshacer; se exigira copia externa del mundo.");
-        } catch(RuntimeException error) {
-            return fail(s,"No se pudo inspeccionar la paleta: "+error.getClass().getSimpleName());
-        }
-        // Parse actual palette positions and block states from the installed NBT.
-        // This is a strict inspection ONLY: no entity or block placement.
-        try {
-            TemplateNbtPiece.Blueprint piece=TemplateNbtPiece.read(template);
-            say(s,"PIEZA NBT leida: bloques declarados="+piece.cells().size()
-                +" | aire explicito="+piece.explicitAir()
-                +" | aire implicito="+piece.implicitAir()
-                +" | paletas alternativas="+piece.paletteVariants()+".");
-            say(s,"Metadatos: jigsaws="+piece.jigsaws()
-                +" | structure blocks="+piece.structureBlocks()
-                +" | bloques con NBT="+piece.blockEntityNbt()
-                +" | entidades NBT="+piece.entities()+".");
-            if(piece.paletteVariants()>1)
-                say(s,"ADVERTENCIA: hay paletas alternativas; inspeccionada solo la primera. NO colocar todavia.");
-            if(piece.blockEntityNbt()>0 || piece.entities()>0)
-                say(s,"ADVERTENCIA: datos de inventarios/bloques especiales y entidades NO estan respaldados ni colocados.");
-        } catch (IllegalArgumentException error) {
-            say(s,"PIEZA NBT no apta para planificar: "+error.getMessage()
-                +". Sigue visible en el catalogo; no se construira.");
-        }
-        if(area>22500L) say(s,"Huella superior a 150 x 150: catalogada sin limite artificial, no autorizada para colocar.");
-        say(s,"ESTE COMANDO SOLO INSPECCIONA. Para ensayar una PIEZA: /bwe seleccionar "+id+"; alejate y usa /bwe simular. /bwe crear puede MODIFICAR el mundo; SOLO COPIA AISLADA.");
-        return 1;
-    }
-    /** Read-only preflight at the operator's current block, for ONE unrotated NBT piece.
-     *  Does not load/generate chunks, examine terrain or authorize construction. */
-    private static int verifyTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
-            return fail(s,"Solo se verifican plantillas CTOV y Explorify.");
-        ServerLevel world=s.getLevel();
-        if(!externalTemplates(world).contains(key))
-            return fail(s,"Plantilla no disponible en los recursos cargados: "+id);
-        Optional<StructureTemplate> found=world.getStructureManager().get(key);
-        if(found.isEmpty()) return fail(s,"No se pudo leer la plantilla: "+id);
-        Vec3i size=found.get().getSize();
-        if(size.getY()<1) return fail(s,"Altura invalida de la plantilla.");
-        BlockPos anchor=s.getPlayerOrException().blockPosition();
-        TemplateFootprint.Bounds footprint;
-        try {
-            footprint=TemplateFootprint.centered(anchor.getX(),anchor.getZ(),size.getX(),size.getZ(),false);
-        } catch(IllegalArgumentException error) {
-            return fail(s,"Dimensiones invalidas: "+error.getMessage());
-        }
-        say(s,"HUELLA PROPUESTA (sin rotacion) "+id+" X="+footprint.minX()+".."+footprint.maxX()
-            +" Z="+footprint.minZ()+".."+footprint.maxZ()+" | "+footprint.width()+"x"+footprint.length()
-            +" | area="+footprint.area()+" | chunks="+footprint.chunkCount()
-            +" | Y="+anchor.getY()+".."+((long)anchor.getY()+size.getY()-1L));
-        if(!footprint.withinMinecraftCoordinates())
-            return fail(s,"Fuera de las coordenadas permitidas de Minecraft.");
-        if(footprint.chunkCount()>1024L)
-            return fail(s,"Huella muy extensa para comprobar chunks en un comando (mas de 1024); sigue catalogada.");
-        if(!world.dimension().location().toString().equals("minecraft:overworld"))
-            return fail(s,"Verificacion preliminar limitada al Overworld.");
-        if(anchor.getY()<world.getMinBuildHeight()
-            || (long)anchor.getY()+size.getY()-1L>=world.getMaxBuildHeight())
-            return fail(s,"Altura Y fuera de los limites del mundo.");
-        if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
-            return fail(s,"Hay una obra o respaldo pendiente; no se prepara otra.");
-        int x0=(int)footprint.minX(),z0=(int)footprint.minZ();
-        int x1=(int)footprint.maxX(),z1=(int)footprint.maxZ();
-        WorldData data=WorldData.get(world);
-        if(data.protectedFootprint(dim(world),x0,z0,x1,z1,8)
-            || data.overlapsCompleted(dim(world),x0,z0,x1,z1,16))
-            return fail(s,"La huella toca una zona protegida o un asentamiento BWE.");
-        BlockPos spawn=world.getSharedSpawnPos();
-        if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1))
-            return fail(s,"La huella toca la reserva de spawn (160 bloques).");
-        for(long x:new long[]{footprint.minX(),footprint.maxX()})
-            for(long z:new long[]{footprint.minZ(),footprint.maxZ()})
-                if(!world.getWorldBorder().isWithinBounds(new BlockPos((int)x,anchor.getY(),(int)z)))
-                    return fail(s,"La huella sale del worldborder.");
-        // Chunk existence only: never call getChunk/getHeight on an unloaded location.
-        for(long cx=footprint.minX()>>4;cx<=footprint.maxX()>>4;cx++)
-            for(long cz=footprint.minZ()>>4;cz<=footprint.maxZ()>>4;cz++)
-                if(!world.hasChunk((int)cx,(int)cz))
-                    return fail(s,"Hay chunks sin cargar dentro de la huella. No se genero terreno.");
-        say(s,"PREVERIFICACION COMPLETADA: limites, protecciones y chunks cargados. NO comprueba terreno, inventarios, jigsaw ni entidades; NO coloca bloques.");
-        return 1;
-    }
-
-    /** Read-only incremental volume scan, only after the same footprint preflight. */
-    private static int auditTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
-        if(verifyTemplate(s,id)!=1) return 0;
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null) return fail(s,"ID de plantilla invalido.");
-        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
-        if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
-        TemplateSiteAudit.Result result=TemplateSiteAudit.start(s.getLevel(),
-            s.getPlayerOrException().blockPosition(),found.get().getSize(),
-            s.getPlayerOrException().getUUID(),key);
-        if(!result.ok()) return fail(s,result.message());
-        say(s,result.message());
-        return 1;
-    }
-    /** Audit the entire proposed clearance, including the configurable margin.
-     *  Still read-only: cannot authorize demolition or template placement. */
-    private static int auditClearanceTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
-        if(verifyTemplate(s,id)!=1) return 0;
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null) return fail(s,"ID de plantilla invalido.");
-        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
-        if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
-        TemplateSiteAudit.Result result=TemplateSiteAudit.startClearance(s.getLevel(),
-            s.getPlayerOrException().blockPosition(),found.get().getSize(),
-            s.getPlayerOrException().getUUID(),key);
-        if(!result.ok()) return fail(s,result.message());
-        say(s,result.message());
-        return 1;
-    }
-    /** Heightmap-only terrain profile with seven-block buffer; never edits the world. */
-    private static int surfaceTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
-        if(verifyTemplate(s,id)!=1) return 0;
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null) return fail(s,"ID de plantilla invalido.");
-        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
-        if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
-        TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.start(s.getLevel(),
-            s.getPlayerOrException().blockPosition(),found.get().getSize(),
-            s.getPlayerOrException().getUUID(),key);
-        if(!result.ok()) return fail(s,result.message());
-        say(s,result.message());
-        return 1;
-    }
-    private static int marginStatus(CommandSourceStack s) throws CommandSyntaxException {
-        say(s,"Margen de medicion para tu proxima superficie: "
-            +TemplateSurfaceSurvey.marginFor(player(s))+" bloques. Solo lectura; NO cambia /bwe crear.");
-        return 1;
-    }
-    private static int configureMargin(CommandSourceStack s,int margin) throws CommandSyntaxException {
-        TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.configureMargin(player(s),margin);
-        if(!result.ok()) return fail(s,result.message());
-        say(s,result.message());
-        return 1;
-    }
-    private static int surfaceStatus(CommandSourceStack s) {
-        say(s,TemplateSurfaceSurvey.status());
-        return 1;
-    }
-    private static int cancelSurface(CommandSourceStack s) {
-        TemplateSurfaceSurvey.Result result=TemplateSurfaceSurvey.cancel();
-        if(!result.ok()) return fail(s,result.message());
-        say(s,result.message());
-        return 1;
-    }
-    private static int auditStatus(CommandSourceStack s) {
-        say(s,TemplateSiteAudit.status());
-        return 1;
-    }
-    private static int cancelAudit(CommandSourceStack s) {
-        TemplateSiteAudit.Result result=TemplateSiteAudit.cancel();
-        if(!result.ok()) return fail(s,result.message());
-        say(s,result.message());
-        return 1;
-    }
-
-    private static int scan(CommandSourceStack s,int r) throws CommandSyntaxException {
-        BlockPos center=s.getPlayerOrException().blockPosition();
-        var result=WorldChecks.scanBuildSite(s.getLevel(),center,r,r,TemplateSurfaceSurvey.marginFor(player(s)));
-        UUID id=player(s);
-        PLANS.remove(id); // A new scan must not leave an old selection active.
-        if(result.ok()) SCANS.put(id,new ScanSite(center,dim(s.getLevel()),System.currentTimeMillis()));
-        else SCANS.remove(id);
-        say(s,"Radio "+r+" | "+(result.ok()?"APTO":"NO APTO")+": "+result.reason()
-            +" | suelo "+result.low()+".."+result.high()+" | agua="+result.liquids()+" | artificial="+result.artificial());
-        if(result.ok()) say(s,"Zona guardada. Usa /bwe listar, elige una construccion y luego /bwe crear.");
-        return result.ok()?1:0;
-    }
-    /** Select one real NBT piece from mods installed on the server.
-     *  This stores an immutable operator position and configured margin, but
-     *  NEVER starts destructive placement. /bwe simular is the next step. */
-    private static int selectNbt(CommandSourceStack s,String id) throws CommandSyntaxException {
-        ResourceLocation key=ResourceLocation.tryParse(id);
-        if(key==null || !(key.getNamespace().equals("ctov") || key.getNamespace().equals("explorify")))
-            return fail(s,"Solo CTOV y Explorify, con identificador namespace:ruta.");
-        ServerLevel world=s.getLevel();
-        if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
-            return fail(s,"Hay una obra o respaldo pendiente.");
-        if(!externalTemplates(world).contains(key))
-            return fail(s,"La plantilla no aparece en los recursos instalados: "+id);
-        Optional<StructureTemplate> found=world.getStructureManager().get(key);
-        if(found.isEmpty()) return fail(s,"No se pudo cargar la plantilla: "+id);
-        Vec3i size=found.get().getSize();
-        if(size.getX()<1 || size.getY()<1 || size.getZ()<1)
-            return fail(s,"Dimensiones de plantilla invalidas.");
-        UUID playerId=player(s);
-        BlockPos center=s.getPlayerOrException().blockPosition();
-        int margin=TemplateSurfaceSurvey.marginFor(playerId);
-        try {
-            var bounds=TemplatePlacementVolume.centered(center.getX(),center.getY(),
-                center.getZ(),size.getX(),size.getY(),size.getZ(),false);
-            var clear=TemplatePlacementVolume.clearance(bounds,margin,Math.min(64,center.getY()-world.getMinBuildHeight()));
-            if(!clear.withinWorld(world.getMinBuildHeight(),world.getMaxBuildHeight()))
-                return fail(s,"La estructura no cabe en los limites del mundo.");
-            PLANS.put(playerId,new BuildEngine.Plan("plantilla",id,center,
-                dim(world),center.getY(),(size.getX()+1)/2,(size.getZ()+1)/2,
-                System.currentTimeMillis(),margin));
-            say(s,"PIEZA NBT SELECCIONADA (no construida): "+id
-                +" | ancla "+center.getX()+","+center.getY()+","+center.getZ()
-                +" | "+size.getX()+"x"+size.getY()+"x"+size.getZ()
-                +" | margen="+margin
-                +". Alejate de la zona y usa /bwe simular. /bwe crear MODIFICARA BLOQUES: SOLO COPIA AISLADA.");
-            return 1;
-        } catch(IllegalArgumentException | ArithmeticException error) {
-            return fail(s,"No se puede seleccionar pieza: "+error.getMessage());
-        }
-    }
-    /** Selects a type for the LAST scanned location, even after the player walks away. */
-    private static int select(CommandSourceStack s,String type) throws CommandSyntaxException {
-        if(type.contains(":")) return selectNbt(s,type);
-        if(!BuildEngine.KINDS.contains(type)) return fail(s,"Tipo desconocido. /bwe listar");
-        if(BuildEngine.busy() || WorldData.get(s.getLevel()).undo()!=null)
-            return fail(s,"Primero termina o deshaz la obra pendiente.");
-        UUID id=player(s);
-        ScanSite site=SCANS.get(id);
-        if(site==null) return fail(s,"Primero /bwe escanear en el lugar deseado.");
-        if(!site.dimension().equals(dim(s.getLevel()))) {
-            SCANS.remove(id);
-            return fail(s,"Dimension distinta: vuelve a escanear.");
-        }
-        if(System.currentTimeMillis()-site.created()>900_000L) {
-            SCANS.remove(id);
-            return fail(s,"Escaneo caducado: vuelve a /bwe escanear.");
-        }
-        int radius=BuildEngine.radius(type);
-        var survey=WorldChecks.scanBuildSite(s.getLevel(),site.center(),radius,radius,TemplateSurfaceSurvey.marginFor(id));
-        if(!survey.ok()) return fail(s,"La zona no es apta para "+type+": "+survey.reason());
-        PLANS.put(id,new BuildEngine.Plan(type,"",site.center(),site.dimension(),
-            survey.groundY(),radius,radius,System.currentTimeMillis(),TemplateSurfaceSurvey.marginFor(id)));
-        say(s,"Seleccionado: "+type+" en X="+site.center().getX()+" Z="+site.center().getZ()
-            +" | area con margen="+(2*(radius+TemplateSurfaceSurvey.marginFor(id))+1)+" x "+(2*(radius+TemplateSurfaceSurvey.marginFor(id))+1)+". Alejate y usa /bwe crear (BORRA bloques y entidades salvo jugadores).");
-        return 1;
-    }
-    /** No preview or extra confirmation. BuildEngine rechecks the whole area before editing. */
-    private static int create(CommandSourceStack s) throws CommandSyntaxException {
-        UUID id=player(s);
-        BuildEngine.Plan plan=PLANS.get(id);
-        if(plan==null) return fail(s,"Primero /bwe escanear y /bwe listar para seleccionar.");
-        if(!plan.dimension().equals(dim(s.getLevel()))) return fail(s,"Dimension diferente de la seleccion.");
-        BuildEngine.Result result=BuildEngine.build(s.getLevel(),plan,id);
-        if(!result.ok()) return fail(s,result.message());
-        PLANS.remove(id);
-        SCANS.remove(id);
-        say(s,result.message()+" | bloques="+result.count());
-        return 1;
-    }
-    private static int planOriginal(CommandSourceStack s,String type,BlockPos where) throws CommandSyntaxException {
-        if(!BuildEngine.KINDS.contains(type)) return fail(s,"Tipo desconocido. /bwe listar");
-        if(WorldData.get(s.getLevel()).undo()!=null) return fail(s,"Primero /bwe deshacer o /bwe finalizar SI");
-        BlockPos center=where==null?s.getPlayerOrException().blockPosition():where;
-        int radius=BuildEngine.radius(type);
-        var survey=WorldChecks.scanBuildSite(s.getLevel(),center,radius,radius,TemplateSurfaceSurvey.marginFor(player(s)));
-        if(!survey.ok()) return fail(s,"No se puede planear: "+survey.reason());
-        BuildEngine.Plan plan=new BuildEngine.Plan(type,"",center,dim(s.getLevel()),survey.groundY(),radius,radius,System.currentTimeMillis(),TemplateSurfaceSurvey.marginFor(player(s)));
-        PLANS.put(player(s),plan);
-        say(s,"Plan registrado: "+type+" en "+center.getX()+","+survey.groundY()+","+center.getZ());
-        return preview(s);
-    }
-    private static int find(CommandSourceStack s,String kind,int searchRadius) throws CommandSyntaxException {
-        if(!BuildEngine.KINDS.contains(kind)) return fail(s,"Tipo desconocido");
-        BlockPos start=s.getPlayerOrException().blockPosition();
-        int attempts=0;
-        // Strict work limit: at most 16 surveys to avoid tick spikes.
-        for(int r=32;r<=searchRadius;r+=16) {
-            for(int[] pair:new int[][]{{r,0},{-r,0},{0,r},{0,-r}}) {
-                if(attempts++>=16) return fail(s,"No se encontro zona en 16 intentos. Explora otra area.");
-                BlockPos site=start.offset(pair[0],0,pair[1]);
-                var survey=WorldChecks.scan(s.getLevel(),site,BuildEngine.radius(kind),BuildEngine.radius(kind),4);
-                if(survey.ok()) return planOriginal(s,kind,site);
-            }
-        }
-        return fail(s,"No se encontro zona apta entre chunks cargados.");
-    }
-    /** Legacy alias: no misleading plan for an unimplemented feature. */
-    private static int planTemplate(CommandSourceStack s,String id) {
-        return inspectTemplate(s,id);
-    }
-    private static int preview(CommandSourceStack s) throws CommandSyntaxException {
-        BuildEngine.Plan p=PLANS.get(player(s));
-        if(p==null) return fail(s,"Primero /bwe planear o /bwe plantilla");
-        say(s,"PREVISUALIZACION TEXTUAL: "+(p.template().isEmpty()?p.kind():p.template())
-            +" | desde X="+(p.center().getX()-p.halfX())+" hasta "+(p.center().getX()+p.halfX())
-            +" | Z="+(p.center().getZ()-p.halfZ())+" hasta "+(p.center().getZ()+p.halfZ())+" | Y="+p.y()
-            +" | "+p.dimension());
-        say(s,"Solo vista textual. SAL DEL AREA y usa una COPIA del mundo. Para aplicar: /bwe confirmar SI (5 min), o /bwe cancelar.");
-        return 1;
-    }
-    private static int simulate(CommandSourceStack s) throws CommandSyntaxException {
-        BuildEngine.Plan p=PLANS.get(player(s));
-        if(p==null) return fail(s,"No existe plan. Usa /bwe planear primero");
-        if(!p.dimension().equals(dim(s.getLevel()))) return fail(s,"Dimension distinta del plan");
-        BuildEngine.Result r=BuildEngine.simulate(s.getLevel(),p);
-        if(r.ok()) say(s,r.message()); else return fail(s,r.message());
-        return 1;
-    }
-    private static int confirm(CommandSourceStack s) throws CommandSyntaxException {
-        BuildEngine.Plan p=PLANS.get(player(s));
-        if(p==null) return fail(s,"No existe plan");
-        if(!p.dimension().equals(dim(s.getLevel()))) return fail(s,"Dimension diferente");
-        if(System.currentTimeMillis()-p.created()>300_000) { PLANS.remove(player(s));return fail(s,"Plan caducado (5 min)"); }
-        BuildEngine.Result result=BuildEngine.build(s.getLevel(),p,player(s));
-        if(!result.ok()) return fail(s,result.message());
-        PLANS.remove(player(s));say(s,result.message()+" | bloques="+result.count());return 1;
-    }
-    /** Cancels only a plan that has NOT started. Never imply that a running build stopped. */
-    private static int cancel(CommandSourceStack s) throws CommandSyntaxException {
-        if(BuildEngine.busy())
-            return fail(s,"Hay una construccion o restauracion en curso. /bwe cancelar NO la detiene; espera y usa /bwe deshacer si corresponde.");
-        if(WorldData.get(s.getLevel()).undo()!=null)
-            return fail(s,"Existe un respaldo de obra. /bwe cancelar NO lo elimina; usa /bwe deshacer o revisa /bwe estado.");
-        if(PLANS.remove(player(s))==null)
-            return fail(s,"No tienes un plan sin ejecutar que cancelar.");
-        say(s,"Plan sin ejecutar cancelado. Esta orden no modifico el terreno.");
-        return 1;
-    }
-    private static int undo(CommandSourceStack s) {
-        BuildEngine.Result r=BuildEngine.undo(s.getLevel());
-        if(!r.ok()) return fail(s,r.message());
-        say(s,r.message());return 1;
-    }
-    private static int finalizeWork(CommandSourceStack s) {
-        WorldData data=WorldData.get(s.getLevel());
-        BuildEngine.Result review=BuildEngine.canFinalize(s.getLevel());
-        if(!review.ok()) return fail(s,review.message());
-        WorldData.Undo snapshot=data.undo();
-        data.registerCompleted(snapshot);
-        data.clearUndo();
-        say(s,"Obra aceptada y registrada en /bwe asentamientos. Respaldo eliminado; ya NO es posible deshacer con BWE.");
-        return 1;
-    }
-    private static int protect(CommandSourceStack s,int r) throws CommandSyntaxException {
-        int number=WorldData.get(s.getLevel()).protect(dim(s.getLevel()),s.getPlayerOrException().blockPosition(),r);
-        say(s,"Zona protegida #"+number+" con radio "+r);
-        return 1;
-    }
-    private static int protectedAreas(CommandSourceStack s) {
-        List<WorldData.Area> areas=WorldData.get(s.getLevel()).exclusions();
-        if(areas.isEmpty()) say(s,"No hay zonas manuales. Proteccion predeterminada de spawn: radio 160.");
-        for(int i=0;i<areas.size();i++) {
-            var a=areas.get(i);
-            say(s,"#"+(i+1)+" "+a.dimension()+" X="+a.x()+" Z="+a.z()+" radio="+a.radius());
-        }
-        return 1;
-    }
-    private static int protectRect(CommandSourceStack s,int x1,int z1,int x2,int z2) {
-        // Hard limit: a typo must not silently protect thousands of chunks.
-        if(Math.abs((long)x2-x1)>1024 || Math.abs((long)z2-z1)>1024)
-            return fail(s,"Area demasiado grande (maximo 1024 bloques por eje). Divide el camino en tramos.");
-        int index=WorldData.get(s.getLevel()).protectRect(dim(s.getLevel()),x1,z1,x2,z2);
-        say(s,"Rectangulo #"+index+" protegido: "+Math.min(x1,x2)+","+Math.min(z1,z2)+" a "+Math.max(x1,x2)+","+Math.max(z1,z2));
-        return 1;
-    }
-    private static int rectangleAreas(CommandSourceStack s) {
-        List<WorldData.RectArea> areas=WorldData.get(s.getLevel()).rectangles();
-        if(areas.isEmpty()) say(s,"No hay areas rectangulares protegidas.");
-        for(int i=0;i<areas.size();i++) {
-            var a=areas.get(i);
-            say(s,"#"+(i+1)+" "+a.dimension()+" X="+a.minX()+".."+a.maxX()+" Z="+a.minZ()+".."+a.maxZ());
-        }
-        return 1;
-    }
-    private static int unprotectRect(CommandSourceStack s,int index) {
-        if(BuildEngine.busy()) return fail(s,"Espera que termine la construccion o restauracion.");
-        if(!WorldData.get(s.getLevel()).unprotectRect(index)) return fail(s,"Numero de area inexistente.");
-        say(s,"Area #"+index+" retirada. No se modificaron bloques.");
-        return 1;
-    }
-    private static int unprotect(CommandSourceStack s,int index) {
-        if(!WorldData.get(s.getLevel()).unprotect(index)) return fail(s,"Numero inexistente");
-        say(s,"Exclusion #"+index+" retirada.");return 1;
+    private static int undo(CommandSourceStack s){
+        String problem=SurfaceBuilder.remove(s.getLevel());
+        if(problem==null){say(s,"Retirando la ultima obra. No se recuperan terreno, inventarios ni entidades anteriores.");return 1;}
+        // Compatibility: recover the old v0.7 snapshot if there is no new manual work.
+        if(WorldData.get(s.getLevel()).undo()!=null){var result=BuildEngine.undo(s.getLevel());if(!result.ok())return fail(s,result.message());say(s,result.message());return 1;}
+        return fail(s,problem);
     }
 }
-

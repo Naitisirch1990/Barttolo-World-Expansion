@@ -33,24 +33,7 @@ jobs:
         run: bash tests/run_geometry_tests.sh
       - name: Verificar fuentes y metadatos
         run: |
-          python3 tests/verify_source.py
-          python3 tests/verify_toml.py
-          python3 tests/test_chunk_guard.py
-          python3 tests/verify_simulation_parity.py
-          python3 tests/test_live_occupancy_guard.py
-          python3 tests/test_simple_workflow.py
-          python3 tests/verify_ci.py
-          python3 tests/test_strict_undo_codec.py
-          python3 tests/test_completion_marker.py
-          python3 tests/test_server_lifecycle.py
-          python3 tests/test_undo_entity_guard.py
-          python3 tests/test_template_command_id.py
-          python3 tests/test_command_safety.py
-          python3 tests/test_build_diagnostics.py
-          python3 tests/test_dynamic_catalog.py
-          python3 tests/test_template_footprint_preflight.py
-          python3 tests/test_template_site_audit.py
-          python3 tests/test_template_surface_survey.py
+          python3 tests/test_surface_workflow.py
           python3 tests/verify_no_third_party_assets.py
       - name: Compilar mod
         run: gradle --no-daemon --stacktrace build
@@ -61,7 +44,7 @@ jobs:
           jarfile=$(find build/libs -maxdepth 1 -type f -name 'BarttoloWorldExpansion-*.jar' | head -n 1)
           test -n "$jarfile"
           unzip -t "$jarfile" > /dev/null
-          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.7.0"'
+          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.8.0"'
           jar tf "$jarfile" | grep -F 'net/barttolo/bwe/BarttoloWorldExpansion.class'
           javap -verbose -classpath "$jarfile" net.barttolo.bwe.BarttoloWorldExpansion | grep -F 'major version: 61'
       - name: Ensayo real Forge - 15 construcciones y restauracion
@@ -75,12 +58,13 @@ jobs:
           kinds=('aldea','aldea_grande','altar','campamento','carreta','establo','fortin','granja','herreria','mercado','posada','pozo','refugio','ruina','torre')
           for kind in kinds:
               assert f'[BWE-GAMETEST] PASS {kind} |' in text, f'Falta ensayo runtime: {kind}'
-          print('15 construcciones verificadas con Forge real')
+          assert '[BWE-IMPORT-TEST] PASS archive, rotation, ground, block-entity NBT, purge and removal' in text
+          print('15 regresiones anteriores y constructor de archivos nativos verificados en Forge')
           PYTEST
       - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: BarttoloWorldExpansion-Forge-1.20.1-v0.7.0
+          name: BarttoloWorldExpansion-Forge-1.20.1-v0.8.0
           path: build/libs/*.jar
           if-no-files-found: error
 
