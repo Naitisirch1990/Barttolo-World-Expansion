@@ -26,8 +26,8 @@ puede recuperar un respaldo v0.7 pendiente mediante el motor anterior.
 El catalogo privado contiene aldeas CTOV ensambladas por conectores con semilla fija,
 estructuras Explorify y edificios individuales. Es un ensamblaje manual determinista:
 no reproduce todos los procesadores aleatorios ni la proyeccion del generador original.
-No registra tablas de loot externas: cofres que referencien tablas propias de los mods
-pueden quedar sin botin si esos mods no estan instalados. Se conserva NBT de bloques y
+El entregable privado incluye sus tablas de botin como datos pasivos, sin incluir
+definiciones de generacion. Se conserva NBT de bloques y
 entidades de las plantillas. Las particulas/funciones/datapacks originales no se activan.
 
 ## Recursos
