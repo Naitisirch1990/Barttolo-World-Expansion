@@ -101,9 +101,11 @@ public final class TemplateSiteAudit {
             WorldData data=WorldData.get(world);
             int x0=(int)bounds.minX(), z0=(int)bounds.minZ();
             int x1=(int)bounds.maxX(), z1=(int)bounds.maxZ();
-            if(data.protectedFootprint(dim,x0,z0,x1,z1,0)
-                || data.overlapsCompleted(dim,x0,z0,x1,z1,0))
-                return new Result(false,"El margen toca un area protegida o asentamiento BWE.");
+            // Match the conservative buffers used by /bwe verificarplantilla.
+            // An expanded clearance area must not bypass those exclusions.
+            if(data.protectedFootprint(dim,x0,z0,x1,z1,8)
+                || data.overlapsCompleted(dim,x0,z0,x1,z1,16))
+                return new Result(false,"El despeje o su zona de seguridad toca un area protegida o asentamiento BWE.");
             BlockPos spawn=world.getSharedSpawnPos();
             if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1))
                 return new Result(false,"El margen toca la reserva del spawn.");
