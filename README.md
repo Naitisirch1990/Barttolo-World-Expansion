@@ -1,5 +1,20 @@
 # Barttolo World Expansion v0.6.18 — PRUEBAS EXPERIMENTALES
 
+
+> **IMPORTANTE — rama de desarrollo 02/11/2026: primer constructor NBT experimental.** Esta nota reemplaza las afirmaciones historicas mas abajo que dicen que la colocacion externa permanece bloqueada. Ahora se puede **seleccionar, simular y ejecutar** una unica pieza NBT de CTOV o Explorify, usando los recursos ya instalados en el servidor. La nueva ruta de escritura NO esta probada dentro de Minecraft; NO instalar ni ejecutar sobre RingWorld activo. No incluye ni redistribuye los NBT de terceros.
+
+### Primer ensayo con una sola pieza NBT (SOLO MUNDO DESCARTABLE)
+
+1. Crear una **copia completa e independiente** del mundo, con Forge 47.4.10, Java 17, CTOV/Explorify y los mods originales instalados. Mantenerla inaccesible a otros jugadores.
+2. Elegir una pieza individual de \`/bwe listar\`, inspeccionarla con \`/bwe inspeccionar <id>\`. Una pieza jigsaw no equivale a una aldea entera.
+3. Pararse donde ira el centro y la base de la pieza y ejecutar \`/bwe margen 7\` y \`/bwe seleccionar <id>\`. La seleccion fija coordenadas, cota Y y margen. Desplazarse despues **fuera del volumen**.
+4. Ejecutar \`/bwe simular\`. Solo si informa una obra segura y manejable, ejecutar \`/bwe crear\` (o \`/bwe confirmar SI\`). **ESTO DESTRUYE/SUSTITUYE BLOQUES** dentro del area despejada.
+5. Verificar \`/bwe estado\`, observar la obra, guardar \`latest.log\` y usar \`/bwe deshacer\` para verificar que se recuperan los **estados de bloques**. No usar \`/bwe finalizar SI\` hasta completar la evaluacion.
+6. Si alguna colocacion o restauracion falla, preservar logs y el respaldo interno y volver a restaurar la copia externa del mundo. NO probar con bases, misiones ni caminos importantes.
+
+Limitaciones del primer prototipo: **una pieza sin rotacion**, no aldeas jigsaw ensambladas; paleta inicial; marcadores jigsaw/structure se omiten; no instala el NBT de contenedores ni entidades; tampoco restaura su contenido anterior. Maximo de 55.000 cambios y 160.000 bloques analizados por trabajo, con 200 escrituras por tick. El suelo debe tener apoyo dentro de 12 bloques bajo la base. El comando rechaza protecciones, spawn, worldborder, chunks descargados y jugadores dentro del area (incluso si entran durante la colocacion). **La compilacion CI no prueba fisica, integracion con mods, TPS, reinicios, ni rollback en Minecraft.**
+
+
 > **Nuevo v0.6.18 (2026-11-01):** `/bwe margen [5..10]` consulta o configura temporalmente el margen de despeje para las mediciones de superficie (predeterminado 7). Se corrigio una imprecision: ahora `/bwe superficie <id>` calcula la altura sugerida y el corte/relleno **solo dentro de la huella de cimentacion de la plantilla**. El margen adicional se revisa para limites, protecciones, chunks y espacio disponible, pero no contamina la mediana con laderas o edificios adyacentes. Se trata de un analisis **SOLO LECTURA**: no limpia el margen, no terraforma ni coloca NBT. La preferencia se reinicia al parar el servidor. Pruebas Java de expansion y overflow y auditoria estatica. No instalar en produccion.
 
 
