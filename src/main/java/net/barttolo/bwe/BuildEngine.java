@@ -508,9 +508,9 @@ public final class BuildEngine {
         if(!review.ok() || review.groundY()!=p.y()) return new Result(false,"La revision cambio: "+review.reason(),0);
         // Entity overlap is handled as a non-destructive WAIT during server ticks.
         // External NBT pieces often contain jigsaws, chests and loot/BE metadata.
-        // The old implementation could not undo their block entity NBT: fail closed.
+        // External placement is still unimplemented; the owner explicitly accepts loss of inventories/entities.
         if(!p.template().isEmpty()) return new Result(false,
-            "Plantillas CTOV/Explorify solo en catalogo hasta implementar colocacion reversible de NBT.",0);
+            "Plantillas CTOV/Explorify solo en catalogo: falta motor de terraformacion y colocacion por lotes. Deshacer no recuperara inventarios ni entidades.",0);
         Drawing drawing=new Drawing(world,p.center(),p.y());
         try { drawing.draw(p.kind()); }
         catch (IllegalArgumentException e) { return new Result(false,"Terreno inseguro: "+e.getMessage(),0); }
@@ -635,7 +635,7 @@ public final class BuildEngine {
         if(occupied(world,p)) return new Result(false,
             "SIMULACION CANCELADA: hay entidades en el volumen de la obra.",0);
         if(!p.template().isEmpty())
-            return new Result(false,"Las plantillas externas estan en modo catalogo: colocacion suspendida hasta verificar rollback de NBT y entidades.",0);
+            return new Result(false,"Las plantillas externas estan en modo catalogo: aun falta terraformacion y colocacion por lotes. No se restauraran inventarios ni entidades.",0);
         Drawing d=new Drawing(world,p.center(),p.y());
         try { d.draw(p.kind()); }
         catch(IllegalArgumentException ex) { return new Result(false,"Terreno inseguro: "+ex.getMessage(),0); }
