@@ -23,3 +23,18 @@ for forbidden in ('setBlock(', 'placeInWorld(', 'getChunk(', 'getHeight(', 'addF
 assert 'setBlock(' not in cursor
 assert 'NO se coloco ninguna plantilla' in audit
 print('OK: auditoria incremental sin escrituras ni cargas de chunks (auditoria estatica)')
+
+# Full clearance audit is a distinct command: the original piece audit stays available.
+assert 'Commands.literal("auditarvolumen")' in main
+assert 'TemplateSiteAudit.startClearance' in main
+assert 'startInternal(world, anchor, size, operator, templateId, false)' in audit
+assert 'startInternal(world, anchor, size, operator, templateId, true)' in audit
+assert 'TemplateFootprint.expanded(bounds,margin)' in audit
+assert 'ClearanceVolume.calculate(' in audit
+assert 'TemplateSurfaceSurvey.marginFor(operator)' in audit
+assert 'cursor=new TemplateScanCursor(bounds,(int)bottom,(int)top)' in audit
+assert 'data.protectedFootprint' in audit and 'data.overlapsCompleted' in audit
+assert 'SiteMath.circleIntersectsRect' in audit
+assert 'getWorldBorder().isWithinBounds' in audit
+assert 'MAX_SCAN_BLOCKS' in audit
+assert 'Y provisional del operador' in audit
