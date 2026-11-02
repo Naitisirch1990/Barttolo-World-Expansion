@@ -68,6 +68,8 @@ public final class BarttoloWorldExpansion {
                 .executes(ctx -> verifyTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("auditarplantilla").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(ctx -> auditTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
+            .then(Commands.literal("auditarvolumen").then(Commands.argument("id",StringArgumentType.greedyString())
+                .executes(ctx -> auditClearanceTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("superficie").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(ctx -> surfaceTemplate(ctx.getSource(),StringArgumentType.getString(ctx,"id")))))
             .then(Commands.literal("margen").executes(ctx -> marginStatus(ctx.getSource()))
@@ -136,7 +138,8 @@ public final class BarttoloWorldExpansion {
         say(s,"Uso sencillo: /bwe escanear -> /bwe listar (clic para seleccionar) -> /bwe crear");
         say(s,"/bwe estado | deshacer | finalizar SI | proteger <radio> | protegerarea <x1> <z1> <x2> <z2> | protegidas | areas | desproteger <numero> | liberararea <numero> SI");
         say(s,"Avanzado: /bwe margen [5..10] (temporal) | superficie <ctov:id|explorify:id> | superficieestado | cancelarsuperficie (SOLO LECTURA)");
-        say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
+        say(s,"/bwe verificarplantilla <id> | auditarplantilla <id> | auditarvolumen <id> (margen y altura provisional, SOLO LECTURA)");
+        say(s,"/bwe auditoria | cancelarauditoria | diagnosticar | asentamientos | plantillas");
         return 1;
     }
     private static int diagnose(CommandSourceStack s) {
@@ -330,6 +333,21 @@ public final class BarttoloWorldExpansion {
         Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
         if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
         TemplateSiteAudit.Result result=TemplateSiteAudit.start(s.getLevel(),
+            s.getPlayerOrException().blockPosition(),found.get().getSize(),
+            s.getPlayerOrException().getUUID(),key);
+        if(!result.ok()) return fail(s,result.message());
+        say(s,result.message());
+        return 1;
+    }
+    /** Audit the entire proposed clearance, including the configurable margin.
+     *  Still read-only: cannot authorize demolition or template placement. */
+    private static int auditClearanceTemplate(CommandSourceStack s,String id) throws CommandSyntaxException {
+        if(verifyTemplate(s,id)!=1) return 0;
+        ResourceLocation key=ResourceLocation.tryParse(id);
+        if(key==null) return fail(s,"ID de plantilla invalido.");
+        Optional<StructureTemplate> found=s.getLevel().getStructureManager().get(key);
+        if(found.isEmpty()) return fail(s,"Plantilla ya no disponible.");
+        TemplateSiteAudit.Result result=TemplateSiteAudit.startClearance(s.getLevel(),
             s.getPlayerOrException().blockPosition(),found.get().getSize(),
             s.getPlayerOrException().getUUID(),key);
         if(!result.ok()) return fail(s,result.message());
