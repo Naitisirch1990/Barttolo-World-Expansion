@@ -38,3 +38,12 @@ assert 'SiteMath.circleIntersectsRect' in audit
 assert 'getWorldBorder().isWithinBounds' in audit
 assert 'MAX_SCAN_BLOCKS' in audit
 assert 'Y provisional del operador' in audit
+
+# The operator must be able to retrieve a completed/failed report after reconnecting.
+assert 'private static String lastResult' in audit
+assert 'if(a==null) return lastResult;' in audit
+assert 'lastResult=message;' in audit
+assert 'lastResult="Auditoria "+id+" cancelada' in audit
+assert 'lastResult="No hay auditoria de plantilla anterior."' in audit
+assert 'posibles block entities=' in audit
+print("OK: resultado de auditoria recuperable hasta reinicio (solo memoria)")

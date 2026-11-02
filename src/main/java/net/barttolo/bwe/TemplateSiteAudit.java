@@ -19,6 +19,9 @@ public final class TemplateSiteAudit {
     private static final int BLOCKS_PER_TICK = 1024;
     private static final long MAX_SCAN_BLOCKS = 8_000_000L;
     private static Audit active;
+    // Keep the final report in memory so an offline operator can read it later.
+    // Cleared on server shutdown; never persisted or treated as build approval.
+    private static String lastResult = "No hay auditoria de plantilla anterior.";
 
     private static final class Audit {
         final ServerLevel world;
@@ -119,19 +122,25 @@ public final class TemplateSiteAudit {
 
     public static String status() {
         Audit a=active;
-        if(a==null) return "No hay auditoria de plantilla en curso.";
+        if(a==null) return lastResult;
         return "Auditoria "+a.templateId+": "+a.cursor.processed()+"/"+a.cursor.total()
-            +" bloques. No se esta modificando el mundo.";
+            +" bloques | aire="+a.air+" | liquidos="+a.fluids
+            +" | posibles block entities="+a.blockEntities
+            +". No se esta modificando el mundo.";
     }
 
     public static Result cancel() {
         if(active==null) return new Result(false,"No hay auditoria que cancelar.");
         String id=active.templateId;
         active=null;
-        return new Result(true,"Auditoria "+id+" cancelada; no se modificaron bloques.");
+        lastResult="Auditoria "+id+" cancelada; no se modificaron bloques.";
+        return new Result(true,lastResult);
     }
 
-    public static void resetForShutdown() { active=null; }
+    public static void resetForShutdown() {
+        active=null;
+        lastResult="No hay auditoria de plantilla anterior.";
+    }
 
     public static void serverTick() {
         Audit a=active;
@@ -171,7 +180,10 @@ public final class TemplateSiteAudit {
     }
 
     private static void stop(Audit a,String message) {
-        if(active==a) active=null;
+        if(active==a) {
+            active=null;
+            lastResult=message;
+        }
         LOGGER.info("[BWE] {}",message);
         var player=a.world.getServer().getPlayerList().getPlayer(a.operator);
         if(player!=null) player.sendSystemMessage(Component.literal("[BWE] "+message));
