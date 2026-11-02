@@ -65,3 +65,21 @@ Este documento describe objetivos y límites de recuperación; **no** certifica 
 - Se vuelve a leer el estado justo antes de escribir y se verifica el estado final. Se rechazan ausencia del snapshot original, fallo de `setBlock` y divergencia posterior.
 - Nueva prueba `TerraformStepGuardTest` con mundo falso: despeje, relleno, repeticion tras fallo, conflictos, proteccion, snapshot ausente, escritura fallida y postverificacion; integrada en `tests/run_geometry_tests.sh`.
 - **No confundir con terraformacion real:** `TerraformStepGuard` no accede a Minecraft, no persiste planes ni snapshots y no esta conectado a comandos. Antes de habilitar `/bwe terraformar` faltan el adaptador `ServerLevel`, persistencia previa y duradera de originales, integracion con el undo y ensayos en una copia del mundo.
+
+## Alcance confirmado — primera etapa NBT de CTOV y Explorify
+
+La primera entrega funcional contemplara **solo piezas NBT cargadas de CTOV y Explorify**. Archivos `.schem`, otras familias de estructuras y el ensamblaje automatico de aldeas jigsaw quedan para etapas posteriores. No empaquetar los NBT de esos mods en BWE.
+
+### Avance: lector estricto de piezas NBT (todavia SOLO LECTURA)
+
+- `TemplateNbtPiece.read` obtiene `StructureTemplate.save(...)` de los recursos ya cargados por el servidor y decodifica estados de bloque, coordenadas locales e indices de paleta.
+- Se rechazan indices fuera de rango, posiciones duplicadas o fuera del tamaño, nombres de bloques inexistentes, propiedades invalidas y paletas malformadas.
+- Distingue aire explicito e implicito, conectores jigsaw, bloques structure, metadatos NBT de block entities, entidades y paletas alternativas.
+- `/bwe inspeccionar <id>` presenta este informe sin editar el mundo.
+- Para evitar bloquear el hilo del servidor durante inspecciones masivas se limita el decodificador sincronico a 65.536 registros y 4 millones de posiciones por pieza; el catalogo conserva las plantillas grandes. Una futura colocacion grande necesitara procesamiento por etapas.
+- Este avance NO permite usar `/bwe crear` con NBT ni instala NBT de cofres o entidades, ni garantiza el ensamblaje de jigsaws.
+
+### Siguiente hito de desarrollo
+
+Conectar las celdas decodificadas con un plan de escritura incremental, despeje total del volumen, relleno bajo la base, snapshot persistente de estados y `/bwe deshacer`. Mantener el primer uso destructivo deshabilitado hasta validar una copia aislada del mundo y comprobar el caso de una pieza con bloques de contenedor.
+
