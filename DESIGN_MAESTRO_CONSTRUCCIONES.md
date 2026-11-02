@@ -56,3 +56,12 @@ Este documento describe objetivos y límites de recuperación; **no** certifica 
 - `checkpoint()` y `resume(...)` permiten reconstruir la posicion logica del recorrido con los **mismos planes de columna inmutables**. Esto NO es por si solo recuperacion segura tras un crash: faltan persistencia de los planes, backup previo de estados, comprobaciones de conflictos y un escritor Forge idempotente.
 - Pruebas Java 17 con un escritor falso: lotes, fallo simulado, reanudacion, orden X/Z, coordenadas extremas y rectangulo de 10.000 millones de columnas sin materializarlo.
 - No se han ejecutado cambios de bloques ni pruebas en una copia real de RingWorld; no se autoriza aun `/bwe terraformar`.
+
+## Avance 02/11/2026 — puerta de escritura verificada (AUN SIN ADAPTADOR FORGE)
+
+- Nuevo `TerraformStepGuard<S>`: adaptador Java 17 que recibe cada paso del `TerraformAreaCursor`, consulta el estado original guardado y el estado actual, y solo permite pasar de **BEFORE** al destino previsto (`air` para CLEAR, material solido para FILL).
+- La puerta exige `requireSafe` antes de leer y de escribir: el futuro adaptador Forge debe comprobar chunks ya cargados, jugadores, spawn, worldborder, protecciones y dimension. Una comprobacion que falle **detiene** el paso sin avanzar el cursor.
+- Reintentos idempotentes: si un paso ya tiene exactamente el estado destino, se acepta sin ejecutar de nuevo `setBlock`; si aparece un tercer estado ajeno al plan, se detiene para no destruir ediciones posteriores.
+- Se vuelve a leer el estado justo antes de escribir y se verifica el estado final. Se rechazan ausencia del snapshot original, fallo de `setBlock` y divergencia posterior.
+- Nueva prueba `TerraformStepGuardTest` con mundo falso: despeje, relleno, repeticion tras fallo, conflictos, proteccion, snapshot ausente, escritura fallida y postverificacion; integrada en `tests/run_geometry_tests.sh`.
+- **No confundir con terraformacion real:** `TerraformStepGuard` no accede a Minecraft, no persiste planes ni snapshots y no esta conectado a comandos. Antes de habilitar `/bwe terraformar` faltan el adaptador `ServerLevel`, persistencia previa y duradera de originales, integracion con el undo y ensayos en una copia del mundo.
