@@ -35,6 +35,20 @@ public final class TemplateSiteAudit {
 
     public static Result start(ServerLevel world, BlockPos anchor, Vec3i size,
                                UUID operator, ResourceLocation templateId) {
+        return startInternal(world, anchor, size, operator, templateId, false);
+    }
+
+    /** Read-only audit of the full proposed demolition/terraform volume.
+     *  Uses the operator's CURRENT Y, not the surface survey's suggested median.
+     *  No approval to destroy blocks or move entities is implied. */
+    public static Result startClearance(ServerLevel world, BlockPos anchor, Vec3i size,
+                                        UUID operator, ResourceLocation templateId) {
+        return startInternal(world, anchor, size, operator, templateId, true);
+    }
+
+    private static Result startInternal(ServerLevel world, BlockPos anchor, Vec3i size,
+                                        UUID operator, ResourceLocation templateId,
+                                        boolean clearance) {
         if(active!=null) return new Result(false,"Ya hay una auditoria: "+status());
         if(BuildEngine.busy() || WorldData.get(world).undo()!=null)
             return new Result(false,"Hay una obra o respaldo pendiente.");
@@ -44,27 +58,63 @@ public final class TemplateSiteAudit {
         TemplateScanCursor cursor;
         try {
             bounds=TemplateFootprint.centered(anchor.getX(),anchor.getZ(),size.getX(),size.getZ(),false);
+            long bottom=anchor.getY();
             long top=(long)anchor.getY()+size.getY()-1L;
-            if(!bounds.withinMinecraftCoordinates() || anchor.getY()<world.getMinBuildHeight()
+            if(clearance) {
+                int margin=TemplateSurfaceSurvey.marginFor(operator);
+                bounds=TemplateFootprint.expanded(bounds,margin);
+                ClearanceVolume.Estimate estimate=ClearanceVolume.calculate(
+                    bounds.width(),bounds.length(),size.getY(),margin,
+                    anchor.getY(),world.getMinBuildHeight(),world.getMaxBuildHeight());
+                if(!estimate.withinWorld())
+                    return new Result(false,"Despeje fuera de altura mundial: Y="
+                        +estimate.minY()+".."+estimate.maxY()+".");
+                bottom=estimate.minY();
+                top=estimate.maxY();
+            }
+            if(!bounds.withinMinecraftCoordinates() || bottom<world.getMinBuildHeight()
                 || top>=world.getMaxBuildHeight())
                 return new Result(false,"Huella o altura fuera de los limites del mundo.");
             if(bounds.chunkCount()>1024L)
                 return new Result(false,"Mas de 1024 chunks: auditoria no iniciada; sigue catalogada.");
-            cursor=new TemplateScanCursor(bounds,anchor.getY(),(int)top);
+            cursor=new TemplateScanCursor(bounds,(int)bottom,(int)top);
         } catch(ArithmeticException | IllegalArgumentException ex) {
             return new Result(false,"Volumen invalido: "+ex.getMessage());
         }
         if(cursor.total()>MAX_SCAN_BLOCKS)
             return new Result(false,"Volumen de "+cursor.total()+" bloques excede el maximo de "
                 +MAX_SCAN_BLOCKS+" por auditoria; sigue disponible en el catalogo.");
+        // Full clearance may overlap a protected area even when the template itself does not.
+        if(clearance) {
+            String dim=world.dimension().location().toString();
+            if(!dim.equals("minecraft:overworld"))
+                return new Result(false,"Despeje limitado al Overworld.");
+            WorldData data=WorldData.get(world);
+            int x0=(int)bounds.minX(), z0=(int)bounds.minZ();
+            int x1=(int)bounds.maxX(), z1=(int)bounds.maxZ();
+            if(data.protectedFootprint(dim,x0,z0,x1,z1,0)
+                || data.overlapsCompleted(dim,x0,z0,x1,z1,0))
+                return new Result(false,"El margen toca un area protegida o asentamiento BWE.");
+            BlockPos spawn=world.getSharedSpawnPos();
+            if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1))
+                return new Result(false,"El margen toca la reserva del spawn.");
+            for(long x:new long[]{bounds.minX(),bounds.maxX()})
+                for(long z:new long[]{bounds.minZ(),bounds.maxZ()})
+                    if(!world.getWorldBorder().isWithinBounds(new BlockPos((int)x,anchor.getY(),(int)z)))
+                        return new Result(false,"El margen sale del worldborder.");
+        }
         // Never force-load or generate chunks, even at the start.
         for(long cx=bounds.minX()>>4;cx<=bounds.maxX()>>4;cx++)
             for(long cz=bounds.minZ()>>4;cz<=bounds.maxZ()>>4;cz++)
                 if(!world.hasChunk((int)cx,(int)cz))
                     return new Result(false,"Chunk sin cargar: auditoria no iniciada.");
-        active=new Audit(world,operator,templateId.toString(),cursor);
-        return new Result(true,"Auditoria SOLO LECTURA iniciada: "+templateId+" | "
-            +cursor.total()+" bloques; "+BLOCKS_PER_TICK+"/tick. /bwe auditoria para progreso.");
+        active=new Audit(world,operator,templateId.toString()
+            +(clearance?" [DESPEJE COMPLETO]":" [PIEZA]"),cursor);
+        return new Result(true,"Auditoria SOLO LECTURA iniciada: "+templateId
+            +(clearance?" | despeje con margen "+TemplateSurfaceSurvey.marginFor(operator)
+                +" y Y provisional del operador (NO base mediana)":" | solo volumen de la pieza")
+            +" | "+cursor.total()+" bloques; "+BLOCKS_PER_TICK
+            +"/tick. /bwe auditoria para progreso.");
     }
 
     public static String status() {
