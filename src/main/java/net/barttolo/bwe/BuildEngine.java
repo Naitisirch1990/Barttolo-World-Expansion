@@ -221,7 +221,12 @@ public final class BuildEngine {
     private BuildEngine() {}
 
     public record Plan(String kind, String template, BlockPos center, String dimension,
-                       int y, int halfX, int halfZ, long created) {}
+                       int y, int halfX, int halfZ, long created, int margin) {
+        public Plan(String kind, String template, BlockPos center, String dimension,
+                    int y, int halfX, int halfZ, long created) {
+            this(kind, template, center, dimension, y, halfX, halfZ, created, 7);
+        }
+    }
     public record Result(boolean ok, String message, int count) {}
 
     /** Collision checks only target SOLID blocks. No entities are moved or removed. */
@@ -630,6 +635,25 @@ public final class BuildEngine {
         if(busy()) return new Result(false,"Construccion o restauracion en curso",0);
         if(WorldData.get(world).undo()!=null)
             return new Result(false,"Existe una obra pendiente. Usa /bwe deshacer o /bwe finalizar SI",0);
+        if(!p.template().isEmpty()) {
+            try {
+                TemplatePieceDraft.Prepared draft=TemplatePieceDraft.prepare(world,p);
+                return new Result(true,
+                    "SIMULACION NBT SIN CAMBIOS: "+p.template()
+                    +" | despejar="+draft.clearing()
+                    +" | cimentacion y tierra="+draft.foundation()
+                    +" | otros bloques="+draft.solid()
+                    +" | total="+draft.changed().size()
+                    +" | margen="+p.margin()
+                    +" | sin recuperar inventarios ni entidades"
+                    +" | NBT especial="+draft.ignoredBlockEntities()
+                    +" | entidades NBT="+draft.ignoredEntities()
+                    +" | paletas="+draft.alternativePalettes()
+                    +". La colocacion NBT permanece DESHABILITADA.", draft.changed().size());
+            } catch(IllegalArgumentException error) {
+                return new Result(false,"SIMULACION NBT CANCELADA: "+error.getMessage(),0);
+            }
+        }
         WorldChecks.Survey review=WorldChecks.scanFull(world,p.center(),p.halfX(),p.halfZ(),4);
         if(!review.ok() || review.groundY()!=p.y()) return new Result(false,"Terreno cambiado: "+review.reason(),0);
         if(occupied(world,p)) return new Result(false,
