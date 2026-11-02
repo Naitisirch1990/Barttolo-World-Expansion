@@ -22,7 +22,7 @@ public final class BweCatalog {
                         int ground,List<Piece> pieces) {}
     public record Cell(BlockPos pos,BlockState state,CompoundTag nbt) {}
     public record Spawn(CompoundTag nbt,double x,double y,double z,float yaw) {}
-    public record Blueprint(List<Cell> cells,List<Spawn> entities) {}
+    public record Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports) {}
     private static final Map<String,StructureTemplate> CACHE=new HashMap<>();
     private static List<Entry> catalog;
     private static String problem="";
@@ -109,7 +109,7 @@ public final class BweCatalog {
         return p.getValue(value).map(v -> state.setValue(p,v)).orElse(state);
     }
     public static Blueprint compose(ServerLevel world,Entry entry) throws IOException {
-        LinkedHashMap<Long,Cell> cells=new LinkedHashMap<>();ArrayList<Spawn> entities=new ArrayList<>();
+        LinkedHashMap<Long,Cell> cells=new LinkedHashMap<>();ArrayList<Spawn> entities=new ArrayList<>();Set<BlockPos> supports=new HashSet<>();
         Rotation[] rotations={Rotation.NONE,Rotation.CLOCKWISE_90,Rotation.CLOCKWISE_180,Rotation.COUNTERCLOCKWISE_90};
         for(Piece p:entry.pieces()) {
             StructureTemplate template=template(world,p.template());
@@ -127,6 +127,9 @@ public final class BweCatalog {
                 BlockPos pos=rotate(c.x(),c.y(),c.z(),p.rotation()).offset(p.x(),p.y(),p.z());
                 if(pos.getX()<0||pos.getX()>=entry.sizeX()||pos.getY()<0||pos.getY()>=entry.sizeY()||pos.getZ()<0||pos.getZ()>=entry.sizeZ())
                     throw new IOException("Plan fuera de limites en "+entry.id()+": "+pos);
+                if(c.y()==0 && !state.isAir() && state.getFluidState().isEmpty()
+                    && !state.canBeReplaced() && !state.hasBlockEntity()
+                    && !state.is(net.minecraft.tags.BlockTags.LEAVES)) supports.add(pos);
                 cells.put(pos.asLong(),new Cell(pos,state.rotate(rotations[Math.floorMod(p.rotation(),4)]),data==null?null:data.copy()));
                 if(cells.size()>1_000_000)throw new IOException("Demasiados bloques en una construccion");
             }
@@ -140,6 +143,6 @@ public final class BweCatalog {
         }
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
         sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()?0:1).thenComparingInt(c -> c.pos().getY()));
-        return new Blueprint(List.copyOf(sorted),List.copyOf(entities));
+        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports));
     }
 }

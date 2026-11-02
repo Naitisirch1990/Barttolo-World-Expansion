@@ -40,7 +40,7 @@ public final class SurfaceGameTests {
             ByteArrayOutputStream bytes=new ByteArrayOutputStream();NbtIo.writeCompressed(raw,bytes);zip.write(bytes.toByteArray());zip.closeEntry();
         }
         Files.writeString(dir.resolve("catalogo.json"),"""
-          {"format":1,"entries":[{"id":"ctov:fixture","title":"Imported fixture","description":"Two rotated native pieces","sizeX":20,"sizeY":6,"sizeZ":8,"ground":1,"pieces":[{"template":"ctov:fixture","x":0,"y":0,"z":0,"rotation":0},{"template":"ctov:fixture","x":15,"y":0,"z":0,"rotation":1}]}]}
+          {"format":1,"entries":[{"id":"ctov:fixture","title":"Imported fixture","description":"Two rotated native pieces","sizeX":20,"sizeY":9,"sizeZ":8,"ground":1,"pieces":[{"template":"ctov:fixture","x":0,"y":0,"z":0,"rotation":0},{"template":"ctov:fixture","x":15,"y":3,"z":0,"rotation":1}]}]}
           """);
         BweCatalog.reset();var entry=BweCatalog.find("ctov:fixture");helper.assertTrue(entry!=null,"Catalog manifest not loaded");
         int ground=SurfaceBuilder.ground(w,center,entry,5);helper.assertTrue(ground==80,"Automatic ground selected "+ground);
@@ -57,13 +57,14 @@ public final class SurfaceGameTests {
                         helper.assertTrue(pig.isRemoved()&&item.isRemoved(),"Old entities not purged");
                         helper.assertTrue(w.getBlockState(center.above(10)).isAir(),"Tower not cleared");
                         helper.assertTrue(w.getBlockState(origin.offset(1,1,1)).is(Blocks.RED_BED),"Native bed missing");
-                        helper.assertTrue(w.getBlockState(origin.offset(14,1,1)).is(Blocks.RED_BED),"Rotated native bed missing");
+                        helper.assertTrue(w.getBlockState(origin.offset(14,4,1)).is(Blocks.RED_BED),"Rotated native bed missing");
+                        helper.assertTrue(w.getBlockState(origin.offset(14,2,1)).is(Blocks.DIRT),"Elevated piece lacks foundation");
                         var actual=w.getBlockEntity(origin.offset(3,1,3));
                         helper.assertTrue(actual!=null && actual.saveWithFullMetadata().getString("CustomName").contains("BWE fixture"),"Block entity NBT not installed");
                         helper.assertTrue(SurfaceBuilder.remove(w)==null,"Cannot remove latest structure");removing=true;
                     }else{
                         helper.assertTrue(w.getBlockState(origin.offset(1,1,1)).isAir(),"Native structure not removed");
-                        helper.assertTrue(w.getBlockState(origin.offset(14,1,1)).isAir(),"Rotated structure not removed");
+                        helper.assertTrue(w.getBlockState(origin.offset(14,4,1)).isAir(),"Rotated structure not removed");
                         System.out.println("[BWE-IMPORT-TEST] PASS archive, rotation, ground, block-entity NBT, purge and removal");helper.succeed();return;
                     }
                     helper.runAfterDelay(1,()->this.run());

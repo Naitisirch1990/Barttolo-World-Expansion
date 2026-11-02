@@ -15,11 +15,11 @@ import java.util.*;
 public final class SurfaceBuilder {
     private static final int BUDGET=200,FLAGS=2|16|32;
     private static Job active,last;
-    private enum Stage { LIMPIEZA,CIMENTACION,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
+    private enum Stage { LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
         final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;
-        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.LIMPIEZA;String waiting="";
+        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.LIMPIEZA;String waiting="";boolean removing;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;
             origin=new BlockPos(center.getX()-e.sizeX()/2,ground-e.ground(),center.getZ()-e.sizeZ()/2);
@@ -66,7 +66,7 @@ public final class SurfaceBuilder {
         Job j=active==null?last:active;
         if(j==null)return "No hay obra reciente en memoria para retirar";
         if(j.world!=world)return "Vuelve a la dimension de la obra";
-        j.stage=Stage.RETIRAR;j.cursor=0;j.done=0;active=j;return null;
+        j.stage=Stage.RETIRAR;j.cursor=0;j.done=0;j.removing=true;active=j;return null;
     }
     private static boolean purge(Job j){
         var es=j.world.getEntitiesOfClass(Entity.class,j.area);
@@ -92,18 +92,30 @@ public final class SurfaceBuilder {
             int work=0;
             while(active==j&&work++<BUDGET){
                 if(j.stage==Stage.LIMPIEZA){
-                    if(j.x>j.x1){j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;}
+                    if(j.x>j.x1){
+                        if(j.removing){say(j,"Obra retirada y superficie despejada. No se recupera el terreno anterior ni las entidades eliminadas.");active=null;last=null;break;}
+                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;
+                    }
                     if(j.y==Integer.MIN_VALUE)j.y=j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1;
                     if(j.y<j.walkY){j.column();continue;}
                     set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
                 }else if(j.stage==Stage.CIMENTACION){
-                    if(j.x>j.x1){j.stage=Stage.CONSTRUCCION;j.cursor=0;continue;}
+                    if(j.x>j.x1){j.stage=Stage.APOYOS;j.cursor=0;j.y=Integer.MIN_VALUE;continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=j.walkY-1;
                     if(j.y<Math.max(j.world.getMinBuildHeight(),j.walkY-64))throw new IllegalArgumentException("No hay soporte: elige un terreno mas bajo");
                     BlockPos at=new BlockPos(j.x,j.y,j.z);var old=j.world.getBlockState(at);
                     boolean support=!old.isAir()&&old.getFluidState().isEmpty()&&!old.canBeReplaced();
                     if(j.y==j.walkY-1||!support)set(j,at,(j.y==j.walkY-1?Blocks.GRASS_BLOCK:j.y>=j.walkY-3?Blocks.DIRT:Blocks.STONE).defaultBlockState());
                     if(support)j.column();else j.y--;
+                }else if(j.stage==Stage.APOYOS){
+                    if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.CONSTRUCCION;j.cursor=0;continue;}
+                    BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor));
+                    if(j.y==Integer.MIN_VALUE)j.y=floor.getY()-1;
+                    if(j.y<j.world.getMinBuildHeight() || j.y<floor.getY()-64)
+                        throw new IllegalArgumentException("No hay apoyo bajo una pieza elevada");
+                    BlockPos at=new BlockPos(floor.getX(),j.y,floor.getZ());var old=j.world.getBlockState(at);
+                    if(!old.isAir()&&old.getFluidState().isEmpty()&&!old.canBeReplaced()) {j.cursor++;j.y=Integer.MIN_VALUE;}
+                    else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
                 }else if(j.stage==Stage.CONSTRUCCION){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
                     var cell=j.blueprint.cells().get(j.cursor++);set(j,j.origin.offset(cell.pos()),cell.state());
@@ -120,7 +132,7 @@ public final class SurfaceBuilder {
                     Entity entity=EntityType.loadEntityRecursive(tag,j.world,e->{e.setUUID(UUID.randomUUID());e.moveTo(j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z(),yaw,0);return e;});
                     if(entity!=null)j.world.addFreshEntityWithPassengers(entity);
                 }else if(j.stage==Stage.RETIRAR){
-                    if(j.cursor>=j.blueprint.cells().size()){say(j,"Obra retirada. No se recupera el terreno anterior ni las entidades eliminadas.");active=null;last=null;break;}
+                    if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.LIMPIEZA;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
                     var at=j.origin.offset(j.blueprint.cells().get(j.cursor++).pos());
                     set(j,at,(at.getY()>=j.walkY?Blocks.AIR:at.getY()==j.walkY-1?Blocks.GRASS_BLOCK:Blocks.DIRT).defaultBlockState());
                 }

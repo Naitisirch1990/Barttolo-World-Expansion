@@ -69,7 +69,7 @@ def assemble(src,start_pool,seed,max_depth=5,max_pieces=36,extent=65):
  if not opts:return None
  root=rng.choices([v[0] for v in opts],weights=[v[1] for v in opts])[0]
  size,cons,_=src.template(root);parts=[{'template':root,'x':0,'y':0,'z':0,'rotation':0}];boxes=[bounds(size,0,(0,0,0))];queue=collections.deque()
- ground=min([c['pos'][1] for c in cons if c['front'][1]==0] or [1])
+ ground=1  # Place the root's bottom foundation layer at the natural surface; tree platforms remain elevated
  for c in cons:queue.append((c,tuple(c['pos']),c['front'],0))
  while queue and len(parts)<max_pieces:
   parent,pos,front,depth=queue.popleft()
@@ -110,7 +110,7 @@ def create(paths,dest):
     if p and (best is None or len(p['pieces'])>len(best['pieces'])):best=p
    if not best:continue
    homes=sum('/house/' in x['template'] or '/houses/' in x['template'] or '/profession/' in x['template'] for x in best['pieces'])
-   best.update(id='ctov:aldea_'+style,title='Aldea CTOV — '+translations.get(style,style),category='aldeas',description=f'{homes} edificios; {len(best["pieces"])} piezas conectadas',seed=next((i for i in []),0))
+   best.update(id='ctov:aldea_'+style,title='Aldea CTOV — '+translations.get(style,style),category='aldeas',description=f'{len(best["pieces"])} piezas CTOV conectadas')
    entries.append(best)
   elif ident.startswith('explorify:') and not any(k in ident for k in ['black_spiral','end_shipwreck','supply_cache']):
    pool=d.get('start_pool')
@@ -127,7 +127,7 @@ def create(paths,dest):
   for suffix in ['house/small_1','house/big_1','profession/armorer','profession/library']:
    ident='ctov:village/'+style+'/'+suffix
    if ident not in src.templates:continue
-   size,cons,_=src.template(ident);ground=min([c['pos'][1] for c in cons if c['front'][1]==0] or [1])
+   size,cons,_=src.template(ident);ground=1  # Place the root's bottom foundation layer at the natural surface; tree platforms remain elevated
    entries.append(dict(id=ident,title='CTOV — '+style+' '+suffix.replace('/',' '),category='edificios',description='Edificio individual',sizeX=size[0],sizeY=size[1],sizeZ=size[2],ground=ground,pieces=[dict(template=ident,x=0,y=0,z=0,rotation=0)]))
  data={'format':1,'sources':[{'file':('ctov.jar' if 'ctov' in p.name.lower() else 'explorify.jar'),'sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in paths],'entries':entries}
  pathlib.Path(dest).write_text(json.dumps(data,ensure_ascii=False,indent=2))
