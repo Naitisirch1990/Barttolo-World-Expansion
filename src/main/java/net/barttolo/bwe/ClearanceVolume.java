@@ -24,4 +24,42 @@ public final class ClearanceVolume {
         long height = Math.addExact(Math.subtractExact(top, bottom), 1L);
         return new Estimate(columns, Math.multiplyExact(columns, height), bottom, top, true);
     }
+
+    /** Deterministic geometry for one column of a future destructive terraform job.
+     *  groundY is the chosen supporting terrain; occupiedTopY is the highest
+     *  obstruction (roof/tree included), not necessarily the ground surface.
+     *  Clearing includes AIR positions deliberately: it is an upper work bound,
+     *  not a prediction of how many setBlock calls will be necessary.
+     *  No chunks are accessed and this method NEVER edits a world.
+     */
+    public record ColumnPlan(long clearFromY, long clearToY,
+                             long fillFromY, long fillToY) {
+        public long clearPositions() { return Math.max(0L, clearToY - clearFromY + 1L); }
+        public long fillPositions() { return Math.max(0L, fillToY - fillFromY + 1L); }
+        public long totalPositions() { return Math.addExact(clearPositions(), fillPositions()); }
+    }
+
+    /** Prepare a column by clearing from the proposed foundation upward and
+     *  filling the gap between natural ground and the foundation with solid support.
+     *  The existing top obstruction must be cleared even when it is taller than
+     *  the template plus overhead. Height limits are checked before any work.
+     *  The last buildable Y is maxBuildHeight - 1 (exclusive upper bound).
+     */
+    public static ColumnPlan planColumn(int groundY, int occupiedTopY, int foundationY,
+                                        int templateHeight, int overheadMargin,
+                                        int minBuildHeight, int maxBuildHeight) {
+        if (maxBuildHeight <= minBuildHeight || templateHeight < 1 || overheadMargin < 0
+            || groundY < minBuildHeight || occupiedTopY < groundY
+            || occupiedTopY >= maxBuildHeight
+            || foundationY < minBuildHeight || foundationY >= maxBuildHeight)
+            throw new IllegalArgumentException("Invalid terraform column or build height");
+        long roof = (long) foundationY + templateHeight + overheadMargin - 1L;
+        long clearTop = Math.max(roof, (long) occupiedTopY);
+        if (clearTop >= maxBuildHeight)
+            throw new IllegalArgumentException("Terraform clearance exceeds world ceiling");
+        long fillStart = (long) groundY + 1L;
+        long fillEnd = (long) foundationY - 1L;
+        return new ColumnPlan(foundationY, clearTop, fillStart, fillEnd);
+    }
+
 }
