@@ -61,6 +61,28 @@ public final class WorldChecks {
         return survey(world, center, halfX, halfZ, maxHeightDifference, 1);
     }
 
+    /** Destructive build selection: choose operator Y, accept buildings/fluids/slopes.
+     * Actual clearance, foundations and full bounds are checked again before writing. */
+    public static Survey scanBuildSite(ServerLevel world,BlockPos center,int halfX,int halfZ,int margin) {
+        String dim=world.dimension().location().toString();
+        if(!dim.equals("minecraft:overworld")) return fail("Solo Overworld");
+        if(halfX<1 || halfZ<1 || halfX>32 || halfZ>32) return fail("Area fuera del limite");
+        int x0=center.getX()-halfX-margin,x1=center.getX()+halfX+margin;
+        int z0=center.getZ()-halfZ-margin,z1=center.getZ()+halfZ+margin;
+        if(center.getY()<=world.getMinBuildHeight() || center.getY()+14>=world.getMaxBuildHeight())
+            return fail("Altura fuera del mundo");
+        var spawn=world.getSharedSpawnPos();
+        if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1)) return fail("Reserva del spawn");
+        var data=WorldData.get(world);
+        if(data.protectedFootprint(dim,x0,z0,x1,z1,8) || data.overlapsCompleted(dim,x0,z0,x1,z1,16))
+            return fail("Zona protegida o asentamiento BWE");
+        for(int x:new int[]{x0,x1}) for(int z:new int[]{z0,z1})
+            if(!world.getWorldBorder().isWithinBounds(new BlockPos(x,center.getY(),z))) return fail("Fuera del worldborder");
+        for(int cx=x0>>4;cx<=x1>>4;cx++) for(int cz=z0>>4;cz<=z1>>4;cz++)
+            if(!world.hasChunk(cx,cz)) return fail("Acercate: hay chunks sin cargar");
+        return new Survey(true,"Reemplazo TOTAL autorizado a la altura elegida",center.getY(),center.getY()-1,center.getY()-1,0,0,0,0);
+    }
+
     private static Survey survey(ServerLevel world, BlockPos center, int halfX, int halfZ, int maxHeightDifference, int stride) {
         String dim = world.dimension().location().toString();
         if (!dim.equals("minecraft:overworld")) return fail("Solo Overworld.");
@@ -123,3 +145,4 @@ public final class WorldChecks {
 
     private static Survey fail(String reason) { return new Survey(false,reason,0,0,0,0,0,0,0); }
 }
+

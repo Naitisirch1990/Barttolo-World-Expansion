@@ -32,5 +32,6 @@ assert 'TemplatePieceDraft.prepare(world,p)' in engine
 assert 'running=new Job(world,p,operator,changed,originals,List.of(),draft.volume());' in engine
 assert 'data.setUndo(new WorldData.Undo(p.dimension(),p.template(),originals,List.of()))' in engine
 assert 'new StructurePlaceSettings' not in engine
-assert not any(p.suffix == ".nbt" for p in Path("src").rglob("*"))
+assert not any(p.suffix == ".nbt" for p in Path("src/main").rglob("*"))
 print("OK: catalogo paginado, seleccion externa y respaldo previo (auditoria estatica; NO es prueba en Minecraft)")
+

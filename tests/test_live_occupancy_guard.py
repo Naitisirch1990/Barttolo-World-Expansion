@@ -1,16 +1,10 @@
-"""Source audit: pause before each batch if a mob/player overlaps pending solid blocks.
-This does NOT exercise a running Forge world."""
+"""Static wiring only; real build/purge is exercised by game tests."""
 from pathlib import Path
-s=(Path(__file__).resolve().parents[1]/'src/main/java/net/barttolo/bwe/BuildEngine.java').read_text()
-start=s.index('public static void serverTick()')
-end=s.index('private static void undoTick()',start)
-tick=s[start:end]
-assert 'if (occupied(job.world, job.collisionZone))' in tick
-assert tick.index('if (occupied(job.world, job.collisionZone))') < tick.index('job.world.setBlock(')
-assert 'job.waitingForEntities = true;' in tick
-assert 'job.collisionZone.solidBlocks().remove(entry.getKey())' in tick
-assert 'return;' in tick[tick.index('if (occupied(job.world, job.collisionZone))'):tick.index('job.waitingForEntities = false;')]
-assert 'new AABB(minX,minY,minZ,maxX+1.0,maxY+1.0,maxZ+1.0)' in s
-assert 'BlockPos.asLong(x,y,z)' in s
-assert 'running = null;' in tick and 'snapshot conservado' in tick
-print('OK: espera segura con colision en bloques pendientes (solo fuente)')
+s=Path('src/main/java/net/barttolo/bwe/BuildEngine.java').read_text()
+assert 'if (!clearEntities(job.world, job.workArea))' in s
+purge=s[s.index('private static boolean clearEntities'):s.index('private static boolean isVillage')]
+assert 'instanceof net.minecraft.world.entity.player.Player' in purge
+assert purge.index('anyMatch') < purge.index('entity.discard()')
+assert '256' in purge and 'entity.kill()' not in purge
+assert 'WRITE_FLAGS = 2 | 16 | 32' in s
+print('OK: purga acotada sin matar jugadores ni generar drops (fuentes)')

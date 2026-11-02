@@ -6,10 +6,9 @@ main=(root/"BarttoloWorldExpansion.java").read_text()
 start=engine.index("public static void serverTick()")
 end=engine.index("private static void undoTick()",start)
 tick=engine[start:end]
-assert "if(actual.equals(desired))" in tick
-assert tick.index("if(actual.equals(desired))") < tick.index("if(!actual.equals(job.expectedBefore")
-assert tick.index("if(!actual.equals(job.expectedBefore") < tick.index("job.world.setBlock(at, entry.getValue(), 2)")
-assert "Estado distinto tras colocar" in tick
+assert 'if(!actual.equals(desired) || entry.getValue().hasBlockEntity())' in tick
+assert 'job.world.setBlock(at, entry.getValue(), WRITE_FLAGS)' in tick
+assert 'job.world.removeBlockEntity(at)' in tick
 assert 'LOGGER.error("[BWE] Fallo durante construccion' in tick
 assert "String.valueOf(error.getMessage())" in tick
 a=engine.index("public static Result diagnose(ServerLevel world)")
@@ -21,3 +20,4 @@ assert "discrepancias=" in diagnose and "primer conflicto " in diagnose
 assert '.then(Commands.literal("diagnosticar")' in main
 assert "BuildEngine.diagnose(s.getLevel())" in main
 print("OK: diagnostico solo lectura, logger de errores y destino ya colocado (auditoria estatica)")
+

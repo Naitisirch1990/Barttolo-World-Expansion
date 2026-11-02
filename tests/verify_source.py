@@ -39,12 +39,12 @@ assert 'return inspectTemplate(s,id);' in m
 assert 'job.world.hasChunk' in e
 assert 'for (long cx = minX >> 4' in c
 assert 'world.getEntitiesOfClass(Entity.class' in e
-assert 'MAX_CHANGES = 55_000' in e
+assert 'MAX_CHANGES = 200_000' in e
 assert 'BLOCKS_PER_TICK = 200' in e
 assert 'undoRunning' in e and 'undoTick()' in e
-assert 'current.equals(b.before())' in e and 'current.equals(b.after())' in e
-assert 'b.after().isEmpty() || !b.after().equals' in e
-assert 'job.expectedBefore.get(entry.getKey())' in e
+assert 'current.equals(b.before())' in e and 'WorldData.decode(b.before())' in e
+assert 'if(!snapshot.completed())' in e
+assert 'WRITE_FLAGS = 2 | 16 | 32' in e
 assert 'private static Result buildExternal(ServerLevel world, Plan p, UUID operator)' in e, 'Colocacion NBT experimental disponible'
 assert 'data.setUndo(new WorldData.Undo(p.dimension(),p.template(),originals,List.of()))' in e, 'Respaldo de estados previo a NBT'
 assert 'world.getServer().overworld().getDataStorage().save();' in e, 'Guardar respaldo antes de iniciar obra'
@@ -58,10 +58,11 @@ assert 'villager.setUUID(reserved)' in e
 assert 'data.registerCompleted(snapshot)' in m, 'Registrar asentamiento al finalizar'
 assert 'protectedFootprint' in c, 'Comprobar huella completa frente a circulos y rectangulos'
 assert 'overlapsCompleted' in c, 'Evitar superposicion de estructuras BWE'
-assert 'Arbol alto fuera del limite de limpieza' in e
+assert 'prepareDrawing' in s['TemplatePieceDraft']
 assert 'import net.minecraft.world.level.levelgen.Heightmap;' in c
 assert 'palette.roofSlab' in e and 'ACACIA_PLANKS' in e and 'MANGROVE_LOG' in e
 assert 'Blocks.FURNACE' not in e and 'Blocks.BARREL' not in e, 'No dejar inventarios originales sin copia de NBT'
 for name,code in s.items():
     assert code.count('{')==code.count('}'),name
-print('OK: verificaciones estáticas v0.6.18 (NO compilación Forge).')
+print('OK: verificaciones estáticas v0.7.0 (NO compilación Forge).')
+

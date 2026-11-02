@@ -26,7 +26,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import java.util.*;
 
-/** Barttolo World Expansion 0.6.18. Test server only, operator-only commands. */
+/** Barttolo World Expansion 0.7.0. Test server only, operator-only commands. */
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID = "barttoloworldexpansion";
@@ -34,7 +34,7 @@ public final class BarttoloWorldExpansion {
     private record ScanSite(BlockPos center, String dimension, long created) {}
     private static final Map<UUID, ScanSite> SCANS = new HashMap<>();
     private static final List<String> ORDERED_KINDS = List.of(
-        "campamento", "refugio", "pozo", "carreta", "torre", "ruina", "altar", "aldea");
+        "campamento", "refugio", "pozo", "carreta", "torre", "ruina", "altar", "aldea", "herreria", "posada", "granja", "establo", "fortin", "mercado", "aldea_grande");
     private static final int CATALOG_PAGE_SIZE = 8;
     public BarttoloWorldExpansion() { MinecraftForge.EVENT_BUS.register(this); }
 
@@ -230,7 +230,7 @@ public final class BarttoloWorldExpansion {
                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page+1))));
             s.sendSuccess(() -> next,false);
         }
-        if(ids.isEmpty()) say(s,"No se encontraron plantillas con namespace ctov/explorify en los recursos del servidor.");
+        if(ids.isEmpty()) say(s,"CTOV/Explorify no estan disponibles. Instala sus JAR y dependencias para sus piezas NBT; las 15 construcciones BWE de arriba funcionan sin ellos.");
         return 1;
     }
     private static int templates(CommandSourceStack s) { return listing(s,1); }
@@ -437,7 +437,7 @@ public final class BarttoloWorldExpansion {
 
     private static int scan(CommandSourceStack s,int r) throws CommandSyntaxException {
         BlockPos center=s.getPlayerOrException().blockPosition();
-        var result=WorldChecks.scan(s.getLevel(),center,r,r,4);
+        var result=WorldChecks.scanBuildSite(s.getLevel(),center,r,r,TemplateSurfaceSurvey.marginFor(player(s)));
         UUID id=player(s);
         PLANS.remove(id); // A new scan must not leave an old selection active.
         if(result.ok()) SCANS.put(id,new ScanSite(center,dim(s.getLevel()),System.currentTimeMillis()));
@@ -470,7 +470,7 @@ public final class BarttoloWorldExpansion {
         try {
             var bounds=TemplatePlacementVolume.centered(center.getX(),center.getY(),
                 center.getZ(),size.getX(),size.getY(),size.getZ(),false);
-            var clear=TemplatePlacementVolume.clearance(bounds,margin,12);
+            var clear=TemplatePlacementVolume.clearance(bounds,margin,Math.min(64,center.getY()-world.getMinBuildHeight()));
             if(!clear.withinWorld(world.getMinBuildHeight(),world.getMaxBuildHeight()))
                 return fail(s,"La estructura no cabe en los limites del mundo.");
             PLANS.put(playerId,new BuildEngine.Plan("plantilla",id,center,
@@ -504,12 +504,12 @@ public final class BarttoloWorldExpansion {
             return fail(s,"Escaneo caducado: vuelve a /bwe escanear.");
         }
         int radius=BuildEngine.radius(type);
-        var survey=WorldChecks.scanFull(s.getLevel(),site.center(),radius,radius,4);
+        var survey=WorldChecks.scanBuildSite(s.getLevel(),site.center(),radius,radius,TemplateSurfaceSurvey.marginFor(id));
         if(!survey.ok()) return fail(s,"La zona no es apta para "+type+": "+survey.reason());
         PLANS.put(id,new BuildEngine.Plan(type,"",site.center(),site.dimension(),
-            survey.groundY(),radius,radius,System.currentTimeMillis()));
+            survey.groundY(),radius,radius,System.currentTimeMillis(),TemplateSurfaceSurvey.marginFor(id)));
         say(s,"Seleccionado: "+type+" en X="+site.center().getX()+" Z="+site.center().getZ()
-            +". Alejate de los bloques a construir y usa /bwe crear.");
+            +" | area con margen="+(2*(radius+TemplateSurfaceSurvey.marginFor(id))+1)+" x "+(2*(radius+TemplateSurfaceSurvey.marginFor(id))+1)+". Alejate y usa /bwe crear (BORRA bloques y entidades salvo jugadores).");
         return 1;
     }
     /** No preview or extra confirmation. BuildEngine rechecks the whole area before editing. */
@@ -530,9 +530,9 @@ public final class BarttoloWorldExpansion {
         if(WorldData.get(s.getLevel()).undo()!=null) return fail(s,"Primero /bwe deshacer o /bwe finalizar SI");
         BlockPos center=where==null?s.getPlayerOrException().blockPosition():where;
         int radius=BuildEngine.radius(type);
-        var survey=WorldChecks.scan(s.getLevel(),center,radius,radius,4);
+        var survey=WorldChecks.scanBuildSite(s.getLevel(),center,radius,radius,TemplateSurfaceSurvey.marginFor(player(s)));
         if(!survey.ok()) return fail(s,"No se puede planear: "+survey.reason());
-        BuildEngine.Plan plan=new BuildEngine.Plan(type,"",center,dim(s.getLevel()),survey.groundY(),radius,radius,System.currentTimeMillis());
+        BuildEngine.Plan plan=new BuildEngine.Plan(type,"",center,dim(s.getLevel()),survey.groundY(),radius,radius,System.currentTimeMillis(),TemplateSurfaceSurvey.marginFor(player(s)));
         PLANS.put(player(s),plan);
         say(s,"Plan registrado: "+type+" en "+center.getX()+","+survey.groundY()+","+center.getZ());
         return preview(s);
@@ -651,3 +651,4 @@ public final class BarttoloWorldExpansion {
         say(s,"Exclusion #"+index+" retirada.");return 1;
     }
 }
+

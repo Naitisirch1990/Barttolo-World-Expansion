@@ -10,160 +10,119 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.phys.AABB;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
-/**
- * Strict non-destructive preparation of a SINGLE external CTOV/Explorify NBT piece.
- * Produces final block states and a safety footprint but NEVER calls setBlock.
- *
- * The future writer must use exactly this verified draft, persist all BEFORE
- * states prior to the first edit and recheck protection/player occupancy per tick.
- * NBT block-entity payloads and entities are explicitly outside this draft.
- */
+/** Read-only planning of destructive replacement. No inventory/entity backup. */
 public final class TemplatePieceDraft {
-    public static final int MAX_CHANGES = 55_000;
-    public static final int MAX_EXAMINED = 160_000;
-    private static final int FOUNDATION_DEPTH = 12;
-
+    public static final int MAX_CHANGES = 200_000;
+    public static final int MAX_EXAMINED = 500_000;
+    private static final int FOUNDATION_DEPTH = 64;
     public record Prepared(Map<Long, BlockState> changed,
                            TemplatePlacementVolume.Bounds volume,
                            int clearing, int foundation, int solid,
                            int ignoredBlockEntities, int ignoredEntities,
                            int alternativePalettes) {
-        public Prepared {
-            changed = java.util.Collections.unmodifiableMap(new LinkedHashMap<>(changed));
-        }
+        public Prepared { changed=Collections.unmodifiableMap(new LinkedHashMap<>(changed)); }
     }
-
     private TemplatePieceDraft() {}
 
     public static Prepared prepare(ServerLevel world, BuildEngine.Plan plan) {
-        if (!world.dimension().location().toString().equals("minecraft:overworld"))
-            throw new IllegalArgumentException("Las plantillas externas se preparan solo en Overworld");
-        ResourceLocation id = ResourceLocation.tryParse(plan.template());
-        if (id == null || !(id.getNamespace().equals("ctov") || id.getNamespace().equals("explorify")))
+        ResourceLocation id=ResourceLocation.tryParse(plan.template());
+        if(id==null || !(id.getNamespace().equals("ctov") || id.getNamespace().equals("explorify")))
             throw new IllegalArgumentException("Solo NBT de CTOV o Explorify");
-        Optional<StructureTemplate> loaded = world.getStructureManager().get(id);
-        if (loaded.isEmpty()) throw new IllegalArgumentException("La pieza NBT ya no esta disponible");
-        StructureTemplate template = loaded.get();
-        Vec3i size = template.getSize();
-        if (size.getX() < 1 || size.getY() < 1 || size.getZ() < 1)
-            throw new IllegalArgumentException("Dimensiones NBT invalidas");
-        var footprint = TemplatePlacementVolume.centered(
-            plan.center().getX(), plan.y(), plan.center().getZ(),
-            size.getX(), size.getY(), size.getZ(), false);
-        var clear = TemplatePlacementVolume.clearance(footprint, plan.margin(), FOUNDATION_DEPTH);
-        if (!clear.withinWorld(world.getMinBuildHeight(), world.getMaxBuildHeight()))
-            throw new IllegalArgumentException("La pieza o su cimentacion queda fuera del mundo");
-        long baseVolume;
-        try { baseVolume = clear.blockCount(); }
-        catch (ArithmeticException overflow) {
-            throw new IllegalArgumentException("Volumen demasiado grande", overflow);
-        }
-        if (baseVolume > MAX_EXAMINED)
-            throw new IllegalArgumentException("Volumen provisional mayor que el limite de ensayo "
-                + MAX_EXAMINED + " bloques (pieza aun disponible en catalogo)");
-        int x0=(int)clear.minX(), z0=(int)clear.minZ();
-        int x1=(int)clear.maxX(), z1=(int)clear.maxZ();
-        String dim=world.dimension().location().toString();
-        WorldData data=WorldData.get(world);
-        if (data.protectedFootprint(dim,x0,z0,x1,z1,8)
-            || data.overlapsCompleted(dim,x0,z0,x1,z1,16))
-            throw new IllegalArgumentException("Colision con proteccion o asentamiento BWE");
-        var spawn=world.getSharedSpawnPos();
-        if (SiteMath.circleIntersectsRect(spawn.getX(), spawn.getZ(), 160, x0,z0,x1,z1))
-            throw new IllegalArgumentException("La pieza invade la reserva de spawn");
-        for (long x : new long[]{clear.minX(),clear.maxX()})
-            for (long z : new long[]{clear.minZ(),clear.maxZ()})
-                if (!world.getWorldBorder().isWithinBounds(new BlockPos((int)x,plan.y(),(int)z)))
-                    throw new IllegalArgumentException("Fuera del worldborder");
-        // Do this before getHeight/getBlockState, which otherwise may load terrain.
-        for (long cx=clear.minX()>>4; cx<=clear.maxX()>>4; cx++)
-            for (long cz=clear.minZ()>>4; cz<=clear.maxZ()>>4; cz++)
-                if (!world.hasChunk((int)cx,(int)cz))
-                    throw new IllegalArgumentException("Chunk no cargado: " + cx + "," + cz);
-
-        AABB safety = new AABB(clear.minX(),clear.minY(),clear.minZ(),
-            clear.maxX()+1.0,world.getMaxBuildHeight(),clear.maxZ()+1.0);
-        if (!world.getEntitiesOfClass(ServerPlayer.class, safety).isEmpty())
-            throw new IllegalArgumentException("Hay jugadores dentro de la futura obra; alejalos primero");
-
+        StructureTemplate template=world.getStructureManager().get(id)
+            .orElseThrow(() -> new IllegalArgumentException("La pieza NBT no esta instalada"));
+        Vec3i size=template.getSize();
+        var footprint=TemplatePlacementVolume.centered(plan.center().getX(),plan.y(),
+            plan.center().getZ(),size.getX(),size.getY(),size.getZ(),false);
         TemplateNbtPiece.Blueprint piece=TemplateNbtPiece.read(template);
-        // Compute the FINAL state of every affected position: absent NBT blocks
-        // are AIR, including the full vertical headroom and the selected margin.
+        LinkedHashMap<Long,BlockState> targets=new LinkedHashMap<>();
+        for(var cell:piece.cells()) {
+            BlockPos at=new BlockPos((int)footprint.minX()+cell.x(),plan.y()+cell.y(),(int)footprint.minZ()+cell.z());
+            BlockState target=cell.state();
+            if(target.is(Blocks.JIGSAW) || target.is(Blocks.STRUCTURE_BLOCK)) target=Blocks.AIR.defaultBlockState();
+            targets.put(at.asLong(),target);
+        }
+        return prepareVolume(world,plan,footprint,targets,piece.blockEntityNbt(),piece.entities(),piece.paletteVariants());
+    }
+
+    public static Prepared prepareDrawing(ServerLevel world, BuildEngine.Plan plan,
+                                         Map<Long,BlockState> targets,int height) {
+        var footprint=TemplatePlacementVolume.centered(plan.center().getX(),plan.y(),
+            plan.center().getZ(),plan.halfX()*2+1,Math.max(14,height),plan.halfZ()*2+1,false);
+        return prepareVolume(world,plan,footprint,targets,0,0,1);
+    }
+
+    private static Prepared prepareVolume(ServerLevel world, BuildEngine.Plan plan,
+            TemplatePlacementVolume.Bounds footprint,Map<Long,BlockState> targets,
+            int specialNbt,int entities,int palettes) {
+        if(!world.dimension().location().toString().equals(plan.dimension()))
+            throw new IllegalArgumentException("Dimension distinta de la seleccion");
+        if(!plan.dimension().equals("minecraft:overworld"))
+            throw new IllegalArgumentException("Construccion solo en Overworld");
+        if(plan.y()<=world.getMinBuildHeight() || plan.y()>=world.getMaxBuildHeight())
+            throw new IllegalArgumentException("Altura de cimentacion fuera del mundo");
+        int depth=Math.min(FOUNDATION_DEPTH,plan.y()-world.getMinBuildHeight());
+        var clear=TemplatePlacementVolume.clearance(footprint,plan.margin(),depth);
+        if(!clear.withinWorld(world.getMinBuildHeight(),world.getMaxBuildHeight()))
+            throw new IllegalArgumentException("La estructura excede la altura del mundo");
+        int x0=(int)clear.minX(),x1=(int)clear.maxX(),z0=(int)clear.minZ(),z1=(int)clear.maxZ();
+        String dim=plan.dimension(); WorldData data=WorldData.get(world);
+        if(data.protectedFootprint(dim,x0,z0,x1,z1,8) || data.overlapsCompleted(dim,x0,z0,x1,z1,16))
+            throw new IllegalArgumentException("Zona protegida o asentamiento BWE; usa /bwe olvidar para quitar un registro propio");
+        BlockPos spawn=world.getSharedSpawnPos();
+        if(SiteMath.circleIntersectsRect(spawn.getX(),spawn.getZ(),160,x0,z0,x1,z1))
+            throw new IllegalArgumentException("Reserva de spawn de 160 bloques");
+        for(long x:new long[]{clear.minX(),clear.maxX()}) for(long z:new long[]{clear.minZ(),clear.maxZ()})
+            if(!world.getWorldBorder().isWithinBounds(new BlockPos((int)x,plan.y(),(int)z)))
+                throw new IllegalArgumentException("Fuera del borde del mundo");
+        for(long cx=clear.minX()>>4;cx<=clear.maxX()>>4;cx++)
+            for(long cz=clear.minZ()>>4;cz<=clear.maxZ()>>4;cz++)
+                if(!world.hasChunk((int)cx,(int)cz)) throw new IllegalArgumentException("Chunk no cargado; acercate al area");
+        AABB safety=new AABB(x0,clear.minY(),z0,x1+1.0,world.getMaxBuildHeight(),z1+1.0);
+        if(!world.getEntitiesOfClass(ServerPlayer.class,safety).isEmpty())
+            throw new IllegalArgumentException("Aleja a todos los jugadores del area antes de crear; los mobs se eliminaran automaticamente");
+        long columns=(long)(x1-x0+1)*(z1-z0+1);
+        if(columns*(footprint.maxY()-plan.y()+1)>MAX_EXAMINED)
+            throw new IllegalArgumentException("Area demasiado grande para un trabajo");
         LinkedHashMap<Long,BlockState> desired=new LinkedHashMap<>();
         int examined=0;
-        for (int x=x0; x<=x1; x++) for (int z=z0; z<=z1; z++) {
-            int top=Math.max((int)footprint.maxY()+1,
-                world.getHeight(Heightmap.Types.WORLD_SURFACE,x,z));
-            if (top>world.getMaxBuildHeight()) throw new IllegalArgumentException("Altura fuera del mundo");
-            for (int y=top-1; y>=plan.y(); y--) {
-                if (++examined>MAX_EXAMINED)
-                    throw new IllegalArgumentException("Demasiados bloques para analizar en un comando");
-                BlockPos pos=new BlockPos(x,y,z);
-                if (!world.getBlockState(pos).isAir())
-                    desired.put(pos.asLong(),Blocks.AIR.defaultBlockState());
-                if (desired.size()>MAX_CHANGES) throw new IllegalArgumentException("Obra demasiado grande para el respaldo actual");
+        for(int x=x0;x<=x1;x++) for(int z=z0;z<=z1;z++) {
+            int top=Math.max((int)footprint.maxY()+1,world.getHeight(Heightmap.Types.WORLD_SURFACE,x,z));
+            for(int y=top-1;y>=plan.y();y--) {
+                if(++examined>MAX_EXAMINED) throw new IllegalArgumentException("Limite de analisis excedido");
+                // Include AIR too: undo must cover cells changed later by neighbour updates.
+                desired.put(BlockPos.asLong(x,y,z),Blocks.AIR.defaultBlockState());
+                if(desired.size()>MAX_CHANGES) throw new IllegalArgumentException("Limite de respaldo excedido");
             }
             boolean supported=false;
-            for (int y=plan.y()-1; y>=plan.y()-FOUNDATION_DEPTH; y--) {
-                if (++examined>MAX_EXAMINED)
-                    throw new IllegalArgumentException("Demasiados bloques para analizar en un comando");
-                BlockPos pos=new BlockPos(x,y,z);
-                BlockState old=world.getBlockState(pos);
-                if (old.isAir() || !old.getFluidState().isEmpty() || old.canBeReplaced()) {
-                    if (!old.equals(Blocks.DIRT.defaultBlockState()))
-                        desired.put(pos.asLong(),Blocks.DIRT.defaultBlockState());
-                } else {
-                    supported=true;
-                    break;
+            for(int y=plan.y()-1;y>=plan.y()-depth;y--) {
+                if(++examined>MAX_EXAMINED) throw new IllegalArgumentException("Limite de analisis excedido");
+                BlockPos at=new BlockPos(x,y,z); BlockState old=world.getBlockState(at);
+                if(y==plan.y()-1 || old.isAir() || !old.getFluidState().isEmpty() || old.canBeReplaced()) {
+                    desired.put(at.asLong(),(y>=plan.y()-3?Blocks.DIRT:Blocks.STONE).defaultBlockState());
                 }
-                if (desired.size()>MAX_CHANGES) throw new IllegalArgumentException("Cimentacion demasiado grande para el respaldo actual");
+                if(!old.isAir() && old.getFluidState().isEmpty() && !old.canBeReplaced()) { supported=true;break; }
+                if(desired.size()>MAX_CHANGES) throw new IllegalArgumentException("Limite de cimentacion excedido");
             }
-            if (!supported)
-                throw new IllegalArgumentException("No hay soporte debajo de X="+x+" Z="+z
-                    +" en "+FOUNDATION_DEPTH+" bloques; elige una zona mas estable");
+            if(!supported) throw new IllegalArgumentException("No hay apoyo a menos de "+depth+" bloques bajo la base; baja la altura elegida");
         }
-
-        for (var cell:piece.cells()) {
-            BlockPos at=new BlockPos((int)footprint.minX()+cell.x(),
-                plan.y()+cell.y(),(int)footprint.minZ()+cell.z());
-            BlockState target=cell.state();
-            // Assembly-only connector/marker blocks must not appear as physical
-            // blocks in a standalone house or campsite.
-            if (target.is(Blocks.JIGSAW) || target.is(Blocks.STRUCTURE_BLOCK))
-                target=Blocks.AIR.defaultBlockState();
-            if (world.getBlockState(at).equals(target))
-                desired.remove(at.asLong());
-            else desired.put(at.asLong(),target);
-            if (desired.size()>MAX_CHANGES)
-                throw new IllegalArgumentException("Pieza demasiado grande para el respaldo actual");
+        for(var entry:targets.entrySet()) {
+            BlockPos at=BlockPos.of(entry.getKey());
+            if(at.getX()<x0 || at.getX()>x1 || at.getZ()<z0 || at.getZ()>z1
+                || at.getY()<clear.minY() || at.getY()>clear.maxY())
+                throw new IllegalArgumentException("Dibujo fuera del volumen previsto: "+at);
+            desired.put(entry.getKey(),entry.getValue());
+            if(desired.size()>MAX_CHANGES) throw new IllegalArgumentException("Limite de respaldo excedido");
         }
-        if (desired.isEmpty())
-            throw new IllegalArgumentException("La pieza no produce cambios; no se crea respaldo vacio");
-
-        // Air first (top-down), then solids bottom-up to reduce unsupported
-        // placement while preserving a single final change per position.
-        ArrayList<Map.Entry<Long, BlockState>> ordered=new ArrayList<>(desired.entrySet());
-        ordered.sort(Comparator.<Map.Entry<Long,BlockState>,Integer>comparing(e ->
-            e.getValue().isAir() ? 0 : 1).thenComparingLong(e -> {
-            int y=BlockPos.of(e.getKey()).getY();
-            return e.getValue().isAir() ? -(long)y : (long)y;
-        }));
-        LinkedHashMap<Long,BlockState> finalPlan=new LinkedHashMap<>();
-        int clearing=0,foundation=0,solid=0;
-        for (var entry:ordered) {
-            finalPlan.put(entry.getKey(),entry.getValue());
-            if (entry.getValue().isAir()) clearing++;
-            else if (entry.getValue().is(Blocks.DIRT)) foundation++;
-            else solid++;
+        ArrayList<Map.Entry<Long,BlockState>> ordered=new ArrayList<>(desired.entrySet());
+        ordered.sort(Comparator.<Map.Entry<Long,BlockState>,Integer>comparing(e -> e.getValue().isAir()?0:1)
+            .thenComparingLong(e -> e.getValue().isAir()?-(long)BlockPos.of(e.getKey()).getY():BlockPos.of(e.getKey()).getY()));
+        LinkedHashMap<Long,BlockState> result=new LinkedHashMap<>();int air=0,fill=0,solid=0;
+        for(var e:ordered) {
+            result.put(e.getKey(),e.getValue());
+            if(e.getValue().isAir()) air++; else if(BlockPos.of(e.getKey()).getY()<plan.y()) fill++; else solid++;
         }
-        return new Prepared(finalPlan,clear,clearing,foundation,solid,
-            piece.blockEntityNbt(),piece.entities(),piece.paletteVariants());
+        return new Prepared(result,clear,air,fill,solid,specialNbt,entities,palettes);
     }
 }

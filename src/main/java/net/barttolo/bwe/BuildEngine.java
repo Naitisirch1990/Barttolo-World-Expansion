@@ -24,9 +24,12 @@ import java.util.*;
  *  No external mod assets are bundled in this project. */
 public final class BuildEngine {
     private static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger();
-    public static final Set<String> KINDS = Set.of("aldea", "campamento", "ruina", "torre", "refugio", "altar", "pozo", "carreta");
-    private static final int MAX_CHANGES = 55_000;
+    public static final Set<String> KINDS = Set.of("aldea", "campamento", "ruina", "torre", "refugio", "altar", "pozo", "carreta", "herreria", "posada", "granja", "establo", "fortin", "mercado", "aldea_grande");
+    private static final int MAX_CHANGES = 200_000;
     private static final int BLOCKS_PER_TICK = 200;
+    // Suppress intermediate shape updates and drops while a multiblock structure is incomplete.
+    // UPDATE_CLIENTS | UPDATE_KNOWN_SHAPE | UPDATE_SUPPRESS_DROPS
+    private static final int WRITE_FLAGS = 2 | 16 | 32;
     private static Job running;
     /** A restart may leave an incomplete build. Undo tolerates blocks still in BEFORE state. */
     private static UndoJob undoRunning;
@@ -36,14 +39,17 @@ public final class BuildEngine {
         final List<UUID> spawned;
         final String name;
         final AABB footprint;
-        final Set<UUID> ownedEntities;
         int cursor;
+        int ticks;
+        boolean waiting;
         UndoJob(ServerLevel world, WorldData.Undo snapshot) {
             this.world = world;
-            this.blocks = snapshot.blocks();
+            this.blocks = new ArrayList<>(snapshot.blocks());
+            // Cursor walks backwards: sort descending so supports restore bottom-up.
+            this.blocks.sort(Comparator.comparingInt((WorldData.StoredBlock b) ->
+                BlockPos.of(b.pos()).getY()).reversed());
             this.spawned = snapshot.entities();
             this.name = snapshot.name();
-            this.ownedEntities = Set.copyOf(snapshot.entities());
             this.footprint = undoFootprint(snapshot);
             this.cursor = blocks.size() - 1;
         }
@@ -55,10 +61,9 @@ public final class BuildEngine {
         final Iterator<Map.Entry<Long, BlockState>> remaining;
         final List<WorldData.StoredBlock> originals;
         final List<UUID> reservedEntities;
-        final Map<Long, net.minecraft.nbt.CompoundTag> expectedBefore = new HashMap<>();
         final int total;
-        final CollisionZone collisionZone;
         final TemplatePlacementVolume.Bounds externalClearance;
+        final AABB workArea;
         boolean waitingForEntities;
         int placed;
         Job(ServerLevel world, Plan plan, UUID operator, Map<Long,BlockState> changes,
@@ -75,9 +80,8 @@ public final class BuildEngine {
             this.remaining = changes.entrySet().iterator();
             this.originals = originals;
             this.reservedEntities = reservedEntities;
-            for(WorldData.StoredBlock block : originals) expectedBefore.put(block.pos(), block.before());
             this.total = changes.size();
-            this.collisionZone = collisionZone(changes);
+            this.workArea = undoFootprint(new WorldData.Undo(plan.dimension(),plan.kind(),originals,reservedEntities));
         }
     }
     /** Never retain a ServerLevel from a stopped integrated/dedicated server.
@@ -90,10 +94,10 @@ public final class BuildEngine {
     public static boolean busy() { return running != null || undoRunning != null; }
     public static String status() {
         if(undoRunning != null) return "Restaurando " + undoRunning.name + ": " +
-            (undoRunning.blocks.size()-1-undoRunning.cursor) + "/" + undoRunning.blocks.size() + " bloques (200/tick).";
+            (undoRunning.blocks.size()-1-undoRunning.cursor) + "/" + undoRunning.blocks.size() + " bloques (200/tick)." + (undoRunning.waiting?" EN ESPERA: aleja a los jugadores.":"");
         if(running == null) return "Sin construcciones en curso.";
         return running.plan.kind() + " " + running.placed + "/" + running.total
-            + " bloques (200/tick)." + (running.waitingForEntities ? " EN ESPERA: entidades sobre bloques pendientes." : "");
+            + " bloques (200/tick)." + (running.waitingForEntities ? " EN ESPERA: aleja a los jugadores del area." : "");
     }
     public static void serverTick() {
         if(undoRunning != null) { undoTick(); return; }
@@ -101,7 +105,7 @@ public final class BuildEngine {
         if(job == null) return;
         try {
             // External pieces may clear AIR under players: check the ENTIRE
-            // clearance, not just collisionZone's future solid blocks.
+            // clearance, including air removal above the operator.
             if (job.externalClearance != null) {
                 var b=job.externalClearance;
                 AABB area=new AABB(b.minX(),b.minY(),b.minZ(),
@@ -126,9 +130,9 @@ public final class BuildEngine {
                             new BlockPos((int)x,job.plan.y(),(int)z)))
                             throw new IllegalStateException("Worldborder cambiado durante obra NBT");
             }
-            // Pause (do not fail or discard the backup) while an entity overlaps
-            // a SOLID block still pending placement. Nearby slimes are harmless.
-            if (occupied(job.world, job.collisionZone)) {
+            // Authorised destructive work: discard non-player entities without death drops
+            // or slime splitting. Players are never removed or built through.
+            if (!clearEntities(job.world, job.workArea)) {
                 job.waitingForEntities = true;
                 return;
             }
@@ -141,37 +145,23 @@ public final class BuildEngine {
                     throw new IllegalStateException("Chunk descargado durante la obra en " + at);
                 if (job.externalClearance != null && !job.world.getWorldBorder().isWithinBounds(at))
                     throw new IllegalStateException("Worldborder excluyo bloque NBT " + at);
-                // Avoid premature physics updates for multi-block beds and planted crops.
-                // Revalidate every block before changing it. If someone builds while
-                // the job runs, stop instead of overwriting their work.
+                // Replace all states in the authorised volume, including physics changes.
                 var actual = WorldData.encode(job.world.getBlockState(at));
                 var desired = WorldData.encode(entry.getValue());
-                // A prior BWE block may have triggered a vanilla neighbour update.
-                // If the target is already exactly as planned, do not call setBlock
-                // (which can return false for an unchanged state). Never overwrite
-                // an unexpected third state; it may be a player's edit.
-                if(actual.equals(desired)) {
-                    job.collisionZone.solidBlocks().remove(entry.getKey());
-                    job.placed++;
-                    continue;
+                if(!actual.equals(desired) || entry.getValue().hasBlockEntity()) {
+                    job.world.removeBlockEntity(at);
+                    if(actual.equals(desired)) job.world.setBlock(at,Blocks.AIR.defaultBlockState(),WRITE_FLAGS);
+                    // Clear container data even if the target has the same block state.
+                    job.world.removeBlockEntity(at); // inventory data is intentionally discarded
+                    job.world.setBlock(at, entry.getValue(), WRITE_FLAGS);
+                    if(!WorldData.encode(job.world.getBlockState(at)).equals(desired))
+                        throw new IllegalStateException("No se pudo colocar bloque en " + at);
                 }
-                if(!actual.equals(job.expectedBefore.get(entry.getKey())))
-                    throw new IllegalStateException("Bloque distinto del original y del destino en " + at
-                        + " | original=" + job.expectedBefore.get(entry.getKey())
-                        + " | actual=" + actual + " | destino=" + desired);
-                if(!job.world.setBlock(at, entry.getValue(), 2))
-                    throw new IllegalStateException("No se pudo colocar el bloque en " + at
-                        + " | original=" + actual + " | destino=" + desired);
-                // A placement affected by physics is not silently counted as correct.
-                if(!WorldData.encode(job.world.getBlockState(at)).equals(desired))
-                    throw new IllegalStateException("Estado distinto tras colocar en " + at
-                        + " | destino=" + desired + " | actual=" + WorldData.encode(job.world.getBlockState(at)));
-                job.collisionZone.solidBlocks().remove(entry.getKey());
                 job.placed++;
             }
             if(job.remaining.hasNext()) return;
             int spawned = 0;
-            if(job.plan.kind().equals("aldea")) {
+            if(isVillage(job.plan.kind())) {
                 int index=0;
                 for(int[] at:new int[][]{{-12,-12},{14,-12},{-12,14},{14,14}}) {
                     Villager villager = EntityType.VILLAGER.create(job.world);
@@ -186,7 +176,7 @@ public final class BuildEngine {
                     spawned++;
                 }
             }
-            if(job.plan.kind().equals("aldea") && spawned != job.reservedEntities.size())
+            if(isVillage(job.plan.kind()) && spawned != job.reservedEntities.size())
                 throw new IllegalStateException("Aldeanos incompletos; conservar respaldo");
             ArrayList<WorldData.StoredBlock> finalBlocks = new ArrayList<>(job.originals.size());
             for(WorldData.StoredBlock b:job.originals) {
@@ -216,11 +206,12 @@ public final class BuildEngine {
         UndoJob job = undoRunning;
         if(job == null) return;
         try {
-            // Do not restore solid blocks through players, animals, dropped items
-            // or vehicles that entered after /bwe deshacer. Ignore only villagers
-            // spawned by this exact BWE job, which are removed after rollback.
-            if (undoOccupied(job))
-                throw new IllegalStateException("Entidad entro en el area durante la restauracion");
+            // Players pause the operation; all other occupants are discarded.
+            if (!clearEntities(job.world, job.footprint)) { job.waiting=true; return; }
+            job.waiting=false;
+            if (++job.ticks % 20 == 0)
+                announce(job.world, "Restaurando " + job.name + ": "
+                    + (job.blocks.size()-1-job.cursor) + "/" + job.blocks.size());
             int examined = 0;
             while(job.cursor >= 0 && examined < BLOCKS_PER_TICK) {
                 examined++;
@@ -229,13 +220,15 @@ public final class BuildEngine {
                 if(!job.world.hasChunk(at.getX() >> 4, at.getZ() >> 4))
                     throw new IllegalStateException("Chunk descargado durante rollback: " + at);
                 var current = WorldData.encode(job.world.getBlockState(at));
-                if(current.equals(b.before())) { // Never alter blocks already restored or never built.
+                if(current.equals(b.before())) { // Skip states already restored.
                     job.cursor--;
                     continue;
                 }
-                if(b.after().isEmpty() || !current.equals(b.after()))
-                    throw new IllegalStateException("Bloque modificado por un jugador en " + at);
-                if(!job.world.setBlock(at, WorldData.decode(b.before()), 2))
+                // Deshacer intentionally overwrites subsequent edits in the saved volume.
+                job.world.removeBlockEntity(at);
+                BlockState original = WorldData.decode(b.before());
+                job.world.setBlock(at, original, WRITE_FLAGS);
+                if(!job.world.getBlockState(at).equals(original))
                     throw new IllegalStateException("No se pudo restaurar " + at);
                 job.cursor--;
             }
@@ -244,12 +237,14 @@ public final class BuildEngine {
                 var entity = job.world.getEntity(id);
                 if(entity != null) entity.discard();
             }
+            announce(job.world,"Restauracion completa: " + job.name + " (" + job.blocks.size() + " bloques). Ya puedes crear otra obra.");
             WorldData.get(job.world).clearUndo();
             job.world.getServer().overworld().getDataStorage().save();
             System.out.println("[BWE] Restauracion completa de " + job.name + " (" + job.blocks.size() + " registros)");
             undoRunning = null;
         } catch(Exception e) {
             LOGGER.error("[BWE] Restauracion incompleta; backup conservado", e);
+            announce(job.world,"Restauracion detenida: " + e.getMessage() + ". Respaldo conservado; usa /bwe deshacer para reintentar.");
             undoRunning = null;
         }
     }
@@ -263,49 +258,6 @@ public final class BuildEngine {
         }
     }
     public record Result(boolean ok, String message, int count) {}
-
-    /** Collision checks only target SOLID blocks. No entities are moved or removed. */
-    private record CollisionZone(Set<Long> solidBlocks, AABB bounds) {}
-    private static CollisionZone collisionZone(Map<Long,BlockState> changes) {
-        Set<Long> solids=new HashSet<>();
-        int minX=Integer.MAX_VALUE,minY=Integer.MAX_VALUE,minZ=Integer.MAX_VALUE;
-        int maxX=Integer.MIN_VALUE,maxY=Integer.MIN_VALUE,maxZ=Integer.MIN_VALUE;
-        for(var entry:changes.entrySet()) {
-            if(entry.getValue().isAir()) continue;
-            BlockPos at=BlockPos.of(entry.getKey());
-            solids.add(entry.getKey());
-            minX=Math.min(minX,at.getX()); minY=Math.min(minY,at.getY()); minZ=Math.min(minZ,at.getZ());
-            maxX=Math.max(maxX,at.getX()); maxY=Math.max(maxY,at.getY()); maxZ=Math.max(maxZ,at.getZ());
-        }
-        return new CollisionZone(solids,solids.isEmpty()?null:
-            new AABB(minX,minY,minZ,maxX+1.0,maxY+1.0,maxZ+1.0));
-    }
-    private static boolean occupied(ServerLevel world, CollisionZone zone) {
-        if(zone.bounds()==null || zone.solidBlocks().isEmpty()) return false;
-        for(Entity entity:world.getEntitiesOfClass(Entity.class,zone.bounds())) {
-            AABB box=entity.getBoundingBox();
-            int minX=(int)Math.floor(box.minX),minY=(int)Math.floor(box.minY),minZ=(int)Math.floor(box.minZ);
-            int maxX=(int)Math.floor(Math.nextDown(box.maxX));
-            int maxY=(int)Math.floor(Math.nextDown(box.maxY));
-            int maxZ=(int)Math.floor(Math.nextDown(box.maxZ));
-            long volume=(long)(maxX-minX+1)*(maxY-minY+1)*(maxZ-minZ+1);
-            if(volume>4096L) return true; // Giant entity: fail closed.
-            for(int x=minX;x<=maxX;x++) for(int y=minY;y<=maxY;y++)
-                for(int z=minZ;z<=maxZ;z++)
-                    if(zone.solidBlocks().contains(BlockPos.asLong(x,y,z))) return true;
-        }
-        return false;
-    }
-
-    /** Shared, deliberately conservative entity guard for both dry-run and build.
-     *  Rejects every existing entity, including dropped items, vehicles and decorations.
-     *  Does not move or discard anything. */
-    private static boolean occupied(ServerLevel world, Plan plan) {
-        AABB footprint = new AABB(plan.center().getX()-plan.halfX(),plan.y()-3,
-            plan.center().getZ()-plan.halfZ(),plan.center().getX()+plan.halfX()+1,
-            plan.y()+18,plan.center().getZ()+plan.halfZ()+1);
-        return !world.getEntitiesOfClass(Entity.class, footprint).isEmpty();
-    }
 
     /** Exact block-change bounding box, expanded by one block for entities.
      *  This deliberately does not rely on a stale player plan after restart. */
@@ -321,13 +273,32 @@ public final class BuildEngine {
         return new AABB(minX-1.0,minY-1.0,minZ-1.0,maxX+2.0,maxY+2.0,maxZ+2.0);
     }
 
-    private static boolean undoOccupied(UndoJob job) {
-        return job.footprint != null && job.world.getEntitiesOfClass(Entity.class, job.footprint)
-            .stream().anyMatch(entity -> !job.ownedEntities.contains(entity.getUUID()));
+    private static void announce(ServerLevel world, String text) {
+        for (var player:world.players())
+            if(player.hasPermissions(2)) player.sendSystemMessage(Component.literal("[BWE] " + text));
+    }
+
+    /** Returns false while players occupy the volume or a bounded purge is incomplete. */
+    private static boolean clearEntities(ServerLevel world, AABB area) {
+        if(area==null) return true;
+        var entities=world.getEntitiesOfClass(Entity.class,area);
+        // Check ALL players before deleting anything. Never kill or discard a player.
+        if(entities.stream().anyMatch(e -> e instanceof net.minecraft.world.entity.player.Player)) return false;
+        int removed=0;
+        for(Entity entity:entities) {
+            if(entity instanceof net.minecraft.world.entity.player.Player) continue;
+            if(removed++ >= 256) return false;
+            entity.discard();
+        }
+        return true;
+    }
+
+    private static boolean isVillage(String kind) {
+        return kind.equals("aldea") || kind.equals("aldea_grande");
     }
 
     public static int radius(String kind) {
-        return switch (kind) { case "aldea" -> 22; case "campamento" -> 9; case "ruina" -> 10; case "refugio" -> 7; case "altar" -> 7; case "pozo" -> 6; case "carreta" -> 10; default -> 8; };
+        return switch (kind) { case "aldea" -> 22; case "aldea_grande" -> 30; case "mercado", "fortin" -> 14; case "posada", "granja", "establo" -> 12; case "herreria" -> 10; case "campamento" -> 9; case "ruina" -> 10; case "refugio" -> 7; case "altar" -> 7; case "pozo" -> 6; case "carreta" -> 10; default -> 8; };
     }
 
     private static final class Drawing {
@@ -386,23 +357,14 @@ public final class BuildEngine {
          *  Each footprint supports a small amount of terrain variation. All edits are still
          *  preflighted before touching a single block and can be undone in a test world. */
         void clearFootprint(int x0,int z0,int x1,int z1,int headroom) {
-            for (int x=x0; x<=x1; x++) for (int z=z0;z<=z1;z++) {
-                int gx=center.getX()+x, gz=center.getZ()+z;
-                int soilY=WorldChecks.ground(world,gx,gz);
-                if (soilY==Integer.MIN_VALUE || Math.abs((soilY+1)-ground)>4)
-                    throw new IllegalArgumentException("Terreno irregular: "+gx+","+gz);
-                // Refuse tall trunks instead of cutting them halfway and leaving floating crowns.
-                for(int y=ground+headroom+1; y<=Math.min(world.getMaxBuildHeight()-1,ground+headroom+8); y++) {
-                    if(world.getBlockState(new BlockPos(gx,y,gz)).is(BlockTags.LOGS))
-                        throw new IllegalArgumentException("Arbol alto fuera del limite de limpieza en "+gx+","+gz);
-                }
-                // Replace only above-ground vegetation and uneven natural obstacles.
-                for (int y=ground;y<=ground+headroom;y++) put(x,y-ground,z,Blocks.AIR.defaultBlockState());
-                // Fill terrain under the local target level, including the immediate foundation.
-                for (int y=soilY+1;y<ground;y++) put(x,y-ground,z,Blocks.DIRT.defaultBlockState());
+            // The shared preparation clears the entire selected area and margin first.
+            // Local drawings only choose their final surface and interior air.
+            for (int x=x0; x<=x1; x++) for (int z=z0; z<=z1; z++) {
+                for (int y=0;y<=headroom;y++) put(x,y,z,Blocks.AIR.defaultBlockState());
                 put(x,-1,z,palette.surface);
             }
         }
+
         void corridor(int x0,int z0,int x1,int z1,BlockState surface) {
             clearFootprint(x0,z0,x1,z1,3);
             rect(x0,z0,x1,z1,-1,surface);
@@ -416,7 +378,7 @@ public final class BuildEngine {
             clearFootprint(x-1,z-1,x+8,z+8,7);
             rect(x,z,x+7,z+7,-1,palette.wall);
             rect(x+1,z+1,x+6,z+6,0,Blocks.OAK_PLANKS.defaultBlockState());
-            for(int dy=1;dy<=4;dy++) {
+            for(int dy=0;dy<=4;dy++) {
                 for(int a=0;a<8;a++) {
                     put(x+a,dy,z,(a==0 || a==7) ? palette.log : palette.wall);
                     put(x+a,dy,z+7,(a==0 || a==7) ? palette.log : palette.wall);
@@ -424,7 +386,7 @@ public final class BuildEngine {
                     put(x+7,dy,z+a,(a==0 || a==7) ? palette.log : palette.wall);
                 }
             }
-            for(int dy=0;dy<=1;dy++) put(x+3,dy,z+7,Blocks.AIR.defaultBlockState());
+            for(int dy=1;dy<=2;dy++) put(x+3,dy,z+7,Blocks.AIR.defaultBlockState());
             put(x+3,2,z,Blocks.GLASS_PANE.defaultBlockState());
             put(x+7,2,z+3,Blocks.GLASS_PANE.defaultBlockState());
             for(int x1=x-1;x1<=x+8;x1++) for(int z1=z-1;z1<=z+8;z1++)
@@ -456,11 +418,71 @@ public final class BuildEngine {
         }
         void draw(String kind) {
             switch(kind) {
-                case "aldea" -> {
+                case "aldea", "aldea_grande" -> {
                     basicPath();
                     house(-17,-17); house(10,-17); house(-17,10); house(10,10);
                     farm(12,-3);
+                    if(kind.equals("aldea_grande")) {
+                        house(-28,-5); house(21,-5); house(-5,-28); house(-5,21);
+                        corridor(-28,-1,28,1,palette.path);
+                        corridor(-1,-28,1,28,palette.path);
+                    }
                     lamp(7,8); lamp(-8,7);
+                }
+                case "herreria" -> {
+                    house(-4,-4);
+                    rect(-7,-5,-5,5,0,Blocks.STONE_BRICKS.defaultBlockState());
+                    put(-6,1,-2,Blocks.ANVIL.defaultBlockState());
+                    put(-6,1,1,Blocks.SMITHING_TABLE.defaultBlockState());
+                    column(-6,4,1,7,Blocks.BRICKS.defaultBlockState());
+                    put(-6,8,4,Blocks.CAMPFIRE.defaultBlockState());
+                }
+                case "posada" -> {
+                    house(-9,-4); house(1,-4);
+                    corridor(-2,-6,2,7,palette.path);
+                    rect(-10,-5,9,5,7,palette.roofSlab);
+                    for(int x=-7;x<=7;x+=7) {
+                        put(x,0,7,Blocks.OAK_FENCE.defaultBlockState());
+                        put(x,1,7,Blocks.OAK_PRESSURE_PLATE.defaultBlockState());
+                        put(x,0,9,Blocks.OAK_STAIRS.defaultBlockState());
+                    }
+                    lamp(-10,9); lamp(10,9);
+                }
+                case "granja" -> {
+                    farm(-9,-9); farm(3,-9); farm(-9,2); farm(3,2);
+                    corridor(-1,-10,1,10,palette.path);
+                    for(int x=-10;x<=10;x++) {put(x,0,-10,Blocks.OAK_FENCE.defaultBlockState());put(x,0,10,Blocks.OAK_FENCE.defaultBlockState());}
+                    for(int z=-10;z<=10;z++) {put(-10,0,z,Blocks.OAK_FENCE.defaultBlockState());put(10,0,z,Blocks.OAK_FENCE.defaultBlockState());}
+                }
+                case "establo" -> {
+                    rect(-9,-7,9,7,0,palette.wall);
+                    for(int x=-9;x<=9;x+=6) for(int z=-7;z<=7;z+=14) column(x,z,1,4,palette.log);
+                    rect(-10,-8,10,8,5,palette.roof);
+                    for(int x=-9;x<=9;x++) {put(x,1,-7,Blocks.OAK_FENCE.defaultBlockState());put(x,1,7,Blocks.OAK_FENCE.defaultBlockState());}
+                    for(int z=-7;z<=7;z++) {put(-9,1,z,Blocks.OAK_FENCE.defaultBlockState());put(9,1,z,Blocks.OAK_FENCE.defaultBlockState());}
+                    for(int x=-7;x<=7;x+=7) {put(x,1,-5,Blocks.HAY_BLOCK.defaultBlockState());put(x,1,5,Blocks.HAY_BLOCK.defaultBlockState());}
+                    put(0,1,7,Blocks.OAK_FENCE_GATE.defaultBlockState());
+                }
+                case "fortin" -> {
+                    rect(-11,-11,11,11,0,Blocks.STONE_BRICKS.defaultBlockState());
+                    for(int y=1;y<=5;y++) for(int a=-11;a<=11;a++) {
+                        put(a,y,-11,Blocks.STONE_BRICKS.defaultBlockState());put(a,y,11,Blocks.STONE_BRICKS.defaultBlockState());
+                        put(-11,y,a,Blocks.STONE_BRICKS.defaultBlockState());put(11,y,a,Blocks.STONE_BRICKS.defaultBlockState());
+                    }
+                    for(int a=-11;a<=11;a+=2) for(int v:new int[]{-11,11}) {put(a,6,v,Blocks.STONE_BRICKS.defaultBlockState());put(v,6,a,Blocks.STONE_BRICKS.defaultBlockState());}
+                    for(int x=-1;x<=1;x++) for(int y=1;y<=3;y++) put(x,y,11,Blocks.AIR.defaultBlockState());
+                    house(-4,-5); lamp(-8,-8); lamp(8,8);
+                }
+                case "mercado" -> {
+                    corridor(-12,-12,12,12,Blocks.COBBLESTONE.defaultBlockState());
+                    int i=0;
+                    for(int x:new int[]{-9,3}) for(int z:new int[]{-9,3}) {
+                        for(int xx=x;xx<=x+5;xx+=5) for(int zz=z;zz<=z+5;zz+=5) column(xx,zz,0,3,Blocks.OAK_FENCE.defaultBlockState());
+                        rect(x-1,z-1,x+6,z+6,4,(i++%2==0?Blocks.RED_WOOL:Blocks.YELLOW_WOOL).defaultBlockState());
+                        rect(x,z+1,x+5,z+1,0,Blocks.SPRUCE_PLANKS.defaultBlockState());
+                        put(x+1,1,z+1,Blocks.MELON.defaultBlockState());put(x+4,1,z+1,Blocks.HAY_BLOCK.defaultBlockState());
+                    }
+                    lamp(0,0);
                 }
                 case "campamento" -> {
                     clearFootprint(-7,-5,7,7,5);
@@ -547,23 +569,11 @@ public final class BuildEngine {
         // External pieces have their own destructive, bounded and protection-aware
         // preparation. They do NOT use the natural-only vanilla survey above.
         if(!p.template().isEmpty()) return buildExternal(world,p,operator);
-        WorldChecks.Survey review=WorldChecks.scanFull(world,p.center(),p.halfX(),p.halfZ(),4);
-        if(!review.ok() || review.groundY()!=p.y()) return new Result(false,"La revision cambio: "+review.reason(),0);
-
-        Drawing drawing=new Drawing(world,p.center(),p.y());
-        try { drawing.draw(p.kind()); }
-        catch (IllegalArgumentException e) { return new Result(false,"Terreno inseguro: "+e.getMessage(),0); }
-        Map<Long,BlockState> changed= new LinkedHashMap<>();
-        for(var entry:drawing.placements.entrySet()) {
-            BlockPos pos=BlockPos.of(entry.getKey());
-            if(!world.hasChunk(pos.getX()>>4,pos.getZ()>>4)) return new Result(false,"Chunk sin cargar",0);
-            if(!world.getWorldBorder().isWithinBounds(pos)) return new Result(false,"Bloque fuera del borde del mundo",0);
-            BlockState old=world.getBlockState(pos);
-            if(old.hasBlockEntity() || !WorldChecks.natural(old)) return new Result(false,"Bloque preexistente potencialmente construido en "+pos+"; cancelado",0);
-            if(!old.equals(entry.getValue())) changed.put(entry.getKey(),entry.getValue());
-        }
-        if(changed.size()>MAX_CHANGES) return new Result(false,"Demasiados bloques a modificar: "+changed.size(),0);
-        if(changed.isEmpty()) return new Result(false,"La obra no modificaria ningun bloque; no se crea un respaldo vacio.",0);
+        TemplatePieceDraft.Prepared draft;
+        try { draft=prepareOriginal(world,p); }
+        catch(IllegalArgumentException error) { return new Result(false,error.getMessage(),0); }
+        Map<Long,BlockState> changed=draft.changed();
+        if(changed.isEmpty()) return new Result(false,"Sin cambios para construir",0);
         ArrayList<WorldData.StoredBlock> undoBlocks=new ArrayList<>(changed.size());
         for(var entry:changed.entrySet()) {
             BlockState before=world.getBlockState(BlockPos.of(entry.getKey()));
@@ -574,12 +584,19 @@ public final class BuildEngine {
         // Only one undo slot is active.
         WorldData data=WorldData.get(world);
         ArrayList<UUID> reservedEntities = new ArrayList<>();
-        if(p.kind().equals("aldea")) for(int i=0;i<4;i++) reservedEntities.add(UUID.randomUUID());
+        if(isVillage(p.kind())) for(int i=0;i<4;i++) reservedEntities.add(UUID.randomUUID());
         data.setUndo(new WorldData.Undo(p.dimension(),p.kind(),undoBlocks,reservedEntities));
         // Save undo to disk before applying any edits. The job then writes 200 blocks per tick.
         world.getServer().overworld().getDataStorage().save();
-        running = new Job(world,p,operator,changed,undoBlocks,reservedEntities);
-        return new Result(true,"Obra iniciada. Esperara sin modificar bloques ocupados; /bwe estado muestra el avance.",changed.size());
+        running = new Job(world,p,operator,changed,undoBlocks,reservedEntities,draft.volume());
+        return new Result(true,"Obra iniciada: limpieza total de bloques y entidades (excepto jugadores), cimentacion y construccion. /bwe estado muestra el avance.",changed.size());
+    }
+
+    private static TemplatePieceDraft.Prepared prepareOriginal(ServerLevel world, Plan p) {
+        Drawing drawing=new Drawing(world,p.center(),p.y());
+        drawing.draw(p.kind());
+        int height=drawing.placements.keySet().stream().mapToInt(v -> BlockPos.of(v).getY()-p.y()+1).max().orElse(14);
+        return TemplatePieceDraft.prepareDrawing(world,p,drawing.placements,height);
     }
 
     /** EXPERIMENTAL: first single-piece CTOV/Explorify placement.
@@ -647,7 +664,8 @@ public final class BuildEngine {
     }
 
     public static Result undo(ServerLevel world) {
-        if(busy()) return new Result(false,"Hay otra operacion en curso: "+status(),0);
+        if(undoRunning!=null) return new Result(false,"Ya se esta restaurando: "+status(),0);
+        if(running!=null && running.world!=world) return new Result(false,"La obra esta en otra dimension",0);
         WorldData data=WorldData.get(world);
         WorldData.Undo snapshot=data.undo();
         if(snapshot==null) return new Result(false,"No hay construccion pendiente",0);
@@ -655,7 +673,7 @@ public final class BuildEngine {
             return new Result(false,"Respaldo vacio o corrupto: no se puede deshacer automaticamente",0);
         if(!snapshot.dimension().equals(world.dimension().location().toString()))
             return new Result(false,"Entra en la misma dimension de la construccion",0);
-        // Validate ALL entries before starting rollback: never overwrite later player edits.
+        // Validate ALL backed-up state encodings before restoring the authorised volume.
         // Includes half-built worlds after unexpected restart.
         for(WorldData.StoredBlock b : snapshot.blocks()) {
             BlockPos pos=BlockPos.of(b.pos());
@@ -668,15 +686,11 @@ public final class BuildEngine {
             catch(RuntimeException error) {
                 return new Result(false,"Respaldo incompatible en "+pos+": "+error.getMessage()+". No se modifico el mundo.",0);
             }
-            var state=WorldData.encode(world.getBlockState(pos));
-            if(!state.equals(b.before()) && (b.after().isEmpty() || !state.equals(b.after())))
-                return new Result(false,"Hay cambios posteriores en "+pos+". Se conserva el backup y NO se sobrescribe.",0);
         }
         UndoJob job = new UndoJob(world, snapshot);
-        if (undoOccupied(job))
-            return new Result(false,"Hay jugadores, mobs u objetos en la zona. Despejala antes de deshacer; respaldo conservado.",0);
+        running = null; // Stop a partial/paused build before restoring its complete snapshot.
         undoRunning = job;
-        return new Result(true,"Restauracion iniciada por etapas, consulta /bwe estado",snapshot.blocks().size());
+        return new Result(true,"Restauracion TOTAL iniciada: sobrescribe cambios del area respaldada y elimina entidades salvo jugadores. Alejate y consulta /bwe estado",snapshot.blocks().size());
     }
 
     /** Finalize only a wholly finished build; never discard an incomplete crash snapshot. */
@@ -690,13 +704,7 @@ public final class BuildEngine {
             return new Result(false,"Respaldo vacio o corrupto; no se puede finalizar",0);
         if(!snapshot.dimension().equals(world.dimension().location().toString()))
             return new Result(false,"Debes estar en la dimension original",0);
-        for(WorldData.StoredBlock b : snapshot.blocks()) {
-            BlockPos at=BlockPos.of(b.pos());
-            if(!world.hasChunk(at.getX()>>4,at.getZ()>>4))
-                return new Result(false,"Chunks no cargados. Acercate a la obra.",0);
-            if(b.after().isEmpty() || !b.after().equals(WorldData.encode(world.getBlockState(at))))
-                return new Result(false,"La obra no coincide con el estado final en " + at + "; NO se elimina el respaldo.",0);
-        }
+        // Explicit acceptance: later physics/player edits must not trap the undo slot.
         return new Result(true,"Obra completa. Respaldo listo para finalizar.",snapshot.blocks().size());
     }
 
@@ -724,27 +732,15 @@ public final class BuildEngine {
                 return new Result(false,"SIMULACION NBT CANCELADA: "+error.getMessage(),0);
             }
         }
-        WorldChecks.Survey review=WorldChecks.scanFull(world,p.center(),p.halfX(),p.halfZ(),4);
-        if(!review.ok() || review.groundY()!=p.y()) return new Result(false,"Terreno cambiado: "+review.reason(),0);
-        if(occupied(world,p)) return new Result(false,
-            "SIMULACION CANCELADA: hay entidades en el volumen de la obra.",0);
-        if(!p.template().isEmpty())
-            return new Result(false,"Las plantillas externas estan en modo catalogo: aun falta terraformacion y colocacion por lotes. No se restauraran inventarios ni entidades.",0);
-        Drawing d=new Drawing(world,p.center(),p.y());
-        try { d.draw(p.kind()); }
-        catch(IllegalArgumentException ex) { return new Result(false,"Terreno inseguro: "+ex.getMessage(),0); }
-        int changed=0;
-        for(var entry:d.placements.entrySet()) {
-            BlockPos pos=BlockPos.of(entry.getKey());
-            if(!world.hasChunk(pos.getX()>>4,pos.getZ()>>4)) return new Result(false,"Chunk no cargado en "+pos,0);
-            if(!world.getWorldBorder().isWithinBounds(pos)) return new Result(false,"Fuera del borde del mundo: "+pos,0);
-            BlockState old=world.getBlockState(pos);
-            if(old.hasBlockEntity() || !WorldChecks.natural(old)) return new Result(false,"Bloque protegido/preexistente en "+pos,0);
-            if(!old.equals(entry.getValue())) changed++;
+        try {
+            var draft=prepareOriginal(world,p);
+            int changed=draft.changed().size();
+            if(changed==0) return new Result(false,"Sin cambios",0);
+            return new Result(true,"SIMULACION SIN CAMBIOS: " + p.kind() + " | " + changed
+                + " posiciones respaldadas | limpieza TOTAL, margen=" + p.margin()
+                + ". Se eliminaran entidades excepto jugadores. /bwe crear",changed);
+        } catch(IllegalArgumentException error) {
+            return new Result(false,"No se puede construir: " + error.getMessage(),0);
         }
-        if(changed>MAX_CHANGES) return new Result(false,"Limite de seguridad excedido",0);
-        if(changed==0) return new Result(false,"SIMULACION: no hay bloques que modificar. No se debe iniciar una obra vacia.",0);
-        return new Result(true,"SIMULACION SIN CAMBIOS: "+p.kind()+" modificaria "+changed+" bloques. Area: " +
-            (p.halfX()*2+1)+"x"+(p.halfZ()*2+1)+". Recuerda proteger bases y misiones.",changed);
     }
 }

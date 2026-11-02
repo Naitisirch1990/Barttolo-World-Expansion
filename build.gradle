@@ -1,12 +1,30 @@
 plugins { id 'java'; id 'net.minecraftforge.gradle' version '[6.0,6.2)' }
-version = '0.6.18'
+version = '0.7.0'
 group = 'net.barttolo.bwe'
 base { archivesName = 'BarttoloWorldExpansion' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-minecraft { mappings channel: 'official', version: '1.20.1'; runs { server { workingDirectory project.file('run'); mods { bwe { source sourceSets.main } } } } }
+sourceSets {
+    gameTest {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    runs {
+        server { workingDirectory project.file('run'); mods { bwe { source sourceSets.main } } }
+        gameTestServer {
+            workingDirectory project.file('run-gametest')
+            property 'forge.enabledGameTestNamespaces', 'barttoloworldexpansion'
+            mods { barttoloworldexpansion { source sourceSets.main; source sourceSets.gameTest } }
+        }
+    }
+}
+
 repositories { mavenCentral() }
 dependencies { minecraft 'net.minecraftforge:forge:1.20.1-47.4.10' }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 
 // Minecraft production JAR must be reobfuscated after compilation.
 tasks.named('jar', Jar).configure { finalizedBy 'reobfJar' }
+

@@ -11,10 +11,9 @@ assert 'private record ScanSite(BlockPos center, String dimension, long created)
 assert 'SCANS.put(id,new ScanSite(center,dim(s.getLevel()),System.currentTimeMillis()))' in m
 assert 'site.center()' in m
 assert 'PLANS.remove(id); // A new scan must not leave an old selection active.' in m
-assert 'WorldChecks.scanFull(s.getLevel(),site.center(),radius,radius,4)' in m
+assert 'WorldChecks.scanBuildSite(s.getLevel(),site.center(),radius,radius,TemplateSurfaceSurvey.marginFor(id))' in m
 assert 'BuildEngine.build(s.getLevel(),plan,id)' in m
-assert 'WorldChecks.scanFull(world,p.center(),p.halfX(),p.halfZ(),4)' in e
-assert 'if (occupied(job.world, job.collisionZone))' in e
-assert 'job.waitingForEntities = true;' in e
-assert 'if(occupied(world,p))' in e # legacy dry-run stays conservative
-print('OK: flujo escanear/listar/seleccionar/crear y espera segura (auditoria estatica)')
+assert 'if (!clearEntities(job.world, job.workArea))' in e
+for kind in ('herreria','posada','granja','establo','fortin','mercado','aldea_grande'):
+ assert kind in m and kind in e
+print('OK: flujo de seleccion y 15 construcciones sin dependencias externas')

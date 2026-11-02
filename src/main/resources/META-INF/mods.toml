@@ -4,10 +4,10 @@ license="All Rights Reserved"
 [[mods]]
 modId="barttoloworldexpansion"
 displayTest="IGNORE_SERVER_VERSION"
-version="0.6.18"
-displayName="Barttolo World Expansion - PREVIEW v0.6.18"
+version="0.7.0"
+displayName="Barttolo World Expansion - PREVIEW v0.7.0"
 authors="Barttolo / RingWorld"
-description='''Construccion por comandos, 8 estructuras originales, registro de asentamientos, zonas circulares y rectangulares protegidas y deshacer. Estructuras propias, catalogo dinamico y pre-verificacion y auditoria incremental 3D y medicion de cimentacion con margen configurable 5..10 para huellas CTOV/Explorify en modo lectura, sin colocacion externa. SIN activos de CTOV ni Explorify embebidos. PRUEBAS EN COPIA DEL MUNDO SOLAMENTE.'''
+description='''15 construcciones BWE y piezas NBT CTOV/Explorify instaladas. Limpieza total en el area elegida, cimentacion y restauracion de estados de bloques. Elimina entidades excepto jugadores; sin restaurar inventarios ni entidades. Forge 1.20.1 / Java 17. Version de prueba.'''
 [[dependencies.barttoloworldexpansion]]
 modId="minecraft"
 mandatory=true
@@ -20,3 +20,4 @@ mandatory=true
 versionRange="[47.4.10,)"
 ordering="NONE"
 side="BOTH"
+
