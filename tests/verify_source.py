@@ -3,11 +3,16 @@ from pathlib import Path
 r=Path(__file__).resolve().parents[1]
 p=r/'src/main/java/net/barttolo/bwe'
 s={x.stem:x.read_text() for x in p.glob('*.java')}
-assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume','TerraformColumnCursor','TerraformAreaCursor','TerraformStepGuard','TerraformBackupFile','TemplatePlacementVolume'}, s.keys()
+assert set(s)=={'BarttoloWorldExpansion','BuildEngine','WorldChecks','WorldData','SiteMath','TemplateFootprint','TemplateScanCursor','TemplateSiteAudit','SurfaceProfile','TemplateSurfaceSurvey','TerrainColumnProbe','ClearanceVolume','TerraformColumnCursor','TerraformAreaCursor','TerraformStepGuard','TerraformBackupFile','TemplatePlacementVolume','TemplateNbtPiece'}, s.keys()
 assert 'StandardCopyOption.ATOMIC_MOVE' in s['TerraformBackupFile'], 'Publicar respaldo mediante movimiento atomico'
 assert 'MessageDigest.isEqual' in s['TerraformBackupFile'], 'Validar integridad de respaldo'
 assert 'Terraform backup already exists' in s['TerraformBackupFile'], 'Evitar reemplazo deliberado del respaldo'
 assert 'withinWorld' in s['TemplatePlacementVolume'] and 'clearance' in s['TemplatePlacementVolume'], 'Validar limites y volumen antes de colocar esquemas'
+assert 'template.save(new CompoundTag())' in s['TemplateNbtPiece'], 'Decodificar recursos NBT ya instalados'
+assert 'NbtUtils.readBlockState' in s['TemplateNbtPiece'], 'Interpretar estados de bloque originales'
+assert 'Duplicate block position' in s['TemplateNbtPiece'] and 'Palette index outside bounds' in s['TemplateNbtPiece'], 'Rechazar NBT malformed'
+assert 'TemplateNbtPiece.read(template)' in s['BarttoloWorldExpansion'], 'Usar decodificador en inspeccion'
+assert 'setBlock(' not in s['TemplateNbtPiece'] and 'placeInWorld(' not in s['TemplateNbtPiece'], 'Decodificador solo lectura'
 m=s['BarttoloWorldExpansion']; e=s['BuildEngine']; c=s['WorldChecks']
 assert 'planColumnFromSurface' in s['ClearanceVolume'], 'Convertir primer bloque libre en ultimo solido'
 assert 'public int execute(int budget, StepWriter writer)' in s['TerraformAreaCursor'], 'Presupuesto por lote para un area completa'
