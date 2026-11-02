@@ -13,6 +13,18 @@ public final class ClearanceVolumeTest {
         check(normal.columns() == 2500, "base columns");
         check(normal.minY() == 63 && normal.maxY() == 96, "vertical margins inclusive");
         check(normal.blocks() == 85000, "volume includes both vertical margins");
+        // Cross-check the exact volume scanned by /bwe auditarvolumen:
+        // 8x10 piece, 7-block horizontal margin, 6-block height + 7 above/below.
+        var piece = TemplateFootprint.centered(0, 0, 8, 10, false);
+        var expanded = TemplateFootprint.expanded(piece, 7);
+        var fullAudit = ClearanceVolume.calculate(
+            expanded.width(), expanded.length(), 6, 7, 70, -64, 320);
+        check(expanded.width() == 22 && expanded.length() == 24, "horizontal margin both sides");
+        check(fullAudit.minY() == 63 && fullAudit.maxY() == 82, "vertical margin both sides");
+        check(fullAudit.blocks() == 10_560L, "full proposed scan volume");
+        var edgeAudit = ClearanceVolume.calculate(
+            expanded.width(), expanded.length(), 6, 7, 316, -64, 320);
+        check(!edgeAudit.withinWorld(), "full clearance rejects world ceiling");
         var negative = ClearanceVolume.calculate(2, 3, 1, 5, -50, -64, 320);
         check(negative.withinWorld() && negative.blocks() == 66, "negative Y");
         var minFail = ClearanceVolume.calculate(1, 1, 2, 5, -60, -64, 320);
