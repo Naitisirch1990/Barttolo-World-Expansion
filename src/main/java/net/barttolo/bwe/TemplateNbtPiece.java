@@ -26,8 +26,8 @@ import java.util.Set;
  * checks, proper block order and a server-thread tick-bounded world writer.
  */
 public final class TemplateNbtPiece {
-    public static final int MAX_VOLUME = 8_000_000;
-    public static final int MAX_BLOCKS = 250_000;
+    public static final int MAX_VOLUME = 4_000_000;
+    public static final int MAX_BLOCKS = 65_536;
 
     public record Cell(int x, int y, int z, BlockState state, boolean hasBlockEntityNbt) {}
     public record Blueprint(List<Cell> cells, long implicitAir, int explicitAir,
