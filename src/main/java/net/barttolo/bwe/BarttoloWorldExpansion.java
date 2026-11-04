@@ -22,13 +22,15 @@ public final class BarttoloWorldExpansion {
     private record Selection(BweCatalog.Entry entry,BlockPos center,String dimension,int ground,int margin) {}
     private static final Map<UUID,Selection> SELECTED=new HashMap<>();
     private static final Map<UUID,BlockPos> SITES=new HashMap<>();
+    private static final Set<UUID> HIDDEN_BORDERS=new HashSet<>();
+    private static int borderTicks;
     private static final Map<UUID,Integer> MARGINS=new HashMap<>();
     public BarttoloWorldExpansion(){BweNetwork.register();MinecraftForge.EVENT_BUS.register(this);}
     @SubscribeEvent public void onTick(TickEvent.ServerTickEvent event){
-        if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();}
+        if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();if(++borderTicks%10==0)drawBorders(event.getServer());}
     }
     @SubscribeEvent public void onStopped(ServerStoppedEvent event){
-        BuildEngine.resetForShutdown();SurfaceBuilder.reset();BweCatalog.reset();SELECTED.clear();SITES.clear();MARGINS.clear();
+        BuildEngine.resetForShutdown();SurfaceBuilder.reset();BweCatalog.reset();SELECTED.clear();SITES.clear();MARGINS.clear();HIDDEN_BORDERS.clear();
     }
     @SubscribeEvent public void onCommands(RegisterCommandsEvent event){
         event.getDispatcher().register(Commands.literal("bwe").requires(s->s.hasPermission(2)).executes(c->help(c.getSource()))
@@ -40,6 +42,7 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("seleccionar").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(c->select(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
+            .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: verde estructura, naranja limpieza");return 1;}))
             .then(Commands.literal("crear").executes(c->create(c.getSource())))
             .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
             .then(Commands.literal("deshacer").executes(c->undo(c.getSource())))
@@ -94,7 +97,8 @@ public final class BarttoloWorldExpansion {
         int margin=MARGINS.getOrDefault(player,5);
         try{
             int ground=SurfaceBuilder.ground(s.getLevel(),center,e,margin);
-            SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin));
+            SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin));HIDDEN_BORDERS.remove(player);
+            say(s,"Borde VERDE: construccion. NARANJA: zona de limpieza. /bwe borde para ocultar o mostrar.");
             say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | suelo Y="+(ground-1));
             say(s,"Se limpiaran "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques incluyendo margen. Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
@@ -107,6 +111,34 @@ public final class BarttoloWorldExpansion {
         if(problem!=null)return fail(s,problem);
         SELECTED.remove(player);SITES.remove(player);say(s,"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
     }
+
+    private static void drawBorders(net.minecraft.server.MinecraftServer server){
+        for(var item:SELECTED.entrySet()){
+            if(HIDDEN_BORDERS.contains(item.getKey()))continue;
+            var player=server.getPlayerList().getPlayer(item.getKey());
+            if(player==null)continue;
+            var selected=item.getValue();
+            if(!player.serverLevel().dimension().location().toString().equals(selected.dimension()))continue;
+            int x=selected.center().getX()-selected.entry().sizeX()/2;
+            int z=selected.center().getZ()-selected.entry().sizeZ()/2;
+            outline(player,x,z,x+selected.entry().sizeX(),z+selected.entry().sizeZ(),selected.ground(),0.1f,1f,0.2f);
+            int margin=selected.margin();
+            outline(player,x-margin,z-margin,x+selected.entry().sizeX()+margin,z+selected.entry().sizeZ()+margin,selected.ground(),1f,0.45f,0.05f);
+        }
+    }
+    private static void outline(net.minecraft.server.level.ServerPlayer player,int x0,int z0,int x1,int z1,int ground,float r,float g,float b){
+        var dust=new net.minecraft.core.particles.DustParticleOptions(new org.joml.Vector3f(r,g,b),1.4f);
+        for(int x=x0;x<x1;x+=2){mark(player,dust,x,z0,ground);mark(player,dust,x,z1,ground);}
+        for(int z=z0;z<z1;z+=2){mark(player,dust,x0,z,ground);mark(player,dust,x1,z,ground);}
+        mark(player,dust,x1,z1,ground);
+    }
+    private static void mark(net.minecraft.server.level.ServerPlayer player,net.minecraft.core.particles.DustParticleOptions dust,int x,int z,int ground){
+        var world=player.serverLevel();
+        if(!world.hasChunk(x>>4,z>>4))return;
+        double y=Math.max(ground,world.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z))+0.2;
+        world.sendParticles(player,dust,true,x,y,z,1,0,0,0,0);
+    }
+
     private static int undo(CommandSourceStack s){
         String problem=SurfaceBuilder.remove(s.getLevel());
         if(problem==null){say(s,"Retirando la ultima obra. No se recuperan terreno, inventarios ni entidades anteriores.");return 1;}
