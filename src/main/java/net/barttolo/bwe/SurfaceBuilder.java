@@ -18,7 +18,7 @@ public final class SurfaceBuilder {
     private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,AGUA,LOOTR,POBLACION }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
-        final boolean aerial,aquatic;final BitSet water;final int waterWidth,waterDepth,waterHeight;final int clearBottom,clearTop;final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
+        final boolean aerial,aquatic;final BitSet water,dry;final int waterWidth,waterDepth,waterHeight;final int clearBottom,clearTop;final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;final List<BlockPos> chests;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;aerial=BweCatalog.airship(e);aquatic=BweCatalog.pirate(e);
@@ -40,7 +40,8 @@ public final class SurfaceBuilder {
                     if(wy>=0&&wy<waterHeight)blocked.set((wy*waterDepth+at.getZ()-z0)*waterWidth+at.getX()-x0);
                 }
                 water=WaterEnvelope.exterior(waterWidth,waterHeight,waterDepth,blocked);
-            }else water=new BitSet();
+                dry=new BitSet();dry.set(0,waterWidth*waterDepth*waterHeight);dry.andNot(blocked);dry.andNot(water);
+            }else {water=new BitSet();dry=new BitSet();}
             placementFootprint=Set.copyOf(footprint);
             Set<Long> interior=VillageFootprint.withCourtyards(footprint);footprint.addAll(interior);
             x=x0;z=z0;area=new AABB(x0,(aerial||aquatic)?clearBottom:w.getMinBuildHeight(),z0,x1+1.0,(aerial||aquatic)?clearTop+1:w.getMaxBuildHeight(),z1+1.0);
@@ -187,10 +188,11 @@ public final class SurfaceBuilder {
                     if(cell.nbt()!=null){BlockPos at=j.origin.offset(cell.pos());var be=j.world.getBlockEntity(at);
                         if(be!=null){CompoundTag tag=cell.nbt().copy();tag.putInt("x",at.getX());tag.putInt("y",at.getY());tag.putInt("z",at.getZ());be.load(tag);be.setChanged();}}
                 }else if(j.stage==Stage.AGUA){
-                    int i=j.water.nextSetBit(j.cursor);
+                    int wet=j.water.nextSetBit(j.cursor),empty=j.dry.nextSetBit(j.cursor);
+                    int i=wet<0?empty:empty<0?wet:Math.min(wet,empty);
                     if(i<0){j.stage=Stage.LOOTR;j.cursor=0;continue;}
                     j.cursor=i+1;int wx=i%j.waterWidth,wz=(i/j.waterWidth)%j.waterDepth,wy=i/(j.waterWidth*j.waterDepth);
-                    set(j,new BlockPos(j.x0+wx,j.clearBottom+wy,j.z0+wz),Blocks.WATER.defaultBlockState());
+                    set(j,new BlockPos(j.x0+wx,j.clearBottom+wy,j.z0+wz),(j.dry.get(i)?Blocks.AIR:Blocks.WATER).defaultBlockState());
                 }else if(j.stage==Stage.LOOTR){
                     if(j.cursor>=j.chests.size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
                     if(BweLootr.convert(j.world,j.chests.get(j.cursor++),j.lootTables,(at,state)->set(j,at,state)))j.converted++;
