@@ -65,6 +65,7 @@ public final class BweCatalog {
             }
         }
     }
+    public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village"); }
     public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village"); }
     public static Entry find(String id) { return entries().stream().filter(e -> e.id().equals(id)).findFirst().orElse(null); }
     private static StructureTemplate template(ServerLevel world,String id) throws IOException {
@@ -166,6 +167,8 @@ public final class BweCatalog {
         sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()?0:1).thenComparingInt(c -> c.pos().getY()));
         int surface=entry.ground()-1,best=0;
         for(var h:roadHeights.entrySet())if(h.getValue()>best){surface=h.getKey();best=h.getValue();}
+        // This fixed harbour has its docks at local Y=20 and its waterline at Y=19.
+        if(pirate(entry))surface=Math.max(0,entry.ground()-5);
         return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surface);
     }
 }
