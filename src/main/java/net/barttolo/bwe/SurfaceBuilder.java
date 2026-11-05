@@ -28,8 +28,8 @@ public final class SurfaceBuilder {
         }
         void column() {y=Integer.MIN_VALUE;if(++z>z1){z=z0;x++;}}
     }
-    public static boolean busy(){return active!=null;}
-    public static void reset(){active=null;last=null;}
+    public static boolean busy(){return active!=null||BweBackup.restoring();}
+    public static void reset(){active=null;last=null;BweBackup.close();}
     public static String status(){return active==null?"Sin obra en curso.":active.entry.title()+" | "+active.stage+" | "+active.done+" operaciones"+(active.waiting.isEmpty()?"":" | "+active.waiting);}
     private static void say(Job j,String s){var p=j.world.getServer().getPlayerList().getPlayer(j.operator);if(p!=null)p.sendSystemMessage(Component.literal("[BWE] "+s));}
     public static int ground(ServerLevel world,BlockPos center,BweCatalog.Entry e,int margin) {
@@ -62,6 +62,7 @@ public final class SurfaceBuilder {
             active=j;return null;
         }catch(Exception error){return error.getMessage();}
     }
+    public static String restoreTerrain(ServerLevel world){active=null;last=null;return BweBackup.restore(world);}
     public static String remove(ServerLevel world){
         if(active!=null&&(active.stage==Stage.VALIDAR||active.stage==Stage.VALIDAR_APOYOS)){active=null;return "Validacion cancelada sin modificar el terreno";}
         Job j=active==null?last:active;
@@ -79,6 +80,7 @@ public final class SurfaceBuilder {
         if(!j.world.hasChunk(at.getX()>>4,at.getZ()>>4))throw new IllegalArgumentException("Chunk descargado: acercate sin entrar en la obra");
         var old=j.world.getBlockState(at);
         if(!old.equals(state)||old.hasBlockEntity()){
+            if(!j.removing)try{BweBackup.capture(j.world,at);}catch(java.io.IOException error){throw new IllegalStateException("No se pudo guardar el respaldo",error);}
             j.world.removeBlockEntity(at);
             if(old.equals(state)&&old.hasBlockEntity())j.world.setBlock(at,Blocks.AIR.defaultBlockState(),FLAGS);
             j.world.setBlock(at,state,FLAGS);
@@ -90,6 +92,7 @@ public final class SurfaceBuilder {
             throw new IllegalArgumentException("La base calculada queda fuera del area o de la altura del mundo; no se ha modificado el terreno");
     }
     public static void tick(){
+        if(BweBackup.restoring()){BweBackup.tick();return;}
         Job j=active;if(j==null)return;
         try{
             checkArea(j.world,j.x0,j.z0,j.x1,j.z1);
@@ -102,7 +105,7 @@ public final class SurfaceBuilder {
                     requireSupport(j,j.x,j.walkY-1,j.z);
                     j.column();
                 }else if(j.stage==Stage.VALIDAR_APOYOS){
-                    if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
+                    if(j.cursor>=j.blueprint.supports().size()){BweBackup.begin(j.world);j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor++));
                     if(floor.getY()>=j.walkY&&floor.getY()-j.walkY<=63)continue;
                     requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
@@ -140,7 +143,7 @@ public final class SurfaceBuilder {
                         if(be!=null){CompoundTag tag=cell.nbt().copy();tag.putInt("x",at.getX());tag.putInt("y",at.getY());tag.putInt("z",at.getZ());be.load(tag);be.setChanged();}}
                 }else if(j.stage==Stage.POBLACION){
                     if(j.cursor>=j.blueprint.entities().size()){
-                        say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. Puedes crear otra; /bwe deshacer solo retira esta obra.");active=null;break;}
+                        BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. Puedes crear otra; /bwe deshacer solo retira esta obra.");active=null;break;}
                     var spawn=j.blueprint.entities().get(j.cursor++);CompoundTag tag=spawn.nbt().copy();tag.remove("UUID");
                     float yaw=tag.getList("Rotation",Tag.TAG_FLOAT).getFloat(0)+spawn.yaw();
                     Entity entity=EntityType.loadEntityRecursive(tag,j.world,e->{e.setUUID(UUID.randomUUID());e.moveTo(j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z(),yaw,0);return e;});
