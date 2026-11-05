@@ -44,7 +44,7 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
             .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: limite total de la obra");return 1;}))
             .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->{UUID who=id(c.getSource());Selection a=SELECTED.get(who);if(a==null)return fail(c.getSource(),"Primero selecciona una construccion");int y=IntegerArgumentType.getInteger(c,"y");if(y<sMin(c.getSource())||y>=c.getSource().getLevel().getMaxBuildHeight())return fail(c.getSource(),"Altura fuera del mundo");SELECTED.put(who,new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin()));say(c.getSource(),"Suelo terminado Y="+y);return 1;})))
-            .then(Commands.literal("restaurar").executes(c->{String error=SurfaceBuilder.restoreTerrain(c.getSource().getLevel());if(error!=null)return fail(c.getSource(),error);say(c.getSource(),"Restaurando bloques originales del ultimo respaldo de esta dimension. /bwe estado");return 1;}))
+            .then(Commands.literal("restaurar").executes(c->{String error=SurfaceBuilder.restoreTerrain(c.getSource().getLevel(),id(c.getSource()));if(error!=null)return fail(c.getSource(),error);say(c.getSource(),"Restaurando bloques originales del ultimo respaldo de esta dimension. /bwe estado");return 1;}))
             .then(Commands.literal("crear").executes(c->create(c.getSource())))
             .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
             .then(Commands.literal("deshacer").executes(c->undo(c.getSource())))
@@ -63,7 +63,7 @@ public final class BarttoloWorldExpansion {
     private static int fail(CommandSourceStack s,String text){s.sendFailure(Component.literal("[BWE] "+text));return 0;}
     private static int help(CommandSourceStack s){
         say(s,"En el lugar elegido: /bwe listar -> clic en una construccion -> alejarse -> /bwe crear");
-        say(s,"/bwe estado | /bwe deshacer (RETIRA, sin restaurar terreno) | /bwe margen 1");
+        say(s,"/bwe estado | /bwe deshacer (RESTAURA terreno e inventarios respaldados) | /bwe margen 1");
         say(s,"La altura del suelo se calcula automaticamente. Se limpian bloques y entidades excepto jugadores.");
         return 1;
     }
@@ -141,12 +141,10 @@ public final class BarttoloWorldExpansion {
         world.sendParticles(player,dust,true,x,y,z,1,0,0,0,0);
     }
 
-    private static int undo(CommandSourceStack s){
-        String problem=SurfaceBuilder.remove(s.getLevel());
-        if(problem==null){say(s,"Retirando la ultima obra. No se recuperan terreno, inventarios ni entidades anteriores.");return 1;}
-        // Compatibility: recover the old v0.7 snapshot if there is no new manual work.
-        if(WorldData.get(s.getLevel()).undo()!=null){var result=BuildEngine.undo(s.getLevel());if(!result.ok())return fail(s,result.message());say(s,result.message());return 1;}
+    private static int undo(CommandSourceStack s)throws CommandSyntaxException{
+        String problem=SurfaceBuilder.restoreTerrain(s.getLevel(),id(s));
+        if(problem==null){say(s,"Deshaciendo obra: se comprueba y restaura el terreno original respaldado. Alejate del area; /bwe estado");return 1;}
+        if(problem.contains("No hay respaldo")&&WorldData.get(s.getLevel()).undo()!=null){var result=BuildEngine.undo(s.getLevel());if(!result.ok())return fail(s,result.message());say(s,result.message());return 1;}
         return fail(s,problem);
     }
 }
-
