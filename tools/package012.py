@@ -1,0 +1,23 @@
+import zipfile,io,pathlib,json
+base=zipfile.ZipFile('BarttoloWorldExpansion-0.11.0-LOOTR-Y-RESTAURACION-test.jar');artifact=zipfile.ZipFile('airship-extra-build.zip');engine=zipfile.ZipFile(io.BytesIO(artifact.read(next(n for n in artifact.namelist() if n.endswith('.jar')))))
+classes={n:engine.read(n) for n in engine.namelist() if n.startswith('net/barttolo/bwe/') and n.endswith('.class')}
+name='BarttoloWorldExpansion-0.12.0-DIRIGIBLES-Y-9-ESQUEMAS-test.jar'
+previous=base.read('BWE-LEEME.txt').decode();report=json.loads(pathlib.Path('extra-report.json').read_text());cat=json.loads(pathlib.Path('catalogo-extra-v1.json').read_text())
+readme='''BWE 0.12.0 - Dirigibles aereos y nueve construcciones adicionales\n\nSustituir el JAR anterior en cliente y servidor y reiniciar. No hace falta borrar config/bwe ni respaldos. Los dos recursos nuevos se instalan automaticamente en config/bwe: bwe_extra.jar y catalogo-extra-v1.json. El catalogo anterior se conserva. Total por defecto: 35 entradas (12 aldeas, 14 estructuras de Explorify y 9 esquemas nuevos).\n\nDIRIGIBLES\nSolo la entrada Aldea IV - Dirigibles usa la excepcion aerea. Al seleccionar, se calcula la base por encima de la superficie mas alta de su area (tambien arboles), dejando al menos seis bloques libres debajo. Si la ubicacion escaneada ya esta mas alta, se respeta esa altura. /bwe altura Y permite elegir manualmente la altura del bloque mas bajo del esquema; no la altura de la cubierta.\n\nLa colocacion no crea pasto, terreno ni columnas de soporte para los dirigibles. Despeja el volumen del esquema con un bloque exterior horizontal y cuatro capas adicionales arriba y abajo. No nivela el suelo situado bajo ese volumen. Los obstaculos que entren en el volumen elegido se retiran con respaldo. No se puede salir de la altura permitida del mundo. El resto de construcciones conserva su sistema de suelo, patios y cimentacion.\n\nESQUEMAS ADICIONALES\nConvertidos desde los ocho archivos .litematic y un .schem proporcionados por el usuario. Se recorta el aire vacio exterior, se conserva la geometria y cada entrada tiene vista previa superior. Se adaptan los bloques posteriores a 1.20.1: pale oak a abedul, estantes a librerias, iron_chain a chain, short_grass a grass, trampillas de cobre a hierro y arbusto de luciernagas a azalea florida. El Happy Ghast incluido en un archivo no se importa por no existir como entidad vanilla en 1.20.1; tampoco se importan entidades fuera del volumen recortado. Se conserva la autoria declarada de los archivos.\n\n'''
+for e,r in zip(cat['entries'],report['entries']):readme+=f"- {e['title']}: {e['sizeX']} x {e['sizeZ']} bloques ({e['sizeX']+2} x {e['sizeZ']+2} total con margen). Autor: {r['author']}.\n"
+readme+='''\nUSO\n/bwe escanear -> /bwe listar -> Ver/Elegir -> alejarse horizontalmente -> /bwe crear. /bwe estado muestra el avance. /bwe deshacer restaura el respaldo de terreno e inventarios. Se mantienen la conversion automatica a Lootr y las funciones de 0.11.0. Los cambios se aplican a obras nuevas, no reparan automaticamente aldeas anteriores.\n\nVERIFICACION\nCompilacion Forge 1.20.1 / Java 17. Comprobacion de bloques y propiedades de las nueve importaciones, volumen, paletas y recorte. Regresion nativa con Lootr: conversion, restauracion persistente de bloques/inventarios, respaldo incompleto rechazado, colocacion aerea sin cimentacion, limpieza del volumen aereo, restauracion de ese terreno y cimentacion normal conservada. No se ha realizado una inspeccion visual de cada esquema dentro del modpack del servidor.\n\nFUNCIONES Y LIMITES DE 0.11.0\n'''+previous
+with zipfile.ZipFile(name,'w',zipfile.ZIP_DEFLATED) as z:
+ for n in base.namelist():
+  d=classes.pop(n,base.read(n))
+  if n=='META-INF/mods.toml':d=d.replace(b'0.11.0',b'0.12.0')
+  if n=='BWE-LEEME.txt':d=readme.encode()
+  z.writestr(n,d)
+ for n,d in classes.items():z.writestr(n,d)
+ for p in ['bwe_extra.jar','catalogo-extra-v1.json']:z.write(p,'assets/barttoloworldexpansion/'+p)
+ for p in pathlib.Path('extra-previews').glob('*.png'):z.write(p,'assets/barttoloworldexpansion/textures/gui/previews/'+p.name)
+ z.writestr('BWE-ESQUEMAS-ADICIONALES.json',json.dumps(report,ensure_ascii=False,indent=2))
+z=zipfile.ZipFile(name);assert z.testzip() is None
+old=json.loads(z.read('assets/barttoloworldexpansion/catalogo-iv-v2.json'));assert len(old['entries'])+len(cat['entries'])==35
+assert len(zipfile.ZipFile(io.BytesIO(z.read('assets/barttoloworldexpansion/bwe_extra.jar'))).namelist())==9
+assert 'net/barttolo/bwe/RegressionGameTests.class' not in z.namelist()
+print('PASS package',name,pathlib.Path(name).stat().st_size)
