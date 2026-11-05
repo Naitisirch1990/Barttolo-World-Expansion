@@ -18,11 +18,12 @@ public final class SurfaceBuilder {
     private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,LOOTR,POBLACION }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
-        final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
+        final boolean aerial;final int clearBottom,clearTop;final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;final List<BlockPos> chests;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
-            world=w;entry=e;blueprint=b;walkY=ground;operator=op;
-            origin=new BlockPos(center.getX()-e.sizeX()/2,ground-1-b.surfaceY(),center.getZ()-e.sizeZ()/2);
+            world=w;entry=e;blueprint=b;walkY=ground;operator=op;aerial=BweCatalog.airship(e);
+            origin=new BlockPos(center.getX()-e.sizeX()/2,(aerial?ground-1:ground-1-b.surfaceY()),center.getZ()-e.sizeZ()/2);
+            clearBottom=aerial?origin.getY()-4:walkY;clearTop=aerial?origin.getY()+e.sizeY()+3:Math.max(origin.getY()+e.sizeY()+1,walkY+64);
             lootTables=BweLootr.available()?BweLootr.tables(w):List.of();
             chests=b.cells().stream().filter(c->c.state().is(Blocks.CHEST)||c.state().is(Blocks.TRAPPED_CHEST)).map(c->origin.offset(c.pos())).toList();
             x0=origin.getX()-margin;z0=origin.getZ()-margin;x1=origin.getX()+e.sizeX()-1+margin;z1=origin.getZ()+e.sizeZ()-1+margin;
@@ -30,9 +31,10 @@ public final class SurfaceBuilder {
                 int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
                 for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)footprint.add(columnKey(px+dx,pz+dz));
             }
+            if(aerial)for(int px=x0;px<=x1;px++)for(int pz=z0;pz<=z1;pz++)footprint.add(columnKey(px,pz));
             placementFootprint=Set.copyOf(footprint);
             Set<Long> interior=VillageFootprint.withCourtyards(footprint);footprint.addAll(interior);
-            x=x0;z=z0;area=new AABB(x0,w.getMinBuildHeight(),z0,x1+1.0,w.getMaxBuildHeight(),z1+1.0);
+            x=x0;z=z0;area=new AABB(x0,aerial?clearBottom:w.getMinBuildHeight(),z0,x1+1.0,aerial?clearTop+1:w.getMaxBuildHeight(),z1+1.0);
         }
         void column() {y=Integer.MIN_VALUE;if(++z>z1){z=z0;x++;}}
     }
@@ -44,6 +46,12 @@ public final class SurfaceBuilder {
         int x0=center.getX()-e.sizeX()/2-margin,z0=center.getZ()-e.sizeZ()/2-margin;
         int x1=x0+e.sizeX()-1+2*margin,z1=z0+e.sizeZ()-1+2*margin;
         checkArea(world,x0,z0,x1,z1);
+        if(BweCatalog.airship(e)){
+            int top=world.getMinBuildHeight();
+            for(int x=x0;x<=x1;x++)for(int z=z0;z<=z1;z++)top=Math.max(top,world.getHeight(Heightmap.Types.WORLD_SURFACE,x,z));
+            // At least six air blocks between the existing surface and the lowest ship block.
+            return Math.max(center.getY(),top+6)+1;
+        }
         ArrayList<Integer> heights=new ArrayList<>();
         for(int x=x0;x<=x1;x+=Math.max(1,(x1-x0)/8))for(int z=z0;z<=z1;z+=Math.max(1,(z1-z0)/8)){
             int y=WorldChecks.ground(world,x,z);
@@ -66,7 +74,7 @@ public final class SurfaceBuilder {
         try {
             Job j=new Job(world,e,BweCatalog.compose(world,e),center,ground,margin,op);
             checkArea(world,j.x0,j.z0,j.x1,j.z1);
-            if(j.origin.getY()<world.getMinBuildHeight()||j.origin.getY()+e.sizeY()>world.getMaxBuildHeight())return "La estructura no cabe a esta altura";
+            if((j.aerial?j.clearBottom:j.origin.getY())<world.getMinBuildHeight()||(j.aerial?j.clearTop+1:j.origin.getY()+e.sizeY())>world.getMaxBuildHeight())return "La estructura no cabe a esta altura";
             active=j;return null;
         }catch(Exception error){return error.getMessage();}
     }
@@ -121,19 +129,19 @@ public final class SurfaceBuilder {
                     requireSupport(j,j.x,j.walkY-1,j.z);
                     j.column();
                 }else if(j.stage==Stage.VALIDAR_APOYOS){
-                    if(j.cursor>=j.blueprint.supports().size()){BweBackup.begin(j.world);j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
+                    if(j.aerial||j.cursor>=j.blueprint.supports().size()){BweBackup.begin(j.world);j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor++));
                     if(floor.getY()>=j.walkY&&floor.getY()-j.walkY<=63)continue;
                     requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
                 }else if(j.stage==Stage.LIMPIEZA){
                     if(j.x>j.x1){
-                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;
+                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=j.aerial?Stage.CONSTRUCCION:Stage.CIMENTACION;j.cursor=0;continue;
                     }
                     if(!affected(j,j.x,j.z)){j.column();continue;}
-                    if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,Math.max(j.origin.getY()+j.entry.sizeY()+1,j.walkY+64));
+                    if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,j.clearTop);
                     int skipped=0;
-                    while(j.y>=j.walkY&&skipped<32&&j.world.getBlockState(new BlockPos(j.x,j.y,j.z)).isAir()){j.y--;skipped++;}
-                    if(j.y<j.walkY){j.column();continue;}
+                    while(j.y>=j.clearBottom&&skipped<32&&j.world.getBlockState(new BlockPos(j.x,j.y,j.z)).isAir()){j.y--;skipped++;}
+                    if(j.y<j.clearBottom){j.column();continue;}
                     if(skipped==32)continue;
                     set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
                 }else if(j.stage==Stage.CIMENTACION){
