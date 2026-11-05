@@ -18,7 +18,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 @GameTestHolder("bwe_regression")
 @PrefixGameTestTemplate(false)
 public final class RegressionGameTests {
- @GameTest(batch="restore_lootr",template="empty",timeoutTicks=300)
+ @GameTest(batch="restore_lootr",template="empty",timeoutTicks=600)
  public static void restoresTerrainContainersAndNativeLootr(GameTestHelper h)throws Exception{
   var w=h.getLevel();var server=w.getServer();
   // Reproduce the former 65,536-block rejection using the actual Minecraft template reader.
@@ -30,7 +30,7 @@ public final class RegressionGameTests {
   boolean limited=false;try{TemplateNbtPiece.read(template);}catch(IllegalArgumentException expected){limited=true;}h.assertTrue(limited,"Inspection safety limit changed");
   // A fixture road at local Y=0 and an inaccurate old ground reference of 2.
   CompoundTag road=new CompoundTag();ListTag roadSize=new ListTag();for(int v:new int[]{5,3,5})roadSize.add(IntTag.valueOf(v));road.put("size",roadSize);
-  CompoundTag gravel=new CompoundTag();gravel.putString("Name","minecraft:gravel");ListTag roadPalette=new ListTag();roadPalette.add(gravel);road.put("palette",roadPalette);
+  CompoundTag gravel=new CompoundTag();gravel.putString("Name","minecraft:stone_bricks");ListTag roadPalette=new ListTag();roadPalette.add(gravel);road.put("palette",roadPalette);
   ListTag floor=new ListTag();for(int x=0;x<5;x++)for(int z=0;z<5;z++){CompoundTag b=new CompoundTag();ListTag pos=new ListTag();for(int v:new int[]{x,0,z})pos.add(IntTag.valueOf(v));b.put("pos",pos);b.putInt("state",0);floor.add(b);}road.put("blocks",floor);road.put("entities",new ListTag());
   Path dir=FMLPaths.CONFIGDIR.get().resolve("bwe");Files.createDirectories(dir);
   try(var zip=new ZipOutputStream(Files.newOutputStream(dir.resolve("ctov.jar")))){zip.putNextEntry(new ZipEntry("data/ctov/structures/village/path/regression.nbt"));ByteArrayOutputStream data=new ByteArrayOutputStream();NbtIo.writeCompressed(road,data);zip.write(data.toByteArray());zip.closeEntry();}
@@ -49,6 +49,7 @@ public final class RegressionGameTests {
   var pig=EntityType.PIG.create(w);pig.moveTo(at.getX()+0.5,at.getY()+1,at.getZ()+0.5,0,0);BweBackup.recordEntity(pig);w.addFreshEntity(pig);
   BweBackup.close();h.assertTrue(BweBackup.restore(w)==null,"Cannot reopen persistent journal");
   h.runAfterDelay(1,new Runnable(){int phase;
+   BlockPos aerialBase;
    public void run(){try{
     if(BweBackup.restoring()){h.runAfterDelay(1,()->this.run());return;}
     if(phase==0){
@@ -58,8 +59,50 @@ public final class RegressionGameTests {
      Path journal=server.getWorldPath(LevelResource.ROOT).resolve("bwe-backups").resolve(w.dimension().location().toString().replace(':','_').replace('/','_')+".nbtlog");Files.write(journal,new byte[]{10},StandardOpenOption.APPEND);
      h.assertTrue(BweBackup.restore(w)==null,"Cannot initiate corruption validation");phase=1;h.runAfterDelay(1,()->this.run());return;
     }
-    h.assertTrue(w.getBlockState(at).is(Blocks.GOLD_BLOCK),"Corrupt journal changed terrain before validation completed");
-    System.out.println("[BWE-REGRESSION] PASS real Lootr conversion, large native template, road alignment, terrain/inventory restore after reopen, population cleanup and corrupt-journal protection");h.succeed();
+    if(phase==1){
+     h.assertTrue(w.getBlockState(at).is(Blocks.GOLD_BLOCK),"Corrupt journal changed terrain before validation completed");
+     // Every newly imported palette must exist with valid states on the real 1.20.1 registry.
+     try(var input=RegressionGameTests.class.getResourceAsStream("/extra-palettes.json")){
+      var root=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input)).getAsJsonObject();
+      for(var raw:root.getAsJsonArray("states")){
+       var st=raw.getAsJsonObject();var key=new net.minecraft.resources.ResourceLocation(st.get("Name").getAsString());
+       h.assertTrue(net.minecraft.core.registries.BuiltInRegistries.BLOCK.containsKey(key),"Unknown imported block: "+key);
+       var block=net.minecraft.core.registries.BuiltInRegistries.BLOCK.get(key);
+       if(st.has("Properties"))for(var prop:st.getAsJsonObject("Properties").entrySet()){
+        var property=block.getStateDefinition().getProperty(prop.getKey());
+        h.assertTrue(property!=null&&property.getValue(prop.getValue().getAsString()).isPresent(),"Invalid imported property: "+st);
+       }
+      }
+     }
+     aerialBase=h.absolutePos(new BlockPos(20,12,20));
+     for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++){
+      w.getChunk((aerialBase.getX()+x)>>4,(aerialBase.getZ()+z)>>4);
+      for(int y=-5;y<=6;y++)w.setBlock(aerialBase.offset(x,y,z),Blocks.STONE.defaultBlockState(),50);
+     }
+     int automatic=SurfaceBuilder.ground(w,aerialBase,flying,1);
+     h.assertTrue(automatic-1>=aerialBase.getY()+13,"Automatic airship base intersects terrain");
+     h.assertTrue(SurfaceBuilder.start(w,flying,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Airship build rejected");
+     phase=2;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==2){
+     if(SurfaceBuilder.busy()){h.runAfterDelay(1,()->this.run());return;}
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Airship geometry not placed at chosen base");
+     h.assertTrue(w.getBlockState(aerialBase.below(1)).isAir(),"Airship has earth under its floor");
+     h.assertTrue(w.getBlockState(aerialBase.offset(-3,-4,-3)).isAir(),"Airship underside was not cleared");
+     h.assertTrue(w.getBlockState(aerialBase.offset(3,6,3)).isAir(),"Airship upper or side clearance not cleared");
+     h.assertTrue(w.getBlockState(aerialBase.below(5)).is(Blocks.STONE),"Airship changed terrain below clearing envelope");
+     h.assertTrue(w.getBlockState(aerialBase.offset(4,0,4)).is(Blocks.STONE),"Airship changed blocks outside border");
+     BweBackup.close();h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Airship backup cannot reopen");phase=3;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==3){
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE)&&w.getBlockState(aerialBase.below()).is(Blocks.STONE),"Airship original terrain not restored");
+     h.assertTrue(SurfaceBuilder.start(w,entry,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Ground build rejected");phase=4;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(SurfaceBuilder.busy()){h.runAfterDelay(1,()->this.run());return;}
+    h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Normal road placement changed");
+    h.assertTrue(w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Normal ground foundation disabled by airship exception");
+    h.assertTrue(w.getBlockState(aerialBase.below()).is(Blocks.STONE),"Normal foundation changed original support");
+    System.out.println("[BWE-REGRESSION] PASS Lootr, persistent terrain/inventory restore, corrupt journal protection, all 9 imported palettes, airship air envelope without foundations, airship undo and unchanged ground construction");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
  }
