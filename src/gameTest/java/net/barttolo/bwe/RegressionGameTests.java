@@ -50,13 +50,13 @@ public final class RegressionGameTests {
   BweBackup.close();h.assertTrue(BweBackup.restore(w)==null,"Cannot reopen persistent journal");
   h.runAfterDelay(1,new Runnable(){int phase;
    public void run(){try{
-    if(BweBackup.restoring()){h.runAfterDelay(1,this);return;}
+    if(BweBackup.restoring()){h.runAfterDelay(1,()->this.run());return;}
     if(phase==0){
      h.assertTrue(w.getBlockState(at).is(Blocks.STONE),"Original terrain not restored");h.assertTrue(w.getBlockState(chest).is(Blocks.CHEST),"Original chest block not restored");
      var restored=(ChestBlockEntity)w.getBlockEntity(chest);h.assertTrue(restored.getItem(0).is(Items.DIAMOND)&&restored.getItem(0).getCount()==7,"Original chest inventory lost");h.assertTrue(pig.isRemoved(),"Created population was not removed");
      BweBackup.begin(w);BweBackup.capture(w,at);w.setBlock(at,Blocks.GOLD_BLOCK.defaultBlockState(),50);BweBackup.close();
      Path journal=server.getWorldPath(LevelResource.ROOT).resolve("bwe-backups").resolve(w.dimension().location().toString().replace(':','_').replace('/','_')+".nbtlog");Files.write(journal,new byte[]{10},StandardOpenOption.APPEND);
-     h.assertTrue(BweBackup.restore(w)==null,"Cannot initiate corruption validation");phase=1;h.runAfterDelay(1,this);return;
+     h.assertTrue(BweBackup.restore(w)==null,"Cannot initiate corruption validation");phase=1;h.runAfterDelay(1,()->this.run());return;
     }
     h.assertTrue(w.getBlockState(at).is(Blocks.GOLD_BLOCK),"Corrupt journal changed terrain before validation completed");
     System.out.println("[BWE-REGRESSION] PASS real Lootr conversion, large native template, road alignment, terrain/inventory restore after reopen, population cleanup and corrupt-journal protection");h.succeed();
