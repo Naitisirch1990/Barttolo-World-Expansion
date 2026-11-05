@@ -15,11 +15,11 @@ import java.util.*;
 public final class SurfaceBuilder {
     private static final int BUDGET=200,FLAGS=2|16|32;
     private static Job active,last;
-    private enum Stage { LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
+    private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
         final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;
-        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.LIMPIEZA;String waiting="";boolean removing;
+        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";boolean removing;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;
             origin=new BlockPos(center.getX()-e.sizeX()/2,ground-e.ground(),center.getZ()-e.sizeZ()/2);
@@ -83,15 +83,31 @@ public final class SurfaceBuilder {
             j.world.setBlock(at,state,FLAGS);
         }
     }
+    private static void requireSupport(Job j,int x,int top,int z){
+        for(int y=top;y>=Math.max(j.world.getMinBuildHeight(),top-63);y--){
+            var state=j.world.getBlockState(new BlockPos(x,y,z));
+            if(!state.isAir()&&state.getFluidState().isEmpty()&&!state.canBeReplaced())return;
+        }
+        throw new IllegalArgumentException("Validacion previa: no hay soporte a menos de 64 bloques en X="+x+" Z="+z+". No se ha modificado el terreno; elige una zona apoyada sobre suelo");
+    }
     public static void tick(){
         Job j=active;if(j==null)return;
         try{
             checkArea(j.world,j.x0,j.z0,j.x1,j.z1);
             // Purge before creating the new population, otherwise we'd discard our own villagers.
-            if(j.stage!=Stage.POBLACION&&!purge(j))return;
+            if(j.stage!=Stage.VALIDAR&&j.stage!=Stage.VALIDAR_APOYOS&&j.stage!=Stage.POBLACION&&!purge(j))return;
             int work=0;
             while(active==j&&work++<BUDGET){
-                if(j.stage==Stage.LIMPIEZA){
+                if(j.stage==Stage.VALIDAR){
+                    if(j.x>j.x1){j.stage=Stage.VALIDAR_APOYOS;j.cursor=0;continue;}
+                    requireSupport(j,j.x,j.walkY-1,j.z);
+                    j.column();
+                }else if(j.stage==Stage.VALIDAR_APOYOS){
+                    if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.LIMPIEZA;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
+                    BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor++));
+                    if(floor.getY()>=j.walkY&&floor.getY()-j.walkY<=63)continue;
+                    requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
+                }else if(j.stage==Stage.LIMPIEZA){
                     if(j.x>j.x1){
                         if(j.removing){say(j,"Obra retirada y superficie despejada. No se recupera el terreno anterior ni las entidades eliminadas.");active=null;last=null;break;}
                         j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;
@@ -138,6 +154,6 @@ public final class SurfaceBuilder {
                 }
                 j.done++;
             }
-        }catch(Exception error){say(j,"Obra detenida: "+error.getMessage()+". Puedes retirar con /bwe deshacer.");com.mojang.logging.LogUtils.getLogger().error("[BWE] Surface construction failed",error);active=null;}
+        }catch(Exception error){say(j,"Obra detenida: "+error.getMessage()+(j.stage==Stage.VALIDAR||j.stage==Stage.VALIDAR_APOYOS?"":". Puedes retirar con /bwe deshacer."));com.mojang.logging.LogUtils.getLogger().error("[BWE] Surface construction failed",error);active=null;}
     }
 }
