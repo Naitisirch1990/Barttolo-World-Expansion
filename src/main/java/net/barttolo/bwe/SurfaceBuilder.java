@@ -59,10 +59,11 @@ public final class SurfaceBuilder {
             Job j=new Job(world,e,BweCatalog.compose(world,e),center,ground,margin,op);
             checkArea(world,j.x0,j.z0,j.x1,j.z1);
             if(j.origin.getY()<world.getMinBuildHeight()||j.origin.getY()+e.sizeY()>world.getMaxBuildHeight())return "La estructura no cabe a esta altura";
-            active=j;last=j;return null;
+            active=j;return null;
         }catch(Exception error){return error.getMessage();}
     }
     public static String remove(ServerLevel world){
+        if(active!=null&&(active.stage==Stage.VALIDAR||active.stage==Stage.VALIDAR_APOYOS)){active=null;return "Validacion cancelada sin modificar el terreno";}
         Job j=active==null?last:active;
         if(j==null)return "No hay obra reciente en memoria para retirar";
         if(j.world!=world)return "Vuelve a la dimension de la obra";
@@ -103,7 +104,7 @@ public final class SurfaceBuilder {
                     requireSupport(j,j.x,j.walkY-1,j.z);
                     j.column();
                 }else if(j.stage==Stage.VALIDAR_APOYOS){
-                    if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.LIMPIEZA;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
+                    if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor++));
                     if(floor.getY()>=j.walkY&&floor.getY()-j.walkY<=63)continue;
                     requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
