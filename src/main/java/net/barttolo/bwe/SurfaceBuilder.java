@@ -28,6 +28,7 @@ public final class SurfaceBuilder {
                 int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
                 for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)footprint.add(columnKey(px+dx,pz+dz));
             }
+            Set<Long> interior=VillageFootprint.withCourtyards(footprint);footprint.addAll(interior);
             x=x0;z=z0;area=new AABB(x0,w.getMinBuildHeight(),z0,x1+1.0,w.getMaxBuildHeight(),z1+1.0);
         }
         void column() {y=Integer.MIN_VALUE;if(++z>z1){z=z0;x++;}}
@@ -121,7 +122,7 @@ public final class SurfaceBuilder {
                         j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;
                     }
                     if(!affected(j,j.x,j.z)){j.column();continue;}
-                    if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,j.origin.getY()+j.entry.sizeY()+1);
+                    if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,Math.max(j.origin.getY()+j.entry.sizeY()+1,j.walkY+64));
                     if(j.y<j.walkY){j.column();continue;}
                     set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
                 }else if(j.stage==Stage.CIMENTACION){
