@@ -106,11 +106,13 @@ def clean(d):
   if k.lower().startswith('forge') or k in ['Capabilities','ForgeCaps','ForgeData']:d.pop(k);continue
   if t==8:
    if k=='LootTable' and not v.startswith('minecraft:'):d[k]=(8,'minecraft:chests/village/village_plains_house')
-   elif k=='id' and ':' in v and not v.startswith('minecraft:'):d[k]=(8,'minecraft:bread')
-   elif k=='Name' and ':' in v and not v.startswith('minecraft:'):d[k]=(8,'minecraft:plains')
+   elif k=='id' and ':' in v and not v.startswith('minecraft:'):d[k]=(8,'minecraft:bread' if 'Count' in d or 'Slot' in d else 'minecraft:pig')
+   elif k=='Name' and ':' in v and not v.startswith('minecraft:'):d[k]=(8,choose(v))
   elif t==10:clean(v)
   elif t==9 and v[0]==10:
-   for a in v[1]:clean(a)
+   items=[a for a in v[1] if k!='Attributes' or sval(a,'Name').startswith('minecraft:')]
+   d[k]=(9,(10,items))
+   for a in items:clean(a)
 def convert():
  dst=io.BytesIO();num=0;changed=0
  with zipfile.ZipFile(dst,'w',zipfile.ZIP_DEFLATED) as out:
