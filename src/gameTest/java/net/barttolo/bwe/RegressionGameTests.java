@@ -18,7 +18,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 @GameTestHolder("bwe_regression")
 @PrefixGameTestTemplate(false)
 public final class RegressionGameTests {
- @GameTest(batch="restore_lootr",template="empty",timeoutTicks=600)
+ @GameTest(batch="restore_lootr",template="empty",timeoutTicks=900)
  public static void restoresTerrainContainersAndNativeLootr(GameTestHelper h)throws Exception{
   var w=h.getLevel();var server=w.getServer();
   // Reproduce the former 65,536-block rejection using the actual Minecraft template reader.
@@ -32,11 +32,19 @@ public final class RegressionGameTests {
   CompoundTag road=new CompoundTag();ListTag roadSize=new ListTag();for(int v:new int[]{5,3,5})roadSize.add(IntTag.valueOf(v));road.put("size",roadSize);
   CompoundTag gravel=new CompoundTag();gravel.putString("Name","minecraft:stone_bricks");ListTag roadPalette=new ListTag();roadPalette.add(gravel);road.put("palette",roadPalette);
   ListTag floor=new ListTag();for(int x=0;x<5;x++)for(int z=0;z<5;z++){CompoundTag b=new CompoundTag();ListTag pos=new ListTag();for(int v:new int[]{x,0,z})pos.add(IntTag.valueOf(v));b.put("pos",pos);b.putInt("state",0);floor.add(b);}road.put("blocks",floor);road.put("entities",new ListTag());
+  CompoundTag boat=road.copy();ListTag boatSize=new ListTag();for(int v:new int[]{5,5,5})boatSize.add(IntTag.valueOf(v));boat.put("size",boatSize);
+  ListTag boatPalette=roadPalette.copy();boatPalette.add(air.copy());boat.put("palette",boatPalette);ListTag boatBlocks=new ListTag();
+  for(int x=0;x<5;x++)for(int y=0;y<5;y++)for(int z=0;z<5;z++){
+   CompoundTag b=new CompoundTag();ListTag pos=new ListTag();for(int v:new int[]{x,y,z})pos.add(IntTag.valueOf(v));b.put("pos",pos);
+   b.putInt("state",y==0||(y<4&&(x==0||x==4||z==0||z==4))?0:1);boatBlocks.add(b);
+  }boat.put("blocks",boatBlocks);
   Path dir=FMLPaths.CONFIGDIR.get().resolve("bwe");Files.createDirectories(dir);
-  try(var zip=new ZipOutputStream(Files.newOutputStream(dir.resolve("ctov.jar")))){zip.putNextEntry(new ZipEntry("data/ctov/structures/village/path/regression.nbt"));ByteArrayOutputStream data=new ByteArrayOutputStream();NbtIo.writeCompressed(road,data);zip.write(data.toByteArray());zip.closeEntry();}
+  try(var zip=new ZipOutputStream(Files.newOutputStream(dir.resolve("ctov.jar")))){zip.putNextEntry(new ZipEntry("data/ctov/structures/village/path/regression.nbt"));ByteArrayOutputStream data=new ByteArrayOutputStream();NbtIo.writeCompressed(road,data);zip.write(data.toByteArray());zip.closeEntry();zip.putNextEntry(new ZipEntry("data/ctov/structures/regression_boat.nbt"));data.reset();NbtIo.writeCompressed(boat,data);zip.write(data.toByteArray());zip.closeEntry();}
   var pieces=List.of(new BweCatalog.Piece("ctov:village/path/regression",0,0,0,0));BweCatalog.reset();
   var entry=new BweCatalog.Entry("test:road","road","",5,3,5,2,pieces);h.assertTrue(BweCatalog.compose(w,entry).surfaceY()==0,"Road surface reference remains one block low");
   var flying=new BweCatalog.Entry("integrated_villages:aldea_airship_village","airship","",5,3,5,2,pieces);h.assertTrue(BweCatalog.compose(w,flying).surfaceY()==1,"Airship placement changed");
+  var pirate=new BweCatalog.Entry("integrated_villages:aldea_pirate_village","pirate","",5,5,5,7,List.of(new BweCatalog.Piece("ctov:regression_boat",0,0,0,0)));
+  h.assertTrue(BweCatalog.compose(w,pirate).surfaceY()==2,"Pirate waterline reference incorrect");
   BlockPos at=h.absolutePos(new BlockPos(1,2,1)),chest=h.absolutePos(new BlockPos(3,2,1));
   w.setBlock(at,Blocks.STONE.defaultBlockState(),50);w.setBlock(chest,Blocks.CHEST.defaultBlockState(),50);
   ((ChestBlockEntity)w.getBlockEntity(chest)).setItem(0,new ItemStack(Items.DIAMOND,7));
@@ -99,10 +107,26 @@ public final class RegressionGameTests {
      h.assertTrue(SurfaceBuilder.start(w,entry,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Ground build rejected");phase=4;h.runAfterDelay(1,()->this.run());return;
     }
     if(SurfaceBuilder.busy()){h.runAfterDelay(1,()->this.run());return;}
-    h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Normal road placement changed");
-    h.assertTrue(w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Normal ground foundation disabled by airship exception");
-    h.assertTrue(w.getBlockState(aerialBase.below()).is(Blocks.STONE),"Normal foundation changed original support");
-    System.out.println("[BWE-REGRESSION] PASS Lootr, persistent terrain/inventory restore, corrupt journal protection, all 9 imported palettes, airship air envelope without foundations, airship undo and unchanged ground construction");h.succeed();
+    if(phase==4){
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Normal road placement changed");
+     h.assertTrue(w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Normal ground foundation disabled by airship exception");
+     h.assertTrue(w.getBlockState(aerialBase.below()).is(Blocks.STONE),"Normal foundation changed original support");
+     h.assertTrue(SurfaceBuilder.start(w,pirate,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Pirate build rejected");phase=5;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==5){
+     h.assertTrue(w.getBlockState(aerialBase.below(2)).is(Blocks.STONE_BRICKS),"Pirate hull not aligned below waterline");
+     h.assertTrue(w.getBlockState(aerialBase).isAir()&&w.getBlockState(aerialBase.below()).isAir(),"Sealed hull flooded");
+     h.assertTrue(w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.WATER),"Pirate contour is not water");
+     h.assertTrue(w.getBlockState(aerialBase.offset(-3,-4,-3)).is(Blocks.WATER),"Pirate underwater clearance filled with land");
+     h.assertTrue(w.getBlockState(aerialBase.offset(-3,1,-3)).isAir(),"Water raised above selected waterline");
+     h.assertTrue(w.getBlockState(aerialBase.offset(2,1,0)).is(Blocks.STONE_BRICKS),"Pirate upper hull lost");
+     h.assertTrue(SurfaceBuilder.ground(w,aerialBase,pirate,1)==aerialBase.getY()+1,"Pirate water level detection uses seafloor or deck");
+     h.assertTrue(w.getBlockState(aerialBase.below(5)).is(Blocks.STONE),"Pirate excavated below its bounded volume");
+     BweBackup.close();h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Pirate undo rejected");phase=6;h.runAfterDelay(1,()->this.run());return;
+    }
+    h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS)&&w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Pirate undo did not restore previous road and terrain");
+    h.assertTrue(w.getBlockState(aerialBase.below(2)).is(Blocks.STONE),"Pirate undo did not recover original seafloor");
+    System.out.println("[BWE-REGRESSION] PASS Lootr, persistent undo, all imported palettes, airship and normal construction unchanged; pirate water contour, dry hull, correct waterline and pirate undo");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
  }
