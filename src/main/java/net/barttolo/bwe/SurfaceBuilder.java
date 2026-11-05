@@ -15,14 +15,15 @@ import java.util.*;
 public final class SurfaceBuilder {
     private static final int BUDGET=200,FLAGS=2|16|32;
     private static Job active,last;
-    private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
+    private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,LOOTR,POBLACION }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
         final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
-        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";boolean removing;
+        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;
-            origin=new BlockPos(center.getX()-e.sizeX()/2,ground-e.ground(),center.getZ()-e.sizeZ()/2);
+            origin=new BlockPos(center.getX()-e.sizeX()/2,ground-1-b.surfaceY(),center.getZ()-e.sizeZ()/2);
+            lootTables=BweLootr.available()?BweLootr.tables(w):List.of();
             x0=origin.getX()-margin;z0=origin.getZ()-margin;x1=origin.getX()+e.sizeX()-1+margin;z1=origin.getZ()+e.sizeZ()-1+margin;
             for(var c:b.cells())if(!c.state().isAir()){
                 int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
@@ -36,7 +37,7 @@ public final class SurfaceBuilder {
     }
     public static boolean busy(){return active!=null||BweBackup.restoring();}
     public static void reset(){active=null;last=null;BweBackup.close();}
-    public static String status(){return BweBackup.restoring()?"Restaurando terreno del respaldo":active==null?"Sin obra en curso.":active.entry.title()+" | "+active.stage+" | "+active.done+" operaciones"+(active.waiting.isEmpty()?"":" | "+active.waiting);}
+    public static String status(){return BweBackup.restoring()?BweBackup.status():active==null?"Sin obra en curso.":active.entry.title()+" | "+active.stage+" | "+active.done+" operaciones"+(active.waiting.isEmpty()?"":" | "+active.waiting);}
     private static void say(Job j,String s){var p=j.world.getServer().getPlayerList().getPlayer(j.operator);if(p!=null)p.sendSystemMessage(Component.literal("[BWE] "+s));}
     public static int ground(ServerLevel world,BlockPos center,BweCatalog.Entry e,int margin) {
         int x0=center.getX()-e.sizeX()/2-margin,z0=center.getZ()-e.sizeZ()/2-margin;
@@ -68,14 +69,16 @@ public final class SurfaceBuilder {
             active=j;return null;
         }catch(Exception error){return error.getMessage();}
     }
-    public static String restoreTerrain(ServerLevel world){active=null;last=null;return BweBackup.restore(world);}
-    public static String remove(ServerLevel world){
-        if(active!=null&&(active.stage==Stage.VALIDAR||active.stage==Stage.VALIDAR_APOYOS)){active=null;return "Validacion cancelada sin modificar el terreno";}
-        Job j=active==null?last:active;
-        if(j==null)return "No hay obra reciente en memoria para retirar";
-        if(j.world!=world)return "Vuelve a la dimension de la obra";
-        j.stage=Stage.RETIRAR;j.cursor=0;j.done=0;j.removing=true;active=j;return null;
+    public static String restoreTerrain(ServerLevel world){return restoreTerrain(world,null);}
+    public static String restoreTerrain(ServerLevel world,UUID player){
+        if(BuildEngine.busy())return "Espera a que termine la otra obra";
+        if(active!=null&&active.world!=world)return "Vuelve a la dimension de la obra";
+        if(active!=null&&(active.stage==Stage.VALIDAR||active.stage==Stage.VALIDAR_APOYOS)){say(active,"Obra cancelada antes de modificar el terreno");active=null;return null;}
+        String error=BweBackup.restore(world,player);
+        if(error==null){active=null;last=null;}
+        return error;
     }
+    public static String remove(ServerLevel world){return restoreTerrain(world);}
     private static long columnKey(int x,int z){return ((long)x<<32)^(z&0xffffffffL);}
     private static boolean affected(Job j,int x,int z){return j.footprint.contains(columnKey(x,z));}
     private static boolean purge(Job j){
@@ -88,7 +91,7 @@ public final class SurfaceBuilder {
         if(!j.world.hasChunk(at.getX()>>4,at.getZ()>>4))throw new IllegalArgumentException("Chunk descargado: acercate sin entrar en la obra");
         var old=j.world.getBlockState(at);
         if(!old.equals(state)||old.hasBlockEntity()){
-            if(!j.removing)try{BweBackup.capture(j.world,at);}catch(java.io.IOException error){throw new IllegalStateException("No se pudo guardar el respaldo",error);}
+            try{BweBackup.capture(j.world,at);}catch(java.io.IOException error){throw new IllegalStateException("No se pudo guardar el respaldo",error);}
             j.world.removeBlockEntity(at);
             if(old.equals(state)&&old.hasBlockEntity())j.world.setBlock(at,Blocks.AIR.defaultBlockState(),FLAGS);
             j.world.setBlock(at,state,FLAGS);
@@ -123,7 +126,6 @@ public final class SurfaceBuilder {
                     requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
                 }else if(j.stage==Stage.LIMPIEZA){
                     if(j.x>j.x1){
-                        if(j.removing){say(j,"Obra retirada y superficie despejada. No se recupera el terreno anterior ni las entidades eliminadas.");active=null;last=null;break;}
                         j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;
                     }
                     if(!affected(j,j.x,j.z)){j.column();continue;}
@@ -154,21 +156,22 @@ public final class SurfaceBuilder {
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
                     var cell=j.blueprint.cells().get(j.cursor++);BlockPos at=j.origin.offset(cell.pos());if(!cell.state().isAir()||j.placementFootprint.contains(columnKey(at.getX(),at.getZ())))set(j,at,cell.state());
                 }else if(j.stage==Stage.DETALLES){
-                    if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
+                    if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.LOOTR;j.cursor=0;continue;}
                     var cell=j.blueprint.cells().get(j.cursor++);
                     if(cell.nbt()!=null){BlockPos at=j.origin.offset(cell.pos());var be=j.world.getBlockEntity(at);
                         if(be!=null){CompoundTag tag=cell.nbt().copy();tag.putInt("x",at.getX());tag.putInt("y",at.getY());tag.putInt("z",at.getZ());be.load(tag);be.setChanged();}}
+                }else if(j.stage==Stage.LOOTR){
+                    if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
+                    var cell=j.blueprint.cells().get(j.cursor++);
+                    if((cell.state().is(Blocks.CHEST)||cell.state().is(Blocks.TRAPPED_CHEST))&&BweLootr.convert(j.world,j.origin.offset(cell.pos()),j.lootTables,(at,state)->set(j,at,state)))j.converted++;
                 }else if(j.stage==Stage.POBLACION){
                     if(j.cursor>=j.blueprint.entities().size()){
-                        BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. Puedes crear otra; /bwe deshacer solo retira esta obra.");active=null;break;}
+                        BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. "+j.converted+" cofres Lootr. /bwe deshacer restaura el terreno original.");active=null;break;}
                     var spawn=j.blueprint.entities().get(j.cursor++);CompoundTag tag=spawn.nbt().copy();tag.remove("UUID");
                     float yaw=tag.getList("Rotation",Tag.TAG_FLOAT).getFloat(0)+spawn.yaw();
                     Entity entity=EntityType.loadEntityRecursive(tag,j.world,e->{e.setUUID(UUID.randomUUID());e.moveTo(j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z(),yaw,0);return e;});
-                    if(entity!=null)j.world.addFreshEntityWithPassengers(entity);
-                }else if(j.stage==Stage.RETIRAR){
-                    if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.LIMPIEZA;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
-                    var at=j.origin.offset(j.blueprint.cells().get(j.cursor++).pos());
-                    set(j,at,(at.getY()>=j.walkY?Blocks.AIR:at.getY()==j.walkY-1?Blocks.GRASS_BLOCK:Blocks.DIRT).defaultBlockState());
+                    if(entity!=null){BweBackup.recordEntity(entity);j.world.addFreshEntityWithPassengers(entity);}
+
                 }
                 j.done++;
             }
