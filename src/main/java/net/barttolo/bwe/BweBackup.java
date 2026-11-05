@@ -61,7 +61,7 @@ public final class BweBackup {
   for(String name:props.getAllKeys()){var property=definition.getProperty(name);if(property==null||property.getValue(props.getString(name)).isEmpty())throw new IOException("Estado original incompatible: "+id+" / "+name);}
  }
  public static boolean restoring(){return restoringWorld!=null;}
- public static String status(){return (validating?"Comprobando respaldo: ":"Restaurando terreno: ")+count+(validating?" registros":" / "+total+" registros");}
+ public static String status(){return (validating?"Comprobando respaldo: ":"Restaurando terreno: ")+count+(validating?" registros":" / "+total+" registros")+(pending==null?"":" | Alejate del bloque que se restaura");}
  private static void say(String s){if(restoringWorld==null)return;var p=operator==null?null:restoringWorld.getServer().getPlayerList().getPlayer(operator);if(p!=null)p.sendSystemMessage(net.minecraft.network.chat.Component.literal("[BWE] "+s));}
  public static void tick(){
   if(restoringWorld==null)return;
@@ -77,8 +77,11 @@ public final class BweBackup {
     if(t.hasUUID("entity")){BlockPos p=BlockPos.of(t.getLong("entityPos"));restoringWorld.getChunk(p.getX()>>4,p.getZ()>>4);created.add(t.getUUID("entity"));count++;continue;}
     BlockPos p=BlockPos.of(t.getLong("pos"));restoringWorld.getChunk(p.getX()>>4,p.getZ()>>4);
     if(restoringWorld.players().stream().anyMatch(player->player.getBoundingBox().intersects(new net.minecraft.world.phys.AABB(p)))){pending=t;return;}
-    restoringWorld.removeBlockEntity(p);restoringWorld.setBlock(p,NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(),t.getCompound("state")),2|16|32);
-    if(t.contains("be")){var be=restoringWorld.getBlockEntity(p);if(be!=null){be.load(t.getCompound("be"));be.setChanged();}}
+    var original=NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(),t.getCompound("state"));var current=restoringWorld.getBlockState(p);
+    restoringWorld.removeBlockEntity(p);
+    if(current.equals(original)&&original.hasBlockEntity())restoringWorld.setBlock(p,net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(),2|16|32);
+    restoringWorld.setBlock(p,original,2|16|32);
+    if(t.contains("be")){var be=restoringWorld.getBlockEntity(p);if(be!=null){be.load(t.getCompound("be"));be.setChanged();restoringWorld.sendBlockUpdated(p,original,original,3);}}
     count++;
    }
   }catch(Exception e){say("Restauracion detenida: "+e.getMessage()+". El archivo de respaldo se conserva.");com.mojang.logging.LogUtils.getLogger().error("[BWE] Restore failed, journal retained",e);close();}
