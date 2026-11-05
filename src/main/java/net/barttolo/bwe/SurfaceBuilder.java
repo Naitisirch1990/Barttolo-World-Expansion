@@ -30,7 +30,7 @@ public final class SurfaceBuilder {
     }
     public static boolean busy(){return active!=null||BweBackup.restoring();}
     public static void reset(){active=null;last=null;BweBackup.close();}
-    public static String status(){return active==null?"Sin obra en curso.":active.entry.title()+" | "+active.stage+" | "+active.done+" operaciones"+(active.waiting.isEmpty()?"":" | "+active.waiting);}
+    public static String status(){return BweBackup.restoring()?"Restaurando terreno del respaldo":active==null?"Sin obra en curso.":active.entry.title()+" | "+active.stage+" | "+active.done+" operaciones"+(active.waiting.isEmpty()?"":" | "+active.waiting);}
     private static void say(Job j,String s){var p=j.world.getServer().getPlayerList().getPlayer(j.operator);if(p!=null)p.sendSystemMessage(Component.literal("[BWE] "+s));}
     public static int ground(ServerLevel world,BlockPos center,BweCatalog.Entry e,int margin) {
         int x0=center.getX()-e.sizeX()/2-margin,z0=center.getZ()-e.sizeZ()/2-margin;
