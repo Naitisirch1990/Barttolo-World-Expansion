@@ -121,7 +121,7 @@ public final class RegressionGameTests {
      h.assertTrue(w.getBlockState(aerialBase.offset(-3,-4,-3)).is(Blocks.WATER),"Pirate underwater clearance filled with land");
      h.assertTrue(w.getBlockState(aerialBase.offset(-3,1,-3)).isAir(),"Water raised above selected waterline");
      h.assertTrue(w.getBlockState(aerialBase.offset(2,1,0)).is(Blocks.STONE_BRICKS),"Pirate upper hull lost");
-     h.assertTrue(SurfaceBuilder.ground(w,aerialBase,pirate,1)==aerialBase.getY()+1,"Pirate water level detection uses seafloor or deck");
+     int detected=SurfaceBuilder.ground(w,aerialBase,pirate,1);h.assertTrue(detected==aerialBase.getY()+1,"Pirate water detection: expected "+(aerialBase.getY()+1)+", got "+detected);
      h.assertTrue(w.getBlockState(aerialBase.below(5)).is(Blocks.STONE),"Pirate excavated below its bounded volume");
      BweBackup.close();h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Pirate undo rejected");phase=6;h.runAfterDelay(1,()->this.run());return;
     }
