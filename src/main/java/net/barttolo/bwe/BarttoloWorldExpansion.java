@@ -130,7 +130,7 @@ public final class BarttoloWorldExpansion {
                 int px=x+dx,pz=z+dz;if(!world.hasChunk(px>>4,pz>>4))continue;
                 int top=world.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,px,pz);
                 var color=top>selected.ground()?new org.joml.Vector3f(1f,0.1f,0.1f):new org.joml.Vector3f(0.1f,0.5f,1f);
-                world.sendParticles(player,new net.minecraft.core.particles.DustParticleOptions(color,1.7f),true,px,selected.ground()+0.3,pz,1,0,0,0,0);
+                world.sendParticles(player,new net.minecraft.core.particles.DustParticleOptions(color,1.7f),true,px,Math.max(top,selected.ground())+0.3,pz,1,0,0,0,0);
             }
             int margin=selected.margin();
             outline(player,x-margin,z-margin,x+selected.entry().sizeX()+margin,z+selected.entry().sizeZ()+margin,selected.ground(),1f,0.45f,0.05f);
