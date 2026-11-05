@@ -93,6 +93,10 @@ public final class SurfaceBuilder {
             j.world.setBlock(at,state,FLAGS);
         }
     }
+    private static boolean firm(net.minecraft.world.level.block.state.BlockState state){
+        return !state.isAir()&&state.getFluidState().isEmpty()&&!state.canBeReplaced()
+            &&!state.is(net.minecraft.tags.BlockTags.LEAVES)&&!state.is(net.minecraft.tags.BlockTags.LOGS);
+    }
     private static int baseBottom(Job j){return Math.max(j.world.getMinBuildHeight(),Math.min(j.walkY,j.origin.getY())-8);}
     private static void requireSupport(Job j,int x,int top,int z){
         if(x<j.x0||x>j.x1||z<j.z0||z>j.z1||top<j.world.getMinBuildHeight()||top>=j.world.getMaxBuildHeight())
@@ -123,7 +127,10 @@ public final class SurfaceBuilder {
                     }
                     if(!affected(j,j.x,j.z)){j.column();continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,Math.max(j.origin.getY()+j.entry.sizeY()+1,j.walkY+64));
+                    int skipped=0;
+                    while(j.y>=j.walkY&&skipped<32&&j.world.getBlockState(new BlockPos(j.x,j.y,j.z)).isAir()){j.y--;skipped++;}
                     if(j.y<j.walkY){j.column();continue;}
+                    if(skipped==32)continue;
                     set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
                 }else if(j.stage==Stage.CIMENTACION){
                     if(j.x>j.x1){j.stage=Stage.APOYOS;j.cursor=0;j.y=Integer.MIN_VALUE;continue;}
@@ -131,7 +138,7 @@ public final class SurfaceBuilder {
                     if(j.y==Integer.MIN_VALUE)j.y=j.walkY-1;
                     if(j.y<baseBottom(j)){j.column();continue;}
                     BlockPos at=new BlockPos(j.x,j.y,j.z);var old=j.world.getBlockState(at);
-                    boolean support=!old.isAir()&&old.getFluidState().isEmpty()&&!old.canBeReplaced();
+                    boolean support=firm(old);
                     if(j.y==j.walkY-1||!support)set(j,at,(j.y==j.walkY-1?Blocks.GRASS_BLOCK:j.y>=j.walkY-3?Blocks.DIRT:Blocks.STONE).defaultBlockState());
                     if(support)j.column();else j.y--;
                 }else if(j.stage==Stage.APOYOS){
@@ -140,7 +147,7 @@ public final class SurfaceBuilder {
                     if(j.y==Integer.MIN_VALUE)j.y=floor.getY()-1;
                     if(j.y<baseBottom(j)){j.cursor++;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos at=new BlockPos(floor.getX(),j.y,floor.getZ());var old=j.world.getBlockState(at);
-                    if(!old.isAir()&&old.getFluidState().isEmpty()&&!old.canBeReplaced()) {j.cursor++;j.y=Integer.MIN_VALUE;}
+                    if(firm(old)) {j.cursor++;j.y=Integer.MIN_VALUE;}
                     else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
                 }else if(j.stage==Stage.CONSTRUCCION){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
