@@ -21,8 +21,15 @@ minecraft {
     }
 }
 
-repositories { mavenCentral() }
+repositories { mavenCentral(); maven { url 'https://api.modrinth.com/maven' } }
 dependencies { minecraft 'net.minecraftforge:forge:1.20.1-47.4.10' }
+if (System.getProperty('bwe.testNamespaces') == 'bwe_regression') {
+    dependencies { runtimeOnly fg.deobf('maven.modrinth:lootr:mWTXC1ZX') }
+    minecraft.runs.gameTestServer {
+        property 'mixin.env.remapRefMap', 'true'
+        property 'mixin.env.refMapRemappingFile', "${project.buildDir}/createSrgToMcp/output.srg"
+    }
+}
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 
 // Minecraft production JAR must be reobfuscated after compilation.
