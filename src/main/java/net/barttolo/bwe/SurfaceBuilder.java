@@ -152,6 +152,6 @@ public final class SurfaceBuilder {
                 }
                 j.done++;
             }
-        }catch(Exception error){say(j,"Obra detenida: "+error.getMessage()+(j.stage==Stage.VALIDAR||j.stage==Stage.VALIDAR_APOYOS?"":". Puedes retirar con /bwe deshacer."));com.mojang.logging.LogUtils.getLogger().error("[BWE] Surface construction failed",error);active=null;}
+        }catch(Exception error){if(error.getMessage()!=null&&(error.getMessage().contains("chunks sin cargar")||error.getMessage().contains("Chunk descargado"))){j.waiting="Esperando chunks: acercate sin entrar al area; la obra se reanudara";return;}say(j,"Obra detenida: "+error.getMessage()+(j.stage==Stage.VALIDAR||j.stage==Stage.VALIDAR_APOYOS?"":". Puedes retirar con /bwe deshacer."));com.mojang.logging.LogUtils.getLogger().error("[BWE] Surface construction failed",error);active=null;}
     }
 }
