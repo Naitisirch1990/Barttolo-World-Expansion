@@ -111,6 +111,7 @@ public final class RegressionGameTests {
      h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Normal road placement changed");
      h.assertTrue(w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Normal ground foundation disabled by airship exception");
      h.assertTrue(w.getBlockState(aerialBase.below()).is(Blocks.STONE),"Normal foundation changed original support");
+     for(int x=-4;x<=4;x++)for(int z=-4;z<=4;z++)if(Math.abs(x)==4||Math.abs(z)==4)for(int y=-4;y<=0;y++)w.setBlock(aerialBase.offset(x,y,z),Blocks.WATER.defaultBlockState(),50);
      h.assertTrue(SurfaceBuilder.start(w,pirate,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Pirate build rejected");phase=5;h.runAfterDelay(1,()->this.run());return;
     }
     if(phase==5){
