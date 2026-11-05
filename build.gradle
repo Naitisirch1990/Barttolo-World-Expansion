@@ -15,7 +15,7 @@ minecraft {
         server { workingDirectory project.file('run'); mods { bwe { source sourceSets.main } } }
         gameTestServer {
             workingDirectory project.file('run-gametest')
-            property 'forge.enabledGameTestNamespaces', 'barttoloworldexpansion'
+            property 'forge.enabledGameTestNamespaces', System.getProperty('bwe.testNamespaces', 'barttoloworldexpansion')
             mods { barttoloworldexpansion { source sourceSets.main; source sourceSets.gameTest } }
         }
     }
