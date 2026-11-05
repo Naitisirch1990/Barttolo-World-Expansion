@@ -18,12 +18,16 @@ public final class SurfaceBuilder {
     private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
-        final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;
+        final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";boolean removing;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;
             origin=new BlockPos(center.getX()-e.sizeX()/2,ground-e.ground(),center.getZ()-e.sizeZ()/2);
             x0=origin.getX()-margin;z0=origin.getZ()-margin;x1=origin.getX()+e.sizeX()-1+margin;z1=origin.getZ()+e.sizeZ()-1+margin;
+            for(var c:b.cells())if(!c.state().isAir()){
+                int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
+                for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)footprint.add(columnKey(px+dx,pz+dz));
+            }
             x=x0;z=z0;area=new AABB(x0,w.getMinBuildHeight(),z0,x1+1.0,w.getMaxBuildHeight(),z1+1.0);
         }
         void column() {y=Integer.MIN_VALUE;if(++z>z1){z=z0;x++;}}
@@ -70,8 +74,10 @@ public final class SurfaceBuilder {
         if(j.world!=world)return "Vuelve a la dimension de la obra";
         j.stage=Stage.RETIRAR;j.cursor=0;j.done=0;j.removing=true;active=j;return null;
     }
+    private static long columnKey(int x,int z){return ((long)x<<32)^(z&0xffffffffL);}
+    private static boolean affected(Job j,int x,int z){return j.footprint.contains(columnKey(x,z));}
     private static boolean purge(Job j){
-        var es=j.world.getEntitiesOfClass(Entity.class,j.area);
+        var es=j.world.getEntitiesOfClass(Entity.class,j.area).stream().filter(e->affected(j,e.blockPosition().getX(),e.blockPosition().getZ())).toList();
         if(es.stream().anyMatch(e->e instanceof Player)){j.waiting="Alejate horizontalmente del area";return false;}
         int count=0;for(var e:es){if(e instanceof Player)continue;if(count++>=256){j.waiting="Retirando entidades";return false;}e.discard();}
         j.waiting="";return true;
@@ -114,11 +120,13 @@ public final class SurfaceBuilder {
                         if(j.removing){say(j,"Obra retirada y superficie despejada. No se recupera el terreno anterior ni las entidades eliminadas.");active=null;last=null;break;}
                         j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=Stage.CIMENTACION;continue;
                     }
-                    if(j.y==Integer.MIN_VALUE)j.y=j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1;
+                    if(!affected(j,j.x,j.z)){j.column();continue;}
+                    if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,j.origin.getY()+j.entry.sizeY()+1);
                     if(j.y<j.walkY){j.column();continue;}
                     set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
                 }else if(j.stage==Stage.CIMENTACION){
                     if(j.x>j.x1){j.stage=Stage.APOYOS;j.cursor=0;j.y=Integer.MIN_VALUE;continue;}
+                    if(!affected(j,j.x,j.z)){j.column();continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=j.walkY-1;
                     if(j.y<baseBottom(j)){j.column();continue;}
                     BlockPos at=new BlockPos(j.x,j.y,j.z);var old=j.world.getBlockState(at);
@@ -135,7 +143,7 @@ public final class SurfaceBuilder {
                     else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
                 }else if(j.stage==Stage.CONSTRUCCION){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
-                    var cell=j.blueprint.cells().get(j.cursor++);set(j,j.origin.offset(cell.pos()),cell.state());
+                    var cell=j.blueprint.cells().get(j.cursor++);BlockPos at=j.origin.offset(cell.pos());if(!cell.state().isAir()||affected(j,at.getX(),at.getZ()))set(j,at,cell.state());
                 }else if(j.stage==Stage.DETALLES){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
                     var cell=j.blueprint.cells().get(j.cursor++);
@@ -158,3 +166,4 @@ public final class SurfaceBuilder {
         }catch(Exception error){if(error.getMessage()!=null&&(error.getMessage().contains("chunks sin cargar")||error.getMessage().contains("Chunk descargado"))){j.waiting="Esperando chunks: acercate sin entrar al area; la obra se reanudara";return;}say(j,"Obra detenida: "+error.getMessage()+(j.stage==Stage.VALIDAR||j.stage==Stage.VALIDAR_APOYOS?"":". Puedes retirar con /bwe deshacer."));com.mojang.logging.LogUtils.getLogger().error("[BWE] Surface construction failed",error);active=null;}
     }
 }
+
