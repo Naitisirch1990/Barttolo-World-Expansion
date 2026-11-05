@@ -58,9 +58,17 @@ public final class SurfaceBuilder {
         checkArea(world,x0,z0,x1,z1);
         if(BweCatalog.pirate(e)){
             Map<Integer,Integer> levels=new TreeMap<>();
-            for(int x=x0;x<=x1;x++)for(int z=z0;z<=z1;z++){
-                int y=world.getHeight(Heightmap.Types.WORLD_SURFACE,x,z)-1;
-                if(world.getFluidState(new BlockPos(x,y,z)).is(net.minecraft.tags.FluidTags.WATER))levels.merge(y,1,Integer::sum);
+            // Read actual water blocks near the selected site, including water under docks/trees.
+            // A heightmap can point at a roof or remain above recently removed terrain.
+            int high=Math.min(world.getMaxBuildHeight()-2,center.getY()+16),low=Math.max(world.getMinBuildHeight(),center.getY()-96);
+            for(int x=x0;x<=x1;x+=Math.max(1,(x1-x0)/16))for(int z=z0;z<=z1;z+=Math.max(1,(z1-z0)/16)){
+                for(int y=high;y>=low;y--){
+                    BlockPos at=new BlockPos(x,y,z);
+                    if(world.getBlockState(at).is(Blocks.WATER)&&world.getFluidState(at).isSource()
+                        &&!world.getFluidState(at.above()).is(net.minecraft.tags.FluidTags.WATER)){
+                        levels.merge(y,1,Integer::sum);break;
+                    }
+                }
             }
             if(!levels.isEmpty())return levels.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow().getKey()+1;
         }
