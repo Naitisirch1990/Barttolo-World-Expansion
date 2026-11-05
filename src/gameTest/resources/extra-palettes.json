@@ -1,0 +1,8973 @@
+Warning: truncated output (original token count: 46061)
+Total output lines: 10303
+
+{
+ "states": [
+  {
+   "Name": "minecraft:grass_block",
+   "Properties": {
+    "snowy": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dirt"
+  },
+  {
+   "Name": "minecraft:coarse_dirt"
+  },
+  {
+   "Name": "minecraft:dirt_path"
+  },
+  {
+   "Name": "minecraft:gravel"
+  },
+  {
+   "Name": "minecraft:air"
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_bricks"
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "6",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "5",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "4",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:fern"
+  },
+  {
+   "Name": "minecraft:poppy"
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "3",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "2",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:grass"
+  },
+  {
+   "Name": "minecraft:deepslate_tiles"
+  },
+  {
+   "Name": "minecraft:azure_bluet"
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dandelion"
+  },
+  {
+   "Name": "minecraft:allium"
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:birch_planks"
+  },
+  {
+   "Name": "minecraft:oak_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "1",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_log",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_planks"
+  },
+  {
+   "Name": "minecraft:deepslate_tile_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "false",
+    "north": "false",
+    "south": "false",
+    "waterlogged": "false",
+    "west": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_spruce_log",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_spruce_wood",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_spruce_wood",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "facing": "south",
+    "half": "top",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_planks"
+  },
+  {
+   "Name": "minecraft:lantern",
+   "Properties": {
+    "hanging": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "facing": "north",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:rose_bush",
+   "Properties": {
+    "half": "lower"
+   }
+  },
+  {
+   "Name": "minecraft:lilac",
+   "Properties": {
+    "half": "lower"
+   }
+  },
+  {
+   "Name": "minecraft:tall_grass",
+   "Properties": {
+    "half": "lower"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:large_fern",
+   "Properties": {
+    "half": "lower"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:peony",
+   "Properties": {
+    "half": "lower"
+   }
+  },
+  {
+   "Name": "minecraft:rose_bush",
+   "Properties": {
+    "half": "upper"
+   }
+  },
+  {
+   "Name": "minecraft:lilac",
+   "Properties": {
+    "half": "upper"
+   }
+  },
+  {
+   "Name": "minecraft:tall_grass",
+   "Properties": {
+    "half": "upper"
+   }
+  },
+  {
+   "Name": "minecraft:large_fern",
+   "Properties": {
+    "half": "upper"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_spruce_log",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:peony",
+   "Properties": {
+    "half": "upper"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:stone"
+  },
+  {
+   "Name": "minecraft:lantern",
+   "Properties": {
+    "hanging": "false",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_wire",
+   "Properties": {
+    "power": "0",
+    "west": "up",
+    "east": "side",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_wire",
+   "Properties": {
+    "power": "0",
+    "west": "side",
+    "east": "none",
+    "south": "side",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_wire",
+   "Properties": {
+    "power": "0",
+    "west": "none",
+    "east": "none",
+    "south": "side",
+    "north": "side"
+   }
+  },
+  {
+   "Name": "minecraft:sticky_piston",
+   "Properties": {
+    "extended": "false",
+    "facing": "up"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_wire",
+   "Properties": {
+    "power": "0",
+    "west": "side",
+    "east": "side",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_wire",
+   "Properties": {
+    "power": "0",
+    "west": "side",
+    "east": "none",
+    "south": "none",
+    "north": "side"
+   }
+  },
+  {
+   "Name": "minecraft:blast_furnace",
+   "Properties": {
+    "facing": "north",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:blast_furnace",
+   "Properties": {
+    "facing": "west",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:slime_block"
+  },
+  {
+   "Name": "minecraft:blast_furnace",
+   "Properties": {
+    "facing": "east",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:blast_furnace",
+   "Properties": {
+    "facing": "south",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:furnace",
+   "Properties": {
+    "facing": "south",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:crafting_table"
+  },
+  {
+   "Name": "minecraft:furnace",
+   "Properties": {
+    "facing": "north",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "facing": "west",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "single",
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:stone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "south",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:barrel",
+   "Properties": {
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:barrel",
+   "Properties": {
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:stonecutter",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:barrel",
+   "Properties": {
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:barrel",
+   "Properties": {
+    "open": "false",
+    "facing": "up"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "facing": "north",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "left",
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "right",
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "right",
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "left",
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "right",
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "left",
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:acacia_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "single",
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_spruce_log",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:oak_log",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:podzol",
+   "Properties": {
+    "snowy": "false"
+   }
+  },
+  {
+   "Name": "minecraft:glowstone"
+  },
+  {
+   "Name": "minecraft:green_wool"
+  },
+  {
+   "Name": "minecraft:smooth_stone"
+  },
+  {
+   "Name": "minecraft:iron_ore"
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "facing": "south",
+    "lit": "true"
+   }
+  },
+  {
+   "Name": "minecraft:andesite"
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:coal_ore"
+  },
+  {
+   "Name": "minecraft:acacia_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "1",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:moss_block"
+  },
+  {
+   "Name": "minecraft:brown_concrete_powder"
+  },
+  {
+   "Name": "minecraft:dispenser",
+   "Properties": {
+    "facing": "up",
+    "triggered": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone"
+  },
+  {
+   "Name": "minecraft:tuff"
+  },
+  {
+   "Name": "minecraft:redstone_ore",
+   "Properties": {
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_ore",
+   "Properties": {
+    "lit": "true"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:water",
+   "Properties": {
+    "level": "0"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:mossy_stone_bricks"
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:purple_wool"
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:purple_banner",
+   "Properties": {
+    "rotation": "2"
+   }
+  },
+  {
+   "Name": "minecraft:purple_banner",
+   "Properties": {
+    "rotation": "4"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "facing": "west",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:purple_banner",
+   "Properties": {
+    "rotation": "6"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:granite"
+  },
+  {
+   "Name": "minecraft:hay_block",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:bricks"
+  },
+  {
+   "Name": "minecraft:cobblestone_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:white_tulip"
+  },
+  {
+   "Name": "minecraft:brick_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:green_carpet"
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "single",
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "facing": "north",
+    "half": "top",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:ladder",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "facing": "south",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:note_block",
+   "Properties": {
+    "powered": "false",
+    "instrument": "basedrum",
+    "note": "0"
+   }
+  },
+  {
+   "Name": "minecraft:coal_block"
+  },
+  {
+   "Name": "minecraft:raw_iron_block"
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:black_candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "false",
+    "candles": "3"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:potted_white_tulip"
+  },
+  {
+   "Name": "minecraft:loom",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:tripwire_hook",
+   "Properties": {
+    "powered": "false",
+    "attached": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "true",
+    "hinge": "left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:water_cauldron",
+   "Properties": {
+    "level": "3"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "true",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:barrel",
+   "Properties": {
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:flower_pot"
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "low",
+    "north": "low",
+    "south": "none",
+    "up": "true",
+    "waterlogged": "false",
+    "west": "none"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "low",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "low",
+    "north": "none",
+    "south": "low",
+    "up": "true",
+    "waterlogged": "false",
+    "west": "none"
+   }
+  },
+  {
+   "Name": "minecraft:orange_tulip"
+  },
+  {
+   "Name": "minecraft:oak_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:oak_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:terracotta"
+  },
+  {
+   "Name": "minecraft:lectern",
+   "Properties": {
+    "powered": "false",
+    "has_book": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:oak_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dried_kelp_block"
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:snow_block"
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "single",
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_exposed_cut_copper_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "true"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "true",
+    "hinge": "right",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "true",
+    "hinge": "left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_oxidized_copper"
+  },
+  {
+   "Name": "minecraft:birch_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:soul_soil"
+  },
+  {
+   "Name": "minecraft:soul_sand"
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:ladder",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_exposed_cut_copper_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:note_block",
+   "Properties": {
+    "powered": "false",
+    "instrument": "bass",
+    "note": "0"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:oak_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "rotation": "13"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:purple_carpet"
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_weathered_copper"
+  },
+  {
+   "Name": "minecraft:iron_bars",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "rotation": "11"
+   }
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "none",
+    "north": "none",
+    "south": "none",
+    "up": "true",
+    "waterlogged": "false",
+    "west": "none"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "tall",
+    "north": "tall",
+    "south": "none",
+    "up": "true",
+    "waterlogged": "false",
+    "west": "none"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:loom",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:bookshelf"
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:potted_allium"
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:hay_block",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:potted_poppy"
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:brown_concrete"
+  },
+  {
+   "Name": "minecraft:potted_fern"
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_iron_ore"
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:potted_flowering_azalea_bush"
+  },
+  {
+   "Name": "minecraft:dark_oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_stairs",
+   "Properties": {
+    "facing": "north",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "true",
+    "hinge": "left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:end_rod",
+   "Properties": {
+    "facing": "down"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "east",
+    "face": "floor"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "true",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:oak_log",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite"
+  },
+  {
+   "Name": "minecraft:spruce_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:potted_orange_tulip"
+  },
+  {
+   "Name": "minecraft:oak_log",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:chain",
+   "Properties": {
+    "waterlogged": "false",
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:tripwire_hook",
+   "Properties": {
+    "powered": "false",
+    "attached": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:moss_carpet"
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:brewing_stand",
+   "Properties": {
+    "has_bottle_2": "false",
+    "has_bottle_0": "false",
+    "has_bottle_1": "false"
+   }
+  },
+  {
+   "Name": "minecraft:crimson_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:snow",
+   "Properties": {
+    "layers": "1"
+   }
+  },
+  {
+   "Name": "minecraft:snow",
+   "Properties": {
+    "layers": "2"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "true",
+    "hinge": "right",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "true",
+    "hinge": "left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:nether_wart",
+   "Properties": {
+    "age": "0"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:granite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "true",
+    "candles": "3"
+   }
+  },
+  {
+   "Name": "minecraft:iron_bars",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:brown_carpet"
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:oak_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "west",
+    "face": "floor"
+   }
+  },
+  {
+   "Name": "minecraft:polished_blackstone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "west",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:potted_oxeye_daisy"
+  },
+  {
+   "Name": "minecraft:scaffolding",
+   "Properties": {
+    "waterlogged": "false",
+    "bottom": "false",
+    "distance": "0"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:granite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "true",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "lit": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "true",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "north",
+    "face": "floor"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "tall",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:anvil",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "1",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:brown_candle",
+   "Properties": {
+    "candles": "1",
+    "lit": "false",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:red_wool"
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "facing": "east",
+    "half": "top",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:tripwire_hook",
+   "Properties": {
+    "powered": "false",
+    "attached": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:tripwire",
+   "Properties": {
+    "powered": "false",
+    "attached": "false",
+    "west": "false",
+    "disarmed": "false",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:white_wall_banner",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:lightning_rod",
+   "Properties": {
+    "waterlogged": "false",
+    "powered": "false",
+    "facing": "down"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_exposed_cut_copper_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_copper_block"
+  },
+  {
+   "Name": "minecraft:stone_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_cut_copper_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "facing": "south",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:brick_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:iron_bars",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "facing": "east",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "true",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "false",
+    "north": "false",
+    "south": "false",
+    "waterlogged": "false",
+    "west": "true"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "true",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:stone_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:composter",
+   "Properties": {
+    "level": "0"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate"
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:red_carpet"
+  },
+  {
+   "Name": "minecraft:iron_bars",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:potted_crimson_fungus"
+  },
+  {
+   "Name": "minecraft:cave_vines",
+   "Properties": {
+    "age": "4",
+    "berries": "true"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:chain",
+   "Properties": {
+    "waterlogged": "false",
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "north",
+    "face": "ceiling"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "west",
+    "face": "ceiling"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "east",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:chain",
+   "Properties": {
+    "waterlogged": "false",
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:daylight_detector",
+   "Properties": {
+    "power": "5",
+    "inverted": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "true",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:daylight_detector",
+   "Properties": {
+    "power": "4",
+    "inverted": "false"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "east",
+    "face": "ceiling"
+   }
+  },
+  {
+   "Name": "minecraft:potted_cornflower"
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "true",
+    "north": "false",
+    "south": "false",
+    "waterlogged": "false",
+    "west": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "none",
+    "east": "none",
+    "south": "tall",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:oak_planks"
+  },
+  {
+   "Name": "minecraft:stripped_oak_wood",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "none",
+    "east": "none",
+    "south": "tall",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_oak_wood",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:acacia_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "2",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_wool"
+  },
+  {
+   "Name": "minecraft:orange_banner",
+   "Properties": {
+    "rotation": "14"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:orange_banner",
+   "Properties": {
+    "rotation": "9"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:red_wall_banner",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:polished_blackstone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "south",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:polished_blackstone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "north",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "lit": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:crimson_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "low",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:crimson_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:ladder",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:note_block",
+   "Properties": {
+    "powered": "false",
+    "instrument": "bass",
+    "note": "1"
+   }
+  },
+  {
+   "Name": "minecraft:lime_wall_banner",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass"
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:light_blue_banner",
+   "Properties": {
+    "rotation": "0"
+   }
+  },
+  {
+   "Name": "minecraft:light_blue_wool"
+  },
+  {
+   "Name": "minecraft:light_gray_carpet"
+  },
+  {
+   "Name": "minecraft:jukebox",
+   "Properties": {
+    "has_record": "false"
+   }
+  },
+  {
+   "Name": "minecraft:red_wall_banner",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:orange_bed",
+   "Properties": {
+    "occupied": "false",
+    "part": "foot",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:orange_wool"
+  },
+  {
+   "Name": "minecraft:orange_bed",
+   "Properties": {
+    "occupied": "false",
+    "part": "head",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:lodestone"
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "false",
+    "north": "true",
+    "south": "false",
+    "waterlogged": "false",
+    "west": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "false",
+    "north": "false",
+    "south": "true",
+    "waterlogged": "false",
+    "west": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:sea_pickle",
+   "Properties": {
+    "waterlogged": "false",
+    "pickles": "2"
+   }
+  },
+  {
+   "Name": "minecraft:end_rod",
+   "Properties": {
+    "facing": "up"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:smoker",
+   "Properties": {
+    "facing": "east",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:zombie_head",
+   "Properties": {
+    "rotation": "2"
+   }
+  },
+  {
+   "Name": "minecraft:green_wall_banner",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:green_candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "true",
+    "candles": "3"
+   }
+  },
+  {
+   "Name": "minecraft:light_blue_bed",
+   "Properties": {
+    "occupied": "false",
+    "part": "foot",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:light_blue_bed",
+   "Properties": {
+    "occupied": "false",
+    "part": "head",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:light_blue_carpet"
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:sea_pickle",
+   "Properties": {
+    "waterlogged": "false",
+    "pickles": "1"
+   }
+  },
+  {
+   "Name": "minecraft:orange_candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "true",
+    "candles": "3"
+   }
+  },
+  {
+   "Name": "minecraft:ladder",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:potted_lily_of_the_valley"
+  },
+  {
+   "Name": "minecraft:orange_carpet"
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:crimson_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "false",
+    "north": "false",
+    "south": "true",
+    "waterlogged": "false",
+    "west": "true"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "east": "false",
+    "north": "true",
+    "south": "false",
+    "waterlogged": "false",
+    "west": "true"
+   }
+  },
+  {
+   "Name": "minecraft:candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "true",
+    "candles": "4"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:potted_red_tulip"
+  },
+  {
+   "Name": "minecraft:potted_dead_bush"
+  },
+  {
+   "Name": "minecraft:heavy_weighted_pressure_plate",
+   "Properties": {
+    "power": "0"
+   }
+  },
+  {
+   "Name": "minecraft:potted_bamboo"
+  },
+  {
+   "Name": "minecraft:potted_pink_tulip"
+  },
+  {
+   "Name": "minecraft:ender_chest",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:wither_skeleton_skull",
+   "Properties": {
+    "rotation": "1"
+   }
+  },
+  {
+   "Name": "minecraft:creeper_head",
+   "Properties": {
+    "rotation": "15"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:green_wall_banner",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:quartz_pillar",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:red_wall_banner",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "true",
+    "candles": "2"
+   }
+  },
+  {
+   "Name": "minecraft:potted_blue_orchid"
+  },
+  {
+   "Name": "minecraft:cobweb"
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:white_concrete"
+  },
+  {
+   "Name": "minecraft:loom",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "south",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:polished_granite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:cyan_wool"
+  },
+  {
+   "Name": "minecraft:polished_granite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:pink_wool"
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:rail",
+   "Properties": {
+    "waterlogged": "false",
+    "shape": "north_south"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:potted_dandelion"
+  },
+  {
+   "Name": "minecraft:loom",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:red_wall_banner",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:yellow_wall_banner",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:gray_carpet"
+  },
+  {
+   "Name": "minecraft:oak_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "true"
+   }
+  },
+  {
+   "Name": "minecraft:brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:hay_block",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:granite_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cyan_carpet"
+  },
+  {
+   "Name": "minecraft:polished_granite_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:pink_carpet"
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:yellow_wall_banner",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:white_wall_banner",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "false",
+    "lit": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_wall_banner",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:campfire",
+   "Properties": {
+    "waterlogged": "false",
+    "signal_fire": "true",
+    "facing": "east",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_wall_banner",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_wall_banner",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:cyan_wall_banner",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:pink_wall_banner",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_wall_banner",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south"…6061 tokens truncated…gged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:warped_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_pressure_plate",
+   "Properties": {
+    "powered": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite"
+  },
+  {
+   "Name": "minecraft:jungle_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:lightning_rod",
+   "Properties": {
+    "waterlogged": "false",
+    "powered": "false",
+    "facing": "up"
+   }
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:granite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_exposed_copper"
+  },
+  {
+   "Name": "minecraft:granite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:polished_granite"
+  },
+  {
+   "Name": "minecraft:granite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:granite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:granite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:granite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "low",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:waxed_oxidized_cut_copper_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:weathered_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:weathered_cut_copper"
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper"
+  },
+  {
+   "Name": "minecraft:weathered_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:weathered_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "none",
+    "east": "low",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "low",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:nether_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:warped_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:warped_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:warped_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:weathered_copper"
+  },
+  {
+   "Name": "minecraft:oxidized_copper"
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:nether_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "tall",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:iron_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:iron_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "true",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:exposed_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:cobbled_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "lower",
+    "powered": "false",
+    "open": "true",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:cobbled_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:cobbled_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:cobbled_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "false",
+    "hinge": "left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_door",
+   "Properties": {
+    "half": "upper",
+    "powered": "false",
+    "open": "true",
+    "hinge": "right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:cobbled_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "tall",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:weathered_cut_copper_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:warped_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:warped_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:warped_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:warped_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "tall",
+    "east": "tall",
+    "south": "tall",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:redstone_lamp",
+   "Properties": {
+    "lit": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:light_gray_stained_glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:lever",
+   "Properties": {
+    "powered": "true",
+    "facing": "west",
+    "face": "floor"
+   }
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oxidized_cut_copper_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "low",
+    "south": "low",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:chiseled_stone_bricks"
+  },
+  {
+   "Name": "minecraft:birch_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_oak_log",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_oak_log",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:oak_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "7",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:farmland",
+   "Properties": {
+    "moisture": "7"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_log",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:farmland",
+   "Properties": {
+    "moisture": "0"
+   }
+  },
+  {
+   "Name": "minecraft:birch_wood",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:decorated_pot",
+   "Properties": {
+    "waterlogged": "false",
+    "cracked": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:decorated_pot",
+   "Properties": {
+    "waterlogged": "false",
+    "cracked": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:decorated_pot",
+   "Properties": {
+    "waterlogged": "false",
+    "cracked": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_oak_log",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:beehive",
+   "Properties": {
+    "facing": "east",
+    "honey_level": "0"
+   }
+  },
+  {
+   "Name": "minecraft:beehive",
+   "Properties": {
+    "facing": "south",
+    "honey_level": "0"
+   }
+  },
+  {
+   "Name": "minecraft:beehive",
+   "Properties": {
+    "facing": "west",
+    "honey_level": "0"
+   }
+  },
+  {
+   "Name": "minecraft:lectern",
+   "Properties": {
+    "powered": "false",
+    "has_book": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:beehive",
+   "Properties": {
+    "facing": "north",
+    "honey_level": "0"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "true"
+   }
+  },
+  {
+   "Name": "minecraft:decorated_pot",
+   "Properties": {
+    "waterlogged": "false",
+    "cracked": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:clay"
+  },
+  {
+   "Name": "minecraft:cauldron"
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:anvil",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:chiseled_bookshelf",
+   "Properties": {
+    "slot_5_occupied": "false",
+    "slot_4_occupied": "false",
+    "facing": "west",
+    "slot_2_occupied": "false",
+    "slot_1_occupied": "false",
+    "slot_3_occupied": "false",
+    "slot_0_occupied": "false"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "left",
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:chest",
+   "Properties": {
+    "type": "right",
+    "waterlogged": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:wheat",
+   "Properties": {
+    "age": "7"
+   }
+  },
+  {
+   "Name": "minecraft:pitcher_crop",
+   "Properties": {
+    "half": "lower",
+    "age": "4"
+   }
+  },
+  {
+   "Name": "minecraft:carrots",
+   "Properties": {
+    "age": "7"
+   }
+  },
+  {
+   "Name": "minecraft:pink_tulip"
+  },
+  {
+   "Name": "minecraft:oxeye_daisy"
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "2",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:potted_mangrove_propagule"
+  },
+  {
+   "Name": "minecraft:cyan_candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "false",
+    "candles": "2"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:potted_torchflower"
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:torchflower"
+  },
+  {
+   "Name": "minecraft:blue_orchid"
+  },
+  {
+   "Name": "minecraft:warped_fungus"
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:pink_petals",
+   "Properties": {
+    "facing": "east",
+    "flower_amount": "2"
+   }
+  },
+  {
+   "Name": "minecraft:pink_petals",
+   "Properties": {
+    "facing": "west",
+    "flower_amount": "3"
+   }
+  },
+  {
+   "Name": "minecraft:cornflower"
+  },
+  {
+   "Name": "minecraft:pink_petals",
+   "Properties": {
+    "facing": "east",
+    "flower_amount": "3"
+   }
+  },
+  {
+   "Name": "minecraft:pink_petals",
+   "Properties": {
+    "facing": "west",
+    "flower_amount": "2"
+   }
+  },
+  {
+   "Name": "minecraft:pink_petals",
+   "Properties": {
+    "facing": "east",
+    "flower_amount": "1"
+   }
+  },
+  {
+   "Name": "minecraft:pink_petals",
+   "Properties": {
+    "facing": "north",
+    "flower_amount": "3"
+   }
+  },
+  {
+   "Name": "minecraft:cyan_stained_glass"
+  },
+  {
+   "Name": "minecraft:pitcher_crop",
+   "Properties": {
+    "half": "upper",
+    "age": "4"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "3",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "4",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "7",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "1",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "2",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_wall_hanging_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_wood",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "5",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:mangrove_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "6",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "2",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "1",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:stonecutter",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_wood",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "3",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "4",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "distance": "1",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "3",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:stone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "north",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:stone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "west",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:stone_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "east",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:cherry_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "5",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "distance": "3",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "4",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "distance": "4",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_spruce_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "distance": "2",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "5",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "distance": "5",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:glass"
+  },
+  {
+   "Name": "minecraft:big_dripleaf",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north",
+    "tilt": "none"
+   }
+  },
+  {
+   "Name": "minecraft:big_dripleaf",
+   "Properties": {
+    "facing": "east",
+    "tilt": "none",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:mossy_stone_brick_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cracked_stone_bricks"
+  },
+  {
+   "Name": "minecraft:big_dripleaf",
+   "Properties": {
+    "facing": "south",
+    "tilt": "none",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:sea_lantern"
+  },
+  {
+   "Name": "minecraft:white_carpet"
+  },
+  {
+   "Name": "minecraft:brown_wall_banner",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:anvil",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:yellow_terracotta"
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:quartz_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:chiseled_bookshelf",
+   "Properties": {
+    "slot_5_occupied": "false",
+    "slot_4_occupied": "false",
+    "facing": "north",
+    "slot_2_occupied": "false",
+    "slot_1_occupied": "false",
+    "slot_3_occupied": "false",
+    "slot_0_occupied": "false"
+   }
+  },
+  {
+   "Name": "minecraft:dead_horn_coral_fan",
+   "Properties": {
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:dark_oak_wood",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:chiseled_bookshelf",
+   "Properties": {
+    "slot_5_occupied": "false",
+    "slot_4_occupied": "false",
+    "facing": "east",
+    "slot_2_occupied": "false",
+    "slot_1_occupied": "false",
+    "slot_3_occupied": "false",
+    "slot_0_occupied": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo",
+   "Properties": {
+    "leaves": "none",
+    "age": "1",
+    "stage": "0"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:furnace",
+   "Properties": {
+    "facing": "east",
+    "lit": "false"
+   }
+  },
+  {
+   "Name": "minecraft:quartz_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:quartz_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:quartz_stairs",
+   "Properties": {
+    "waterlogged": "true",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:anvil",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_bamboo_block",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:brown_wall_banner",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:red_glazed_terracotta",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:red_glazed_terracotta",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:infested_chiseled_stone_bricks"
+  },
+  {
+   "Name": "minecraft:infested_cracked_stone_bricks"
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:lectern",
+   "Properties": {
+    "powered": "false",
+    "has_book": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:brown_wall_banner",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "inner_left"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "inner_right"
+   }
+  },
+  {
+   "Name": "minecraft:creeper_head",
+   "Properties": {
+    "rotation": "7"
+   }
+  },
+  {
+   "Name": "minecraft:cake",
+   "Properties": {
+    "bites": "1"
+   }
+  },
+  {
+   "Name": "minecraft:grindstone",
+   "Properties": {
+    "facing": "south",
+    "face": "floor"
+   }
+  },
+  {
+   "Name": "minecraft:cake",
+   "Properties": {
+    "bites": "0"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "true",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:lever",
+   "Properties": {
+    "powered": "true",
+    "facing": "east",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:smithing_table"
+  },
+  {
+   "Name": "minecraft:beacon"
+  },
+  {
+   "Name": "minecraft:cartography_table"
+  },
+  {
+   "Name": "minecraft:fletching_table"
+  },
+  {
+   "Name": "minecraft:lava_cauldron"
+  },
+  {
+   "Name": "minecraft:rail",
+   "Properties": {
+    "waterlogged": "false",
+    "shape": "east_west"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_quartz_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:hopper",
+   "Properties": {
+    "enabled": "true",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "4",
+    "persistent": "false"
+   }
+  },
+  {
+   "Name": "minecraft:large_amethyst_bud",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "up"
+   }
+  },
+  {
+   "Name": "minecraft:creeper_head",
+   "Properties": {
+    "rotation": "9"
+   }
+  },
+  {
+   "Name": "minecraft:skeleton_skull",
+   "Properties": {
+    "rotation": "7"
+   }
+  },
+  {
+   "Name": "minecraft:zombie_head",
+   "Properties": {
+    "rotation": "9"
+   }
+  },
+  {
+   "Name": "minecraft:potted_oak_sapling"
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "tall",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "tall",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:potted_spruce_sapling"
+  },
+  {
+   "Name": "minecraft:potted_cherry_sapling"
+  },
+  {
+   "Name": "minecraft:bamboo",
+   "Properties": {
+    "leaves": "small",
+    "age": "1",
+    "stage": "0"
+   }
+  },
+  {
+   "Name": "minecraft:creeper_head",
+   "Properties": {
+    "rotation": "8"
+   }
+  },
+  {
+   "Name": "minecraft:dragon_wall_head",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:bamboo",
+   "Properties": {
+    "leaves": "large",
+    "age": "1",
+    "stage": "0"
+   }
+  },
+  {
+   "Name": "minecraft:dragon_wall_head",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "straight",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_birch_wood",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_birch_log",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_wood",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:yellow_concrete"
+  },
+  {
+   "Name": "minecraft:smooth_quartz_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:stripped_birch_wood",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:sweet_berry_bush",
+   "Properties": {
+    "age": "3"
+   }
+  },
+  {
+   "Name": "minecraft:sweet_berry_bush",
+   "Properties": {
+    "age": "0"
+   }
+  },
+  {
+   "Name": "minecraft:glass_pane",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:seagrass"
+  },
+  {
+   "Name": "minecraft:red_candle",
+   "Properties": {
+    "waterlogged": "false",
+    "lit": "false",
+    "candles": "4"
+   }
+  },
+  {
+   "Name": "minecraft:end_rod",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:end_rod",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:oak_wood",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "tall"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "tall",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:creeper_head",
+   "Properties": {
+    "rotation": "2"
+   }
+  },
+  {
+   "Name": "minecraft:zombie_head",
+   "Properties": {
+    "rotation": "11"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:polished_deepslate_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:zombie_head",
+   "Properties": {
+    "rotation": "15"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "false",
+    "west": "tall",
+    "east": "tall",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_brick_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_brick_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_brick_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:deepslate_tile_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:polished_andesite_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:stone_brick_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:pearlescent_froglight",
+   "Properties": {
+    "axis": "z"
+   }
+  },
+  {
+   "Name": "minecraft:pearlescent_froglight",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "none",
+    "west": "none",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "none",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "none",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "none",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "none",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "none",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "low",
+    "west": "none",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "none",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "low",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "low",
+    "west": "none",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "none",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "low",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "tall",
+    "west": "none",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "none",
+    "waterlogged": "false",
+    "south": "low",
+    "north": "tall",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "none",
+    "north": "low",
+    "west": "none",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "none",
+    "north": "low",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "none",
+    "north": "tall",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "low",
+    "waterlogged": "false",
+    "south": "none",
+    "north": "tall",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "none",
+    "waterlogged": "false",
+    "south": "none",
+    "north": "low",
+    "west": "low",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:pearlescent_froglight",
+   "Properties": {
+    "axis": "y"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_left",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_slab",
+   "Properties": {
+    "waterlogged": "false",
+    "type": "bottom"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "none",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "tall",
+    "west": "none",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "none",
+    "waterlogged": "false",
+    "south": "tall",
+    "north": "tall",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "east": "tall",
+    "waterlogged": "false",
+    "south": "none",
+    "north": "tall",
+    "west": "tall",
+    "up": "true"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_left",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_left",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "top",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:calcite"
+  },
+  {
+   "Name": "minecraft:yellow_stained_glass"
+  },
+  {
+   "Name": "minecraft:yellow_glazed_terracotta",
+   "Properties": {
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:yellow_glazed_terracotta",
+   "Properties": {
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:chiseled_quartz_block"
+  },
+  {
+   "Name": "minecraft:yellow_glazed_terracotta",
+   "Properties": {
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:yellow_glazed_terracotta",
+   "Properties": {
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:gold_block"
+  },
+  {
+   "Name": "minecraft:yellow_carpet"
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "outer_left",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:polished_diorite_stairs",
+   "Properties": {
+    "half": "bottom",
+    "waterlogged": "false",
+    "shape": "outer_right",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:smooth_stone_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "low",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "low",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "low",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "low"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:birch_wall_sign",
+   "Properties": {
+    "waterlogged": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "outer_left"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "4",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "2",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "1",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:jungle_leaves",
+   "Properties": {
+    "waterlogged": "false",
+    "distance": "3",
+    "persistent": "true"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:oak_wood",
+   "Properties": {
+    "axis": "x"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "false",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence_gate",
+   "Properties": {
+    "in_wall": "false",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:oak_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "false",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "true",
+    "south": "true",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:birch_slab",
+   "Properties": {
+    "type": "top",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "north"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "west"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "east"
+   }
+  },
+  {
+   "Name": "minecraft:birch_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_trapdoor",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "powered": "false",
+    "open": "false",
+    "facing": "south"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "south",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "true",
+    "north": "false"
+   }
+  },
+  {
+   "Name": "minecraft:blue_terracotta"
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "west",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "east",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "false",
+    "east": "true",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:birch_fence",
+   "Properties": {
+    "waterlogged": "false",
+    "west": "true",
+    "east": "false",
+    "south": "false",
+    "north": "true"
+   }
+  },
+  {
+   "Name": "minecraft:birch_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "top",
+    "facing": "north",
+    "shape": "outer_right"
+   }
+  },
+  {
+   "Name": "minecraft:birch_slab",
+   "Properties": {
+    "type": "double",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:birch_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "north",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:birch_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "west",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:birch_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "east",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:birch_button",
+   "Properties": {
+    "powered": "false",
+    "facing": "south",
+    "face": "wall"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine"
+  },
+  {
+   "Name": "minecraft:prismarine_bricks"
+  },
+  {
+   "Name": "minecraft:dark_prismarine"
+  },
+  {
+   "Name": "minecraft:prismarine_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "east",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "west",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "south",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_brick_stairs",
+   "Properties": {
+    "waterlogged": "false",
+    "half": "bottom",
+    "facing": "north",
+    "shape": "straight"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_brick_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:prismarine_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:diorite_wall",
+   "Properties": {
+    "waterlogged": "false",
+    "up": "true",
+    "west": "none",
+    "east": "none",
+    "south": "none",
+    "north": "none"
+   }
+  },
+  {
+   "Name": "minecraft:red_concrete"
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "none",
+    "north": "low",
+    "south": "none",
+    "up": "true",
+    "waterlogged": "true",
+    "west": "none"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "none",
+    "north": "none",
+    "south": "none",
+    "up": "true",
+    "waterlogged": "true",
+    "west": "none"
+   }
+  },
+  {
+   "Name": "minecraft:tall_seagrass",
+   "Properties": {
+    "half": "lower"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_slab",
+   "Properties": {
+    "type": "bottom",
+    "waterlogged": "true"
+   }
+  },
+  {
+   "Name": "minecraft:tall_seagrass",
+   "Properties": {
+    "half": "upper"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_wall",
+   "Properties": {
+    "east": "none",
+    "north": "none",
+    "south": "none",
+    "up": "true",
+    "waterlogged": "true",
+    "west": "low"
+   }
+  },
+  {
+   "Name": "minecraft:green_stained_glass_pane",
+   "Properties": {
+    "east": "false",
+    "north": "false",
+    "south": "false",
+    "waterlogged": "false",
+    "west": "false"
+   }
+  },
+  {
+   "Name": "minecraft:big_dripleaf_stem",
+   "Properties": {
+    "facing": "east",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:lily_pad"
+  },
+  {
+   "Name": "minecraft:cobblestone_stairs",
+   "Properties": {
+    "facing": "south",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:spruce_sign",
+   "Properties": {
+    "rotation": "12",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_stairs",
+   "Properties": {
+    "facing": "east",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:water",
+   "Properties": {
+    "level": "2"
+   }
+  },
+  {
+   "Name": "minecraft:cobblestone_stairs",
+   "Properties": {
+    "facing": "west",
+    "half": "bottom",
+    "shape": "straight",
+    "waterlogged": "true"
+   }
+  },
+  {
+   "Name": "minecraft:water",
+   "Properties": {
+    "level": "1"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines",
+   "Properties": {
+    "age": "19",
+    "berries": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines",
+   "Properties": {
+    "age": "21",
+    "berries": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines",
+   "Properties": {
+    "age": "2",
+    "berries": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines",
+   "Properties": {
+    "age": "5",
+    "berries": "true"
+   }
+  },
+  {
+   "Name": "minecraft:azalea_leaves",
+   "Properties": {
+    "distance": "6",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines",
+   "Properties": {
+    "age": "0",
+    "berries": "false"
+   }
+  },
+  {
+   "Name": "minecraft:flowering_azalea_leaves",
+   "Properties": {
+    "distance": "6",
+    "persistent": "true",
+    "waterlogged": "false"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines_plant",
+   "Properties": {
+    "berries": "true"
+   }
+  },
+  {
+   "Name": "minecraft:cave_vines_plant",
+   "Properties": {
+    "berries": "false"
+   }
+  }
+ ]
+}
