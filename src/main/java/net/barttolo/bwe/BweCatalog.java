@@ -32,7 +32,7 @@ public final class BweCatalog {
     public static List<Entry> entries() {
         if(catalog!=null) return catalog;
         try { bootstrap(); } catch(IOException error) { problem=error.getMessage();catalog=List.of();return catalog; }
-        try(var reader=Files.newBufferedReader(folder().resolve("catalogo.json"))) {
+        try(var reader=Files.newBufferedReader(folder().resolve("catalogo-iv-v1.json"))) {
             JsonObject root=JsonParser.parseReader(reader).getAsJsonObject();
             ArrayList<Entry> result=new ArrayList<>();
             for(var item:root.getAsJsonArray("entries")) {
@@ -54,7 +54,7 @@ public final class BweCatalog {
     /** Private deliverable may carry the exact user-provided archives as passive resources. */
     private static void bootstrap() throws IOException {
         Files.createDirectories(folder());
-        for(String name:List.of("ctov.jar","explorify.jar","catalogo.json")) {
+        for(String name:List.of("ctov.jar","explorify.jar","integrated_villages.jar","catalogo-iv-v1.json")) {
             Path target=folder().resolve(name);
             if(Files.exists(target))continue;
             try(InputStream input=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/"+name)) {
@@ -69,7 +69,7 @@ public final class BweCatalog {
         if(key==null)throw new IOException("ID invalido: "+id);
         Path archive=folder().resolve(key.getNamespace()+".jar");
         StructureTemplate result;
-        if(Files.isRegularFile(archive) && Set.of("ctov","explorify").contains(key.getNamespace())) {
+        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages").contains(key.getNamespace())) {
             try(ZipFile zip=new ZipFile(archive.toFile())) {
                 String base="data/"+key.getNamespace()+"/";
                 var entry=zip.getEntry(base+"structures/"+key.getPath()+".nbt");
@@ -77,6 +77,10 @@ public final class BweCatalog {
                 if(entry==null)throw new IOException("Plantilla no encontrada: "+id);
                 try(InputStream input=zip.getInputStream(entry)) {
                     CompoundTag tag=NbtIo.readCompressed(input);
+                    TreeSet<String> missing=new TreeSet<>();
+                    ListTag palette=tag.getList("palette",Tag.TAG_COMPOUND);
+                    for(Tag raw:palette){String block=((CompoundTag)raw).getString("Name");ResourceLocation bid=ResourceLocation.tryParse(block);if(bid==null||!BuiltInRegistries.BLOCK.containsKey(bid))missing.add(block);}
+                    if(!missing.isEmpty())throw new IOException("Faltan bloques requeridos por esta aldea: "+String.join(", ",missing.stream().limit(6).toList())+". Instala sus mods antes de construir; terreno intacto.");
                     result=new StructureTemplate();result.load(BuiltInRegistries.BLOCK.asLookup(),tag);
                 }
             }
@@ -127,7 +131,7 @@ public final class BweCatalog {
                 if(state.is(Blocks.STRUCTURE_BLOCK)||state.is(Blocks.STRUCTURE_VOID))continue;
                 BlockPos pos=rotate(c.x(),c.y(),c.z(),p.rotation()).offset(p.x(),p.y(),p.z());
                 if(pos.getX()<0||pos.getX()>=entry.sizeX()||pos.getY()<0||pos.getY()>=entry.sizeY()||pos.getZ()<0||pos.getZ()>=entry.sizeZ())
-                    throw new IOException("Plan fuera de limites en "+entry.id()+": "+pos);
+                    { if(state.isAir())continue;throw new IOException("Plan fuera de limites en "+entry.id()+": "+pos); }
                 if(npcPool.startsWith("minecraft:village/")&&npcPool.endsWith("/villagers")) {
                     CompoundTag villager=new CompoundTag();villager.putString("id","minecraft:villager");
                     entities.add(new Spawn(villager,pos.getX()+0.5,pos.getY()+1.0,pos.getZ()+0.5,0));
@@ -151,3 +155,4 @@ public final class BweCatalog {
         return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports));
     }
 }
+
