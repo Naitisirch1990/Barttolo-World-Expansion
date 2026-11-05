@@ -84,12 +84,10 @@ public final class SurfaceBuilder {
             j.world.setBlock(at,state,FLAGS);
         }
     }
+    private static int baseBottom(Job j){return Math.max(j.world.getMinBuildHeight(),Math.min(j.walkY,j.origin.getY())-8);}
     private static void requireSupport(Job j,int x,int top,int z){
-        for(int y=top;y>=Math.max(j.world.getMinBuildHeight(),top-63);y--){
-            var state=j.world.getBlockState(new BlockPos(x,y,z));
-            if(!state.isAir()&&state.getFluidState().isEmpty()&&!state.canBeReplaced())return;
-        }
-        throw new IllegalArgumentException("Validacion previa: no hay soporte a menos de 64 bloques en X="+x+" Z="+z+". No se ha modificado el terreno; elige una zona apoyada sobre suelo");
+        if(x<j.x0||x>j.x1||z<j.z0||z>j.z1||top<j.world.getMinBuildHeight()||top>=j.world.getMaxBuildHeight())
+            throw new IllegalArgumentException("La base calculada queda fuera del area o de la altura del mundo; no se ha modificado el terreno");
     }
     public static void tick(){
         Job j=active;if(j==null)return;
@@ -119,7 +117,7 @@ public final class SurfaceBuilder {
                 }else if(j.stage==Stage.CIMENTACION){
                     if(j.x>j.x1){j.stage=Stage.APOYOS;j.cursor=0;j.y=Integer.MIN_VALUE;continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=j.walkY-1;
-                    if(j.y<Math.max(j.world.getMinBuildHeight(),j.walkY-64))throw new IllegalArgumentException("No hay soporte: elige un terreno mas bajo");
+                    if(j.y<baseBottom(j)){j.column();continue;}
                     BlockPos at=new BlockPos(j.x,j.y,j.z);var old=j.world.getBlockState(at);
                     boolean support=!old.isAir()&&old.getFluidState().isEmpty()&&!old.canBeReplaced();
                     if(j.y==j.walkY-1||!support)set(j,at,(j.y==j.walkY-1?Blocks.GRASS_BLOCK:j.y>=j.walkY-3?Blocks.DIRT:Blocks.STONE).defaultBlockState());
@@ -128,8 +126,7 @@ public final class SurfaceBuilder {
                     if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.CONSTRUCCION;j.cursor=0;continue;}
                     BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor));
                     if(j.y==Integer.MIN_VALUE)j.y=floor.getY()-1;
-                    if(j.y<j.world.getMinBuildHeight() || j.y<floor.getY()-64)
-                        throw new IllegalArgumentException("No hay apoyo bajo una pieza elevada");
+                    if(j.y<baseBottom(j)){j.cursor++;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos at=new BlockPos(floor.getX(),j.y,floor.getZ());var old=j.world.getBlockState(at);
                     if(!old.isAir()&&old.getFluidState().isEmpty()&&!old.canBeReplaced()) {j.cursor++;j.y=Integer.MIN_VALUE;}
                     else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
