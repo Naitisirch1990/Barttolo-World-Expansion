@@ -32,7 +32,7 @@ public final class BweCatalog {
     public static List<Entry> entries() {
         if(catalog!=null) return catalog;
         try { bootstrap(); } catch(IOException error) { problem=error.getMessage();catalog=List.of();return catalog; }
-        try(var reader=Files.newBufferedReader(folder().resolve("catalogo-iv-v1.json"))) {
+        try(var reader=Files.newBufferedReader(folder().resolve("catalogo-iv-v2.json"))) {
             JsonObject root=JsonParser.parseReader(reader).getAsJsonObject();
             ArrayList<Entry> result=new ArrayList<>();
             for(var item:root.getAsJsonArray("entries")) {
@@ -54,7 +54,7 @@ public final class BweCatalog {
     /** Private deliverable may carry the exact user-provided archives as passive resources. */
     private static void bootstrap() throws IOException {
         Files.createDirectories(folder());
-        for(String name:List.of("ctov.jar","explorify.jar","integrated_villages.jar","catalogo-iv-v1.json")) {
+        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json")) {
             Path target=folder().resolve(name);
             if(Files.exists(target))continue;
             try(InputStream input=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/"+name)) {
@@ -67,7 +67,7 @@ public final class BweCatalog {
         StructureTemplate cached=CACHE.get(id);if(cached!=null)return cached;
         ResourceLocation key=ResourceLocation.tryParse(id);
         if(key==null)throw new IOException("ID invalido: "+id);
-        Path archive=folder().resolve(key.getNamespace()+".jar");
+        Path archive=folder().resolve(key.getNamespace().equals("integrated_villages")?"integrated_vanilla.jar":key.getNamespace()+".jar");
         StructureTemplate result;
         if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages").contains(key.getNamespace())) {
             try(ZipFile zip=new ZipFile(archive.toFile())) {
