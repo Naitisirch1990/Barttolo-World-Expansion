@@ -117,7 +117,7 @@ public final class BweCatalog {
         Rotation[] rotations={Rotation.NONE,Rotation.CLOCKWISE_90,Rotation.CLOCKWISE_180,Rotation.COUNTERCLOCKWISE_90};
         for(Piece p:entry.pieces()) {
             StructureTemplate template=template(world,p.template());
-            var blueprint=TemplateNbtPiece.read(template);
+            var blueprint=TemplateNbtPiece.readForConstruction(template);
             CompoundTag saved=template.save(new CompoundTag());Map<Long,CompoundTag> metadata=new HashMap<>();
             for(Tag raw:saved.getList("blocks",Tag.TAG_COMPOUND)) {
                 CompoundTag b=(CompoundTag)raw;ListTag pos=b.getList("pos",Tag.TAG_INT);
