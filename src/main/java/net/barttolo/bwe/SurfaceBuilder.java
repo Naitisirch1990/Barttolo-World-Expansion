@@ -19,11 +19,12 @@ public final class SurfaceBuilder {
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
         final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
-        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;
+        int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;final List<BlockPos> chests;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;
             origin=new BlockPos(center.getX()-e.sizeX()/2,ground-1-b.surfaceY(),center.getZ()-e.sizeZ()/2);
             lootTables=BweLootr.available()?BweLootr.tables(w):List.of();
+            chests=b.cells().stream().filter(c->c.state().is(Blocks.CHEST)||c.state().is(Blocks.TRAPPED_CHEST)).map(c->origin.offset(c.pos())).toList();
             x0=origin.getX()-margin;z0=origin.getZ()-margin;x1=origin.getX()+e.sizeX()-1+margin;z1=origin.getZ()+e.sizeZ()-1+margin;
             for(var c:b.cells())if(!c.state().isAir()){
                 int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
@@ -161,9 +162,8 @@ public final class SurfaceBuilder {
                     if(cell.nbt()!=null){BlockPos at=j.origin.offset(cell.pos());var be=j.world.getBlockEntity(at);
                         if(be!=null){CompoundTag tag=cell.nbt().copy();tag.putInt("x",at.getX());tag.putInt("y",at.getY());tag.putInt("z",at.getZ());be.load(tag);be.setChanged();}}
                 }else if(j.stage==Stage.LOOTR){
-                    if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
-                    var cell=j.blueprint.cells().get(j.cursor++);
-                    if((cell.state().is(Blocks.CHEST)||cell.state().is(Blocks.TRAPPED_CHEST))&&BweLootr.convert(j.world,j.origin.offset(cell.pos()),j.lootTables,(at,state)->set(j,at,state)))j.converted++;
+                    if(j.cursor>=j.chests.size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
+                    if(BweLootr.convert(j.world,j.chests.get(j.cursor++),j.lootTables,(at,state)->set(j,at,state)))j.converted++;
                 }else if(j.stage==Stage.POBLACION){
                     if(j.cursor>=j.blueprint.entities().size()){
                         BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. "+j.converted+" cofres Lootr. /bwe deshacer restaura el terreno original.");active=null;break;}
