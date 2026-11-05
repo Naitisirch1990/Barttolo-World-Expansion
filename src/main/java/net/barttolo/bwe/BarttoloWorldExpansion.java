@@ -42,14 +42,14 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("seleccionar").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(c->select(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
-            .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: verde estructura, naranja limpieza");return 1;}))
+            .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: limite total de la obra");return 1;}))
             .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->{UUID who=id(c.getSource());Selection a=SELECTED.get(who);if(a==null)return fail(c.getSource(),"Primero selecciona una construccion");int y=IntegerArgumentType.getInteger(c,"y");if(y<sMin(c.getSource())||y>=c.getSource().getLevel().getMaxBuildHeight())return fail(c.getSource(),"Altura fuera del mundo");SELECTED.put(who,new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin()));say(c.getSource(),"Suelo terminado Y="+y);return 1;})))
             .then(Commands.literal("restaurar").executes(c->{String error=SurfaceBuilder.restoreTerrain(c.getSource().getLevel());if(error!=null)return fail(c.getSource(),error);say(c.getSource(),"Restaurando bloques originales del ultimo respaldo de esta dimension. /bwe estado");return 1;}))
             .then(Commands.literal("crear").executes(c->create(c.getSource())))
             .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
             .then(Commands.literal("deshacer").executes(c->undo(c.getSource())))
-            .then(Commands.literal("margen").executes(c->{say(c.getSource(),"Margen: "+MARGINS.getOrDefault(id(c.getSource()),5)+" bloques");return 1;})
-                .then(Commands.argument("bloques",IntegerArgumentType.integer(5,10)).executes(c->{MARGINS.put(id(c.getSource()),IntegerArgumentType.getInteger(c,"bloques"));say(c.getSource(),"Margen actualizado; selecciona la construccion otra vez");return 1;})))
+            .then(Commands.literal("margen").executes(c->{say(c.getSource(),"Margen: "+MARGINS.getOrDefault(id(c.getSource()),1)+" bloques");return 1;})
+                .then(Commands.argument("bloques",IntegerArgumentType.integer(1,1)).executes(c->{MARGINS.put(id(c.getSource()),IntegerArgumentType.getInteger(c,"bloques"));say(c.getSource(),"Margen actualizado; selecciona la construccion otra vez");return 1;})))
             .then(Commands.literal("recargar").executes(c->{if(SurfaceBuilder.busy())return fail(c.getSource(),"Espera a que termine la obra");BweCatalog.reset();return listing(c.getSource(),1);}))
             .then(Commands.literal("proteger").then(Commands.argument("radio",IntegerArgumentType.integer(1,512))
                 .executes(c->{int n=WorldData.get(c.getSource().getLevel()).protect(c.getSource().getLevel().dimension().location().toString(),c.getSource().getPlayerOrException().blockPosition(),IntegerArgumentType.getInteger(c,"radio"));say(c.getSource(),"Proteccion #"+n);return 1;})))
@@ -63,7 +63,7 @@ public final class BarttoloWorldExpansion {
     private static int fail(CommandSourceStack s,String text){s.sendFailure(Component.literal("[BWE] "+text));return 0;}
     private static int help(CommandSourceStack s){
         say(s,"En el lugar elegido: /bwe listar -> clic en una construccion -> alejarse -> /bwe crear");
-        say(s,"/bwe estado | /bwe deshacer (RETIRA, sin restaurar terreno) | /bwe margen 5");
+        say(s,"/bwe estado | /bwe deshacer (RETIRA, sin restaurar terreno) | /bwe margen 1");
         say(s,"La altura del suelo se calcula automaticamente. Se limpian bloques y entidades excepto jugadores.");
         return 1;
     }
@@ -71,9 +71,9 @@ public final class BarttoloWorldExpansion {
         var entries=BweCatalog.entries();int pages=Math.max(1,(entries.size()+5)/6);
         if(entries.isEmpty())return fail(s,BweCatalog.problem()+". Usa el JAR completo con las plantillas incluidas.");
         if(page>pages)return fail(s,"Ultima pagina: "+pages);
-        say(s,"Construcciones reales CTOV / Explorify: "+entries.size()+" | pagina "+page+"/"+pages);
+        say(s,"Aldeas Integrated Villages / estructuras secundarias: "+entries.size()+" | pagina "+page+"/"+pages);
         for(var e:entries.subList((page-1)*6,Math.min(entries.size(),page*6))){
-            Component option=Component.literal("[Ver] "+e.title()+" "+e.sizeX()+" x "+e.sizeZ()+" ")
+            Component option=Component.literal("[Ver] "+e.title()+" "+(e.sizeX()+2)+" x "+(e.sizeZ()+2)+" total ")
                 .withStyle(style->style.withColor(ChatFormatting.AQUA)
                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe vista "+e.id()))
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,Component.literal("Abrir esquema de la construccion"))))
@@ -97,13 +97,13 @@ public final class BarttoloWorldExpansion {
         if(SurfaceBuilder.busy()||BuildEngine.busy())return fail(s,"Espera a que termine la obra");
         var e=BweCatalog.find(name.trim());if(e==null)return fail(s,"Construccion no encontrada. /bwe listar");
         UUID player=id(s);BlockPos center=SITES.getOrDefault(player,s.getPlayerOrException().blockPosition());
-        int margin=MARGINS.getOrDefault(player,5);
+        int margin=MARGINS.getOrDefault(player,1);
         try{
             int ground=SurfaceBuilder.ground(s.getLevel(),center,e,margin);
             SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin));HIDDEN_BORDERS.remove(player);
-            say(s,"Borde VERDE: construccion. NARANJA: zona de limpieza. /bwe borde para ocultar o mostrar.");
+            say(s,"Borde VERDE: limite total, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
             say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | suelo Y="+(ground-1));
-            say(s,"Se limpiaran "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques incluyendo margen. Alejate horizontalmente y usa /bwe crear.");return 1;
+            say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. Limpieza ajustada a edificios y caminos. Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
     }
     private static int create(CommandSourceStack s)throws CommandSyntaxException{
@@ -124,16 +124,8 @@ public final class BarttoloWorldExpansion {
             if(!player.serverLevel().dimension().location().toString().equals(selected.dimension()))continue;
             int x=selected.center().getX()-selected.entry().sizeX()/2;
             int z=selected.center().getZ()-selected.entry().sizeZ()/2;
-            outline(player,x,z,x+selected.entry().sizeX(),z+selected.entry().sizeZ(),selected.ground(),0.1f,1f,0.2f);
-            var world=player.serverLevel();
-            for(int dx=0;dx<=selected.entry().sizeX();dx+=12)for(int dz=0;dz<=selected.entry().sizeZ();dz+=12){
-                int px=x+dx,pz=z+dz;if(!world.hasChunk(px>>4,pz>>4))continue;
-                int top=world.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,px,pz);
-                var color=top>selected.ground()?new org.joml.Vector3f(1f,0.1f,0.1f):new org.joml.Vector3f(0.1f,0.5f,1f);
-                world.sendParticles(player,new net.minecraft.core.particles.DustParticleOptions(color,1.7f),true,px,Math.max(top,selected.ground())+0.3,pz,1,0,0,0,0);
-            }
             int margin=selected.margin();
-            outline(player,x-margin,z-margin,x+selected.entry().sizeX()+margin,z+selected.entry().sizeZ()+margin,selected.ground(),1f,0.45f,0.05f);
+            outline(player,x-margin,z-margin,x+selected.entry().sizeX()+margin,z+selected.entry().sizeZ()+margin,selected.ground(),0.1f,1f,0.2f);
         }
     }
     private static void outline(net.minecraft.server.level.ServerPlayer player,int x0,int z0,int x1,int z1,int ground,float r,float g,float b){
@@ -146,7 +138,7 @@ public final class BarttoloWorldExpansion {
         var world=player.serverLevel();
         if(!world.hasChunk(x>>4,z>>4))return;
         double y=Math.max(ground,world.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z))+0.2;
-        for(int h=0;h<=12;h+=3)world.sendParticles(player,dust,true,x,y+h,z,1,0,0,0,0);
+        world.sendParticles(player,dust,true,x,y,z,1,0,0,0,0);
     }
 
     private static int undo(CommandSourceStack s){
@@ -157,3 +149,4 @@ public final class BarttoloWorldExpansion {
         return fail(s,problem);
     }
 }
+
