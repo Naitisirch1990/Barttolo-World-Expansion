@@ -40,7 +40,12 @@ public final class TemplateNbtPiece {
 
     private TemplateNbtPiece() {}
 
-    public static Blueprint read(StructureTemplate template) {
+    public static Blueprint read(StructureTemplate template) { return read(template,MAX_BLOCKS); }
+
+    /** Construction permits larger bundled pieces; the inspection API keeps its conservative limit. */
+    public static Blueprint readForConstruction(StructureTemplate template) { return read(template,1_000_000); }
+
+    private static Blueprint read(StructureTemplate template,int blockLimit) {
         var dimensions = template.getSize();
         int width = dimensions.getX(), height = dimensions.getY(), depth = dimensions.getZ();
         if (width <= 0 || height <= 0 || depth <= 0)
@@ -52,8 +57,8 @@ public final class TemplateNbtPiece {
         if (!data.contains("blocks", Tag.TAG_LIST))
             throw new IllegalArgumentException("NBT has no blocks list");
         ListTag blocks = data.getList("blocks", Tag.TAG_COMPOUND);
-        if (blocks.size() > MAX_BLOCKS)
-            throw new IllegalArgumentException("Too many template blocks for a single piece");
+        if (blocks.size() > blockLimit)
+            throw new IllegalArgumentException("La pieza supera el limite de bloques permitido");
 
         ListTag palette;
         int variants;
@@ -130,3 +135,4 @@ public final class TemplateNbtPiece {
             jigsaws, structureBlocks, blockEntityNbt, entities, variants);
     }
 }
+
