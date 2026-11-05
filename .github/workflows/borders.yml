@@ -26,8 +26,7 @@ jobs:
         run: |
           mkdir -p src/gameTest/resources/data/bwe_regression/structures run-gametest/mods
           cp src/gameTest/resources/data/barttoloworldexpansion/structures/empty.nbt src/gameTest/resources/data/bwe_regression/structures/empty.nbt
-          curl --fail --location 'https://cdn.modrinth.com/data/EltpO5cN/versions/mWTXC1ZX/lootr-forge-1.20-0.7.35.94.jar' -o run-gametest/mods/lootr.jar
-          gradle -Dbwe.testNamespaces=bwe_regression runGameTestServer --no-daemon
+          gradle -Dbwe.testNamespaces=bwe_regression createSrgToMcp runGameTestServer --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: BWE-Bordes
