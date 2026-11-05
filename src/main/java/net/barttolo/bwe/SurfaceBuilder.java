@@ -18,7 +18,7 @@ public final class SurfaceBuilder {
     private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,POBLACION,RETIRAR }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
-        final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();
+        final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";boolean removing;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;
@@ -28,6 +28,7 @@ public final class SurfaceBuilder {
                 int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
                 for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)footprint.add(columnKey(px+dx,pz+dz));
             }
+            placementFootprint=Set.copyOf(footprint);
             Set<Long> interior=VillageFootprint.withCourtyards(footprint);footprint.addAll(interior);
             x=x0;z=z0;area=new AABB(x0,w.getMinBuildHeight(),z0,x1+1.0,w.getMaxBuildHeight(),z1+1.0);
         }
@@ -151,7 +152,7 @@ public final class SurfaceBuilder {
                     else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
                 }else if(j.stage==Stage.CONSTRUCCION){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
-                    var cell=j.blueprint.cells().get(j.cursor++);BlockPos at=j.origin.offset(cell.pos());if(!cell.state().isAir()||affected(j,at.getX(),at.getZ()))set(j,at,cell.state());
+                    var cell=j.blueprint.cells().get(j.cursor++);BlockPos at=j.origin.offset(cell.pos());if(!cell.state().isAir()||j.placementFootprint.contains(columnKey(at.getX(),at.getZ())))set(j,at,cell.state());
                 }else if(j.stage==Stage.DETALLES){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.POBLACION;j.cursor=0;continue;}
                     var cell=j.blueprint.cells().get(j.cursor++);
