@@ -32,9 +32,11 @@ public final class BweCatalog {
     public static List<Entry> entries() {
         if(catalog!=null) return catalog;
         try { bootstrap(); } catch(IOException error) { problem=error.getMessage();catalog=List.of();return catalog; }
-        try(var reader=Files.newBufferedReader(folder().resolve("catalogo-iv-v2.json"))) {
-            JsonObject root=JsonParser.parseReader(reader).getAsJsonObject();
+        try {
             ArrayList<Entry> result=new ArrayList<>();
+            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json")) {
+            Path file=folder().resolve(filename);if(!Files.isRegularFile(file))continue;
+            JsonObject root;try(var reader=Files.newBufferedReader(file)){root=JsonParser.parseReader(reader).getAsJsonObject();}
             for(var item:root.getAsJsonArray("entries")) {
                 JsonObject o=item.getAsJsonObject();ArrayList<Piece> pieces=new ArrayList<>();
                 for(var value:o.getAsJsonArray("pieces")) {
@@ -47,6 +49,7 @@ public final class BweCatalog {
                 result.add(new Entry(o.get("id").getAsString(),o.get("title").getAsString(),
                     o.get("description").getAsString(),x,y,z,o.get("ground").getAsInt(),List.copyOf(pieces)));
             }
+            }
             catalog=List.copyOf(result);
         } catch(Exception error) { problem="Falta o no se puede leer config/bwe/catalogo.json: "+error.getMessage();catalog=List.of(); }
         return catalog;
@@ -54,7 +57,7 @@ public final class BweCatalog {
     /** Private deliverable may carry the exact user-provided archives as passive resources. */
     private static void bootstrap() throws IOException {
         Files.createDirectories(folder());
-        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json")) {
+        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json")) {
             Path target=folder().resolve(name);
             if(Files.exists(target))continue;
             try(InputStream input=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/"+name)) {
@@ -62,6 +65,7 @@ public final class BweCatalog {
             }
         }
     }
+    public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village"); }
     public static Entry find(String id) { return entries().stream().filter(e -> e.id().equals(id)).findFirst().orElse(null); }
     private static StructureTemplate template(ServerLevel world,String id) throws IOException {
         StructureTemplate cached=CACHE.get(id);if(cached!=null)return cached;
@@ -69,7 +73,7 @@ public final class BweCatalog {
         if(key==null)throw new IOException("ID invalido: "+id);
         Path archive=folder().resolve(key.getNamespace().equals("integrated_villages")?"integrated_vanilla.jar":key.getNamespace()+".jar");
         StructureTemplate result;
-        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages").contains(key.getNamespace())) {
+        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra").contains(key.getNamespace())) {
             try(ZipFile zip=new ZipFile(archive.toFile())) {
                 String base="data/"+key.getNamespace()+"/";
                 var entry=zip.getEntry(base+"structures/"+key.getPath()+".nbt");
