@@ -65,7 +65,8 @@ public final class SurfaceBuilder {
                 for(int y=high;y>=low;y--){
                     BlockPos at=new BlockPos(x,y,z);
                     if(world.getBlockState(at).is(Blocks.WATER)&&world.getFluidState(at).isSource()
-                        &&!world.getFluidState(at.above()).is(net.minecraft.tags.FluidTags.WATER)){
+                        &&!world.getFluidState(at.above()).is(net.minecraft.tags.FluidTags.WATER)
+                        &&(world.getBlockState(at.above()).isAir()||world.getBlockState(at.above()).canBeReplaced())){
                         levels.merge(y,1,Integer::sum);break;
                     }
                 }
