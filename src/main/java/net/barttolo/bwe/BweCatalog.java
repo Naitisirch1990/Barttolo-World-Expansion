@@ -22,7 +22,7 @@ public final class BweCatalog {
                         int ground,List<Piece> pieces) {}
     public record Cell(BlockPos pos,BlockState state,CompoundTag nbt) {}
     public record Spawn(CompoundTag nbt,double x,double y,double z,float yaw) {}
-    public record Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports) {}
+    public record Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports,int surfaceY) {}
     private static final Map<String,StructureTemplate> CACHE=new HashMap<>();
     private static List<Entry> catalog;
     private static String problem="";
@@ -114,8 +114,11 @@ public final class BweCatalog {
     }
     public static Blueprint compose(ServerLevel world,Entry entry) throws IOException {
         LinkedHashMap<Long,Cell> cells=new LinkedHashMap<>();ArrayList<Spawn> entities=new ArrayList<>();Set<BlockPos> supports=new HashSet<>();
+        Map<Integer,Integer> roadHeights=new TreeMap<>();
         Rotation[] rotations={Rotation.NONE,Rotation.CLOCKWISE_90,Rotation.CLOCKWISE_180,Rotation.COUNTERCLOCKWISE_90};
         for(Piece p:entry.pieces()) {
+            boolean road=!entry.id().contains("airship_village")&&(p.template().contains("/path/")||p.template().contains("/roads/")||p.template().contains("/docks/"));
+            Map<Long,Integer> roadColumns=new HashMap<>();
             StructureTemplate template=template(world,p.template());
             var blueprint=TemplateNbtPiece.readForConstruction(template);
             CompoundTag saved=template.save(new CompoundTag());Map<Long,CompoundTag> metadata=new HashMap<>();
@@ -132,6 +135,10 @@ public final class BweCatalog {
                 BlockPos pos=rotate(c.x(),c.y(),c.z(),p.rotation()).offset(p.x(),p.y(),p.z());
                 if(pos.getX()<0||pos.getX()>=entry.sizeX()||pos.getY()<0||pos.getY()>=entry.sizeY()||pos.getZ()<0||pos.getZ()>=entry.sizeZ())
                     { if(state.isAir())continue;throw new IOException("Plan fuera de limites en "+entry.id()+": "+pos); }
+                if(road&&Math.abs(pos.getY()-(entry.ground()-1))<=3&&!state.isAir()&&!state.hasBlockEntity()&&state.getFluidState().isEmpty()
+                    &&!state.is(net.minecraft.tags.BlockTags.LEAVES)&&!state.is(net.minecraft.tags.BlockTags.LOGS)
+                    &&(state.is(Blocks.DIRT_PATH)||state.isSolidRender(world,BlockPos.ZERO)))
+                    roadColumns.merge(((long)pos.getX()<<32)^(pos.getZ()&0xffffffffL),pos.getY(),Math::max);
                 if(npcPool.startsWith("minecraft:village/")&&npcPool.endsWith("/villagers")) {
                     CompoundTag villager=new CompoundTag();villager.putString("id","minecraft:villager");
                     entities.add(new Spawn(villager,pos.getX()+0.5,pos.getY()+1.0,pos.getZ()+0.5,0));
@@ -142,6 +149,7 @@ public final class BweCatalog {
                 cells.put(pos.asLong(),new Cell(pos,state.rotate(rotations[Math.floorMod(p.rotation(),4)]),data==null?null:data.copy()));
                 if(cells.size()>1_000_000)throw new IOException("Demasiados bloques en una construccion");
             }
+            for(int height:roadColumns.values())roadHeights.merge(height,1,Integer::sum);
             for(Tag raw:saved.getList("entities",Tag.TAG_COMPOUND)) {
                 CompoundTag e=(CompoundTag)raw;ListTag pos=e.getList("pos",Tag.TAG_DOUBLE);
                 double x=pos.getDouble(0),y=pos.getDouble(1),z=pos.getDouble(2);
@@ -152,7 +160,9 @@ public final class BweCatalog {
         }
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
         sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()?0:1).thenComparingInt(c -> c.pos().getY()));
-        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports));
+        int surface=entry.ground()-1,best=0;
+        for(var h:roadHeights.entrySet())if(h.getValue()>best){surface=h.getKey();best=h.getValue();}
+        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surface);
     }
 }
 
