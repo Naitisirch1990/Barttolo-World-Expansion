@@ -43,7 +43,7 @@ public final class BarttoloWorldExpansion {
                 .executes(c->select(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
             .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: limite total de la obra");return 1;}))
-            .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->{UUID who=id(c.getSource());Selection a=SELECTED.get(who);if(a==null)return fail(c.getSource(),"Primero selecciona una construccion");int y=IntegerArgumentType.getInteger(c,"y");if(y<sMin(c.getSource())||y>=c.getSource().getLevel().getMaxBuildHeight())return fail(c.getSource(),"Altura fuera del mundo");SELECTED.put(who,new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin()));say(c.getSource(),"Suelo terminado Y="+y);return 1;})))
+            .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->{UUID who=id(c.getSource());Selection a=SELECTED.get(who);if(a==null)return fail(c.getSource(),"Primero selecciona una construccion");int y=IntegerArgumentType.getInteger(c,"y");if(y<sMin(c.getSource())||y>=c.getSource().getLevel().getMaxBuildHeight())return fail(c.getSource(),"Altura fuera del mundo");SELECTED.put(who,new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin()));say(c.getSource(),(BweCatalog.airship(a.entry())?"Base del dirigible Y=":"Suelo terminado Y=")+y);return 1;})))
             .then(Commands.literal("restaurar").executes(c->{String error=SurfaceBuilder.restoreTerrain(c.getSource().getLevel(),id(c.getSource()));if(error!=null)return fail(c.getSource(),error);say(c.getSource(),"Restaurando bloques originales del ultimo respaldo de esta dimension. /bwe estado");return 1;}))
             .then(Commands.literal("crear").executes(c->create(c.getSource())))
             .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
@@ -102,8 +102,8 @@ public final class BarttoloWorldExpansion {
             int ground=SurfaceBuilder.ground(s.getLevel(),center,e,margin);
             SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin));HIDDEN_BORDERS.remove(player);
             say(s,"Borde VERDE: limite total, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
-            say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | suelo Y="+(ground-1));
-            say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. Limpieza ajustada a edificios y caminos. Alejate horizontalmente y usa /bwe crear.");return 1;
+            say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+(BweCatalog.airship(e)?"base aerea Y=":"suelo Y=")+(ground-1));
+            say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
     }
     private static int create(CommandSourceStack s)throws CommandSyntaxException{
@@ -112,7 +112,7 @@ public final class BarttoloWorldExpansion {
         if(!selected.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
         String problem=SurfaceBuilder.start(s.getLevel(),selected.entry(),selected.center(),selected.ground(),selected.margin(),player);
         if(problem!=null)return fail(s,problem);
-        SELECTED.remove(player);SITES.remove(player);say(s,"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
+        SELECTED.remove(player);SITES.remove(player);say(s,BweCatalog.airship(selected.entry())?"Obra aerea iniciada: despejar aire y colocar dirigibles, sin cimentacion. /bwe estado":"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
     }
 
     private static void drawBorders(net.minecraft.server.MinecraftServer server){
