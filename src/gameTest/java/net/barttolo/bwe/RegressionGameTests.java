@@ -54,6 +54,16 @@ public final class RegressionGameTests {
   h.assertTrue(converted,"Lootr conversion failed");var nativeChest=w.getBlockEntity(chest);var nbt=nativeChest.saveWithFullMetadata();
   h.assertTrue(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(w.getBlockState(chest).getBlock()).toString().equals("lootr:lootr_chest"),"Not a native Lootr chest");
   h.assertTrue(tables.stream().anyMatch(id->id.toString().equals(nbt.getString("LootTable"))),"Lootr table was not persisted");
+  lootRegression(h,chest);
+  BlockPos barrel=h.absolutePos(new BlockPos(2,2,2));
+  w.setBlock(barrel,Blocks.BARREL.defaultBlockState().setValue(BarrelBlock.FACING,net.minecraft.core.Direction.UP),50);
+  var oldBarrel=(net.minecraft.world.level.block.entity.BarrelBlockEntity)w.getBlockEntity(barrel);oldBarrel.setItem(0,new ItemStack(Items.EMERALD,9));oldBarrel.setCustomName(net.minecraft.network.chat.Component.literal("Suministros"));
+  h.assertTrue(BweLootr.convertible(w.getBlockState(barrel)),"Construction does not select barrels");
+  h.assertTrue(BweLootr.convert(w,barrel,tables,(p,state)->{try{BweBackup.capture(w,p);}catch(IOException e){throw new RuntimeException(e);}w.removeBlockEntity(p);w.setBlock(p,state,50);}),"Barrel conversion failed");
+  h.assertTrue(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(w.getBlockState(barrel).getBlock()).toString().equals("lootr:lootr_barrel"),"Not a native Lootr barrel");
+  h.assertTrue(w.getBlockState(barrel).getValue(BarrelBlock.FACING)==net.minecraft.core.Direction.UP,"Barrel rotation lost");
+  h.assertTrue(((net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity)w.getBlockEntity(barrel)).getDisplayName().getString().equals("Suministros"),"Barrel custom name lost");
+  lootRegression(h,barrel);
   var pig=EntityType.PIG.create(w);pig.moveTo(at.getX()+0.5,at.getY()+1,at.getZ()+0.5,0,0);BweBackup.recordEntity(pig);w.addFreshEntity(pig);
   BweBackup.close();h.assertTrue(BweBackup.restore(w)==null,"Cannot reopen persistent journal");
   h.runAfterDelay(1,new Runnable(){int phase;
@@ -62,6 +72,7 @@ public final class RegressionGameTests {
     if(BweBackup.restoring()){h.runAfterDelay(1,()->this.run());return;}
     if(phase==0){
      h.assertTrue(w.getBlockState(at).is(Blocks.STONE),"Original terrain not restored");h.assertTrue(w.getBlockState(chest).is(Blocks.CHEST),"Original chest block not restored");
+     h.assertTrue(w.getBlockState(barrel).is(Blocks.BARREL)&&((net.minecraft.world.Container)w.getBlockEntity(barrel)).getItem(0).getCount()==9,"Original barrel/inventory not restored");
      var restored=(ChestBlockEntity)w.getBlockEntity(chest);h.assertTrue(restored.getItem(0).is(Items.DIAMOND)&&restored.getItem(0).getCount()==7,"Original chest inventory lost");h.assertTrue(pig.isRemoved(),"Created population was not removed");
      BweBackup.begin(w);BweBackup.capture(w,at);w.setBlock(at,Blocks.GOLD_BLOCK.defaultBlockState(),50);BweBackup.close();
      Path journal=server.getWorldPath(LevelResource.ROOT).resolve("bwe-backups").resolve(w.dimension().location().toString().replace(':','_').replace('/','_')+".nbtlog");Files.write(journal,new byte[]{10},StandardOpenOption.APPEND);
@@ -188,9 +199,38 @@ public final class RegressionGameTests {
      h.assertTrue(w.getBlockState(origin.offset(4,0,3)).is(Blocks.STONE_BRICKS),"Basement floor changed");
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Padding undo rejected");phase=10;h.runAfterDelay(1,()->this.run());return;
     }
-    System.out.println("[BWE-REGRESSION] PASS rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
+    System.out.println("[BWE-REGRESSION] PASS native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void lootRegression(GameTestHelper h,BlockPos pos)throws Exception{
+  var w=h.getLevel();var be=w.getBlockEntity(pos);var nbt=be.saveWithFullMetadata();be.load(nbt);
+  h.assertTrue(nbt.getString("LootTable").equals(BweLootr.SUPPLY.toString()),"Supply table not persisted");
+  var a=net.minecraftforge.common.util.FakePlayerFactory.get(w,new com.mojang.authlib.GameProfile(UUID.randomUUID(),"LootPlayerA"));
+  var b=net.minecraftforge.common.util.FakePlayerFactory.get(w,new com.mojang.authlib.GameProfile(UUID.randomUUID(),"LootPlayerB"));
+  var first=lootrInventory(w,be,a);h.assertTrue(!first.isEmpty(),"First native Lootr inventory empty");first.clearContent();
+  var second=lootrInventory(w,be,b);h.assertTrue(!second.isEmpty(),"Second player did not get independent loot");
+  h.assertTrue(lootrInventory(w,be,a).isEmpty(),"Reopening refilled consumed personal inventory");
+  var params=new net.minecraft.world.level.storage.loot.LootParams.Builder(w).withParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.ORIGIN,net.minecraft.world.phys.Vec3.atCenterOf(pos)).create(net.minecraft.world.level.storage.loot.parameters.LootContextParamSets.CHEST);
+  var table=w.getServer().getLootData().getLootTable(BweLootr.SUPPLY);boolean bonus=false;
+  var empty=new net.minecraft.resources.ResourceLocation("bwe_regression","chests/empty_source");
+  h.assertTrue(BweLootr.sources(w).contains(empty),"Empty modded regression source not loaded");
+  h.assertTrue(w.getServer().getLootData().getLootTable(empty).getRandomItems(params,1).isEmpty(),"Empty source is not empty");
+  for(int seed=1;seed<=256;seed++){var items=table.getRandomItems(params,seed);h.assertTrue(items.stream().anyMatch(i->!i.isEmpty()),"Supply table generated empty loot");if(items.stream().anyMatch(i->i.is(Items.NETHER_STAR)))bonus=true;}
+  h.assertTrue(bonus,"Modded source rewards were discarded");
+ }
+ private static net.minecraft.world.Container lootrInventory(net.minecraft.server.level.ServerLevel w,net.minecraft.world.level.block.entity.BlockEntity be,net.minecraft.server.level.ServerPlayer player)throws Exception{
+  Class<?> filler=Class.forName("noobanidus.mods.lootr.api.LootFiller");
+  var unpack=be.getClass().getMethod("unpackLootTable",net.minecraft.world.entity.player.Player.class,net.minecraft.world.Container.class,net.minecraft.resources.ResourceLocation.class,long.class);
+  Object callback=java.lang.reflect.Proxy.newProxyInstance(filler.getClassLoader(),new Class[]{filler},(proxy,method,args)->{
+   net.minecraft.world.Container inventory=null;net.minecraft.resources.ResourceLocation table=null;net.minecraft.world.entity.player.Player who=null;long seed=Long.MIN_VALUE;
+   for(Object arg:args){if(arg instanceof net.minecraft.world.Container c)inventory=c;else if(arg instanceof net.minecraft.resources.ResourceLocation id)table=id;else if(arg instanceof net.minecraft.world.entity.player.Player p)who=p;else if(arg instanceof Long n)seed=n;}
+   unpack.invoke(be,who,inventory,table,seed);return null;
+  });
+  UUID id=(UUID)be.getClass().getMethod("getTileId").invoke(be);
+  for(var method:Class.forName("noobanidus.mods.lootr.data.DataStorage").getMethods())if(method.getName().equals("getInventory")&&method.getParameterCount()==6&&method.getParameterTypes()[1]==UUID.class&&method.getParameterTypes()[5]==filler)
+   return (net.minecraft.world.Container)method.invoke(null,w,id,be.getBlockPos(),player,be,callback);
+  throw new IllegalStateException("Native Lootr inventory API unavailable");
  }
  private static void rotationAndOutline(GameTestHelper h,BweCatalog.Entry original,BweCatalog.Blueprint plan){
   h.assertTrue(original.title().startsWith("BV"),"Existing catalogue did not abbreviate title");
