@@ -19,7 +19,9 @@ import java.util.*;
 @Mod(BarttoloWorldExpansion.MOD_ID)
 public final class BarttoloWorldExpansion {
     public static final String MOD_ID="barttoloworldexpansion";
-    private record Selection(BweCatalog.Entry entry,BlockPos center,String dimension,int ground,int margin) {}
+    private record Selection(BweCatalog.Entry entry,BlockPos center,String dimension,int ground,int margin,BweCatalog.Blueprint blueprint) {}
+    private record ManualHeight(String dimension,int y) {}
+    private static final Map<UUID,ManualHeight> HEIGHTS=new HashMap<>();
     private static final Map<UUID,Selection> SELECTED=new HashMap<>();
     private static final Map<UUID,BlockPos> SITES=new HashMap<>();
     private static final Set<UUID> HIDDEN_BORDERS=new HashSet<>();
@@ -27,10 +29,10 @@ public final class BarttoloWorldExpansion {
     private static final Map<UUID,Integer> MARGINS=new HashMap<>();
     public BarttoloWorldExpansion(){BweNetwork.register();MinecraftForge.EVENT_BUS.register(this);}
     @SubscribeEvent public void onTick(TickEvent.ServerTickEvent event){
-        if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();if(++borderTicks%10==0)drawBorders(event.getServer());}
+        if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();if(++borderTicks%20==0)drawBorders(event.getServer());}
     }
     @SubscribeEvent public void onStopped(ServerStoppedEvent event){
-        BuildEngine.resetForShutdown();SurfaceBuilder.reset();BweCatalog.reset();SELECTED.clear();SITES.clear();MARGINS.clear();HIDDEN_BORDERS.clear();
+        BuildEngine.resetForShutdown();SurfaceBuilder.reset();BweCatalog.reset();SELECTED.clear();SITES.clear();MARGINS.clear();HIDDEN_BORDERS.clear();HEIGHTS.clear();
     }
     @SubscribeEvent public void onCommands(RegisterCommandsEvent event){
         event.getDispatcher().register(Commands.literal("bwe").requires(s->s.hasPermission(2)).executes(c->help(c.getSource()))
@@ -42,8 +44,8 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("seleccionar").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(c->select(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("escanear").executes(c->scan(c.getSource())))
-            .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: limite total de la obra");return 1;}))
-            .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->{UUID who=id(c.getSource());Selection a=SELECTED.get(who);if(a==null)return fail(c.getSource(),"Primero selecciona una construccion");int y=IntegerArgumentType.getInteger(c,"y");if(y<sMin(c.getSource())||y>=c.getSource().getLevel().getMaxBuildHeight())return fail(c.getSource(),"Altura fuera del mundo");SELECTED.put(who,new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin()));say(c.getSource(),(BweCatalog.airship(a.entry())?"Base del dirigible Y=":BweCatalog.pirate(a.entry())?"Nivel del agua Y=":"Suelo terminado Y=")+y);return 1;})))
+            .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);var player=c.getSource().getPlayerOrException();if(HIDDEN_BORDERS.contains(who))BweNetwork.clearBorder(player);else showBorder(player,SELECTED.get(who));say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: pared verde virtual de 16 bloques de alto");return 1;}))
+            .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->height(c.getSource(),IntegerArgumentType.getInteger(c,"y")))))
             .then(Commands.literal("restaurar").executes(c->{String error=SurfaceBuilder.restoreTerrain(c.getSource().getLevel(),id(c.getSource()));if(error!=null)return fail(c.getSource(),error);say(c.getSource(),"Restaurando bloques originales del ultimo respaldo de esta dimension. /bwe estado");return 1;}))
             .then(Commands.literal("crear").executes(c->create(c.getSource())))
             .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
@@ -91,7 +93,8 @@ public final class BarttoloWorldExpansion {
         BweNetwork.openPreview(s.getPlayerOrException(),e);return 1;
     }
     private static int scan(CommandSourceStack s)throws CommandSyntaxException{
-        SITES.put(id(s),s.getPlayerOrException().blockPosition());say(s,"Ubicacion guardada. /bwe listar y elige una construccion.");return 1;
+        UUID who=id(s);HEIGHTS.remove(who);SELECTED.remove(who);HIDDEN_BORDERS.remove(who);BweNetwork.clearBorder(s.getPlayerOrException());
+        SITES.put(who,s.getPlayerOrException().blockPosition());say(s,"Ubicacion guardada. /bwe listar y elige una construccion.");return 1;
     }
     private static int select(CommandSourceStack s,String name)throws CommandSyntaxException{
         if(SurfaceBuilder.busy()||BuildEngine.busy())return fail(s,"Espera a que termine la obra");
@@ -99,10 +102,13 @@ public final class BarttoloWorldExpansion {
         UUID player=id(s);BlockPos center=SITES.getOrDefault(player,s.getPlayerOrException().blockPosition());
         int margin=MARGINS.getOrDefault(player,1);
         try{
-            int ground=SurfaceBuilder.ground(s.getLevel(),center,e,margin);
-            SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin));HIDDEN_BORDERS.remove(player);
+            var plan=BweCatalog.compose(s.getLevel(),e);var manual=HEIGHTS.get(player);
+            int ground=manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?manual.y()+1:SurfaceBuilder.ground(s.getLevel(),center,e,margin);
+            String heightError=SurfaceBuilder.heightProblem(s.getLevel(),e,plan,ground);if(heightError!=null)return fail(s,heightError);
+            SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin,plan));HIDDEN_BORDERS.remove(player);showBorder(s.getPlayerOrException(),SELECTED.get(player));
             say(s,"Borde VERDE: limite total, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
-            say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+(BweCatalog.airship(e)?"base aerea Y=":BweCatalog.pirate(e)?"agua Y=":"suelo Y=")+(ground-1));
+            say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+heightLabel(e)+(ground-1)+(manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?" (altura manual conservada)":""));
+            say(s,"Referencia "+heightLabel(e)+(ground-1)+" | base del esquema Y="+SurfaceBuilder.originY(e,plan,ground));
             say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":BweCatalog.pirate(e)?"Puerto pirata: agua alrededor, sin plataforma de tierra. /bwe altura Y ajusta el agua.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
     }
@@ -110,35 +116,36 @@ public final class BarttoloWorldExpansion {
         UUID player=id(s);Selection selected=SELECTED.get(player);
         if(selected==null)return fail(s,"Primero /bwe listar y elige una construccion");
         if(!selected.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
-        String problem=SurfaceBuilder.start(s.getLevel(),selected.entry(),selected.center(),selected.ground(),selected.margin(),player);
+        String problem=SurfaceBuilder.start(s.getLevel(),selected.entry(),selected.blueprint(),selected.center(),selected.ground(),selected.margin(),player);
         if(problem!=null)return fail(s,problem);
-        SELECTED.remove(player);SITES.remove(player);say(s,BweCatalog.airship(selected.entry())?"Obra aerea iniciada: despejar aire y colocar dirigibles, sin cimentacion. /bwe estado":BweCatalog.pirate(selected.entry())?"Puerto pirata iniciado: despejar, construir y llenar el contorno de agua. /bwe estado":"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
+        SELECTED.remove(player);SITES.remove(player);HEIGHTS.remove(player);BweNetwork.clearBorder(s.getPlayerOrException());say(s,BweCatalog.airship(selected.entry())?"Obra aerea iniciada: despejar aire y colocar dirigibles, sin cimentacion. /bwe estado":BweCatalog.pirate(selected.entry())?"Puerto pirata iniciado: despejar, construir y llenar el contorno de agua. /bwe estado":"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
     }
 
+    private static String heightLabel(BweCatalog.Entry e){return BweCatalog.airship(e)?"base aerea Y=":BweCatalog.pirate(e)?"agua Y=":"suelo/camino Y=";}
+    private static int height(CommandSourceStack s,int y)throws CommandSyntaxException{
+        UUID who=id(s);Selection a=SELECTED.get(who);if(a==null)return fail(s,"Primero selecciona una construccion");
+        if(!a.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
+        if(y<sMin(s)||y>=s.getLevel().getMaxBuildHeight())return fail(s,"Altura fuera del mundo");
+        String problem=SurfaceBuilder.heightProblem(s.getLevel(),a.entry(),a.blueprint(),y+1);if(problem!=null)return fail(s,problem);
+        Selection next=new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin(),a.blueprint());
+        SELECTED.put(who,next);HEIGHTS.put(who,new ManualHeight(a.dimension(),y));HIDDEN_BORDERS.remove(who);showBorder(s.getPlayerOrException(),next);
+        say(s,"Altura fijada: "+heightLabel(a.entry())+y+" | base del esquema Y="+SurfaceBuilder.originY(a.entry(),a.blueprint(),y+1)+". Se conserva al cambiar de modelo; /bwe escanear inicia otra ubicacion.");return 1;
+    }
     private static void drawBorders(net.minecraft.server.MinecraftServer server){
         for(var item:SELECTED.entrySet()){
             if(HIDDEN_BORDERS.contains(item.getKey()))continue;
-            var player=server.getPlayerList().getPlayer(item.getKey());
-            if(player==null)continue;
-            var selected=item.getValue();
-            if(!player.serverLevel().dimension().location().toString().equals(selected.dimension()))continue;
-            int x=selected.center().getX()-selected.entry().sizeX()/2;
-            int z=selected.center().getZ()-selected.entry().sizeZ()/2;
-            int margin=selected.margin();
-            outline(player,x-margin,z-margin,x+selected.entry().sizeX()+margin,z+selected.entry().sizeZ()+margin,selected.ground(),0.1f,1f,0.2f);
+            var player=server.getPlayerList().getPlayer(item.getKey());if(player==null)continue;
+            if(!player.serverLevel().dimension().location().toString().equals(item.getValue().dimension()))continue;
+            showBorder(player,item.getValue());
         }
     }
-    private static void outline(net.minecraft.server.level.ServerPlayer player,int x0,int z0,int x1,int z1,int ground,float r,float g,float b){
-        var dust=new net.minecraft.core.particles.DustParticleOptions(new org.joml.Vector3f(r,g,b),1.4f);
-        for(int x=x0;x<x1;x+=2){mark(player,dust,x,z0,ground);mark(player,dust,x,z1,ground);}
-        for(int z=z0;z<z1;z+=2){mark(player,dust,x0,z,ground);mark(player,dust,x1,z,ground);}
-        mark(player,dust,x1,z1,ground);
-    }
-    private static void mark(net.minecraft.server.level.ServerPlayer player,net.minecraft.core.particles.DustParticleOptions dust,int x,int z,int ground){
-        var world=player.serverLevel();
-        if(!world.hasChunk(x>>4,z>>4))return;
-        double y=Math.max(ground,world.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z))+0.2;
-        world.sendParticles(player,dust,true,x,y,z,1,0,0,0,0);
+    private static void showBorder(net.minecraft.server.level.ServerPlayer player,Selection selected){
+        int x=selected.center().getX()-selected.entry().sizeX()/2,z=selected.center().getZ()-selected.entry().sizeZ()/2,m=selected.margin();
+        int x0=x-m,z0=z-m,x1=x+selected.entry().sizeX()+m,z1=z+selected.entry().sizeZ()+m;
+        BweNetwork.showBorder(player,x0,z0,x1,z1,selected.ground());
+        var dust=new net.minecraft.core.particles.DustParticleOptions(new org.joml.Vector3f(0.1f,1f,0.2f),2.5f);
+        for(int bx:new int[]{x0,x1})for(int bz:new int[]{z0,z1})for(int dy=0;dy<=16;dy+=4)
+            player.serverLevel().sendParticles(player,dust,true,bx+0.1,selected.ground()+dy+0.2,bz+0.1,1,0,0,0,0);
     }
 
     private static int undo(CommandSourceStack s)throws CommandSyntaxException{
