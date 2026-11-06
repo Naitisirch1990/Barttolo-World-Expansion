@@ -46,7 +46,7 @@ public final class BweCatalog {
                 int x=o.get("sizeX").getAsInt(),y=o.get("sizeY").getAsInt(),z=o.get("sizeZ").getAsInt();
                 if(x<1||z<1||y<1||x>256||z>256||y>256||pieces.size()>128)
                     throw new IllegalArgumentException("Tamano fuera del limite: "+o.get("id"));
-                result.add(new Entry(o.get("id").getAsString(),o.get("title").getAsString(),
+                result.add(new Entry(o.get("id").getAsString(),shortTitle(o.get("title").getAsString()),
                     o.get("description").getAsString(),x,y,z,o.get("ground").getAsInt(),List.copyOf(pieces)));
             }
             }
@@ -64,6 +64,35 @@ public final class BweCatalog {
                 if(input!=null)Files.copy(input,target);
             }
         }
+    }
+    /** The exact columns used by terrain preparation and by its visual preview. */
+    public static Set<Long> terrain(BweCatalog.Entry e,BweCatalog.Blueprint b,int margin){
+        Set<Long> result=new HashSet<>();
+        if(BweCatalog.airship(e)||BweCatalog.pirate(e)){
+            for(int x=-margin;x<e.sizeX()+margin;x++)for(int z=-margin;z<e.sizeZ()+margin;z++)result.add(VillageFootprint.key(x,z));
+        }else{
+            for(var c:b.cells())if(!c.state().isAir())for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
+            result=VillageFootprint.withCourtyards(result);
+        }
+        return Set.copyOf(result);
+    }
+    public static String shortTitle(String title){return title.replace("Better Village", "BV").replace("Grand Capitals", "GC");}
+    public static Entry turned(Entry e){return new Entry(e.id(),e.title(),e.description(),e.sizeZ(),e.sizeY(),e.sizeX(),e.ground(),e.pieces());}
+    /** Rotate the already selected plan, never reassemble it or resample its height. */
+    public static Blueprint turn(Entry e,Blueprint b){
+        int depth=e.sizeZ();List<Cell> cells=new ArrayList<>();List<Spawn> entities=new ArrayList<>();List<BlockPos> supports=new ArrayList<>();
+        for(var c:b.cells())cells.add(new Cell(new BlockPos(depth-1-c.pos().getZ(),c.pos().getY(),c.pos().getX()),c.state().rotate(Rotation.CLOCKWISE_90),c.nbt()==null?null:c.nbt().copy()));
+        for(var p:b.supports())supports.add(new BlockPos(depth-1-p.getZ(),p.getY(),p.getX()));
+        for(var spawn:b.entities()){
+            CompoundTag tag=spawn.nbt().copy();
+            if(biomePack(e)&&tag.contains("TileX")){
+                int x=tag.getInt("TileX"),z=tag.getInt("TileZ");tag.putInt("TileX",depth-1-z);tag.putInt("TileZ",x);
+                if(tag.getString("id").equals("minecraft:painting"))tag.putByte("facing",(byte)Math.floorMod(tag.getByte("facing")+1,4));
+                else if(tag.getString("id").endsWith("item_frame"))tag.putByte("Facing",(byte)Rotation.CLOCKWISE_90.rotate(net.minecraft.core.Direction.from3DDataValue(tag.getByte("Facing"))).get3DDataValue());
+            }
+            entities.add(new Spawn(tag,depth-spawn.z(),spawn.y(),spawn.x(),(spawn.yaw()+90)%360));
+        }
+        return new Blueprint(List.copyOf(cells),List.copyOf(entities),List.copyOf(supports),b.surfaceY());
     }
     public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:"); }
     public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village"); }
