@@ -25,7 +25,7 @@ public final class SurfaceBuilder {
             origin=new BlockPos(center.getX()-e.sizeX()/2,originY(e,b,ground),center.getZ()-e.sizeZ()/2);
             clearBottom=aerial?origin.getY()-4:aquatic?origin.getY()-2:walkY;clearTop=(aerial||aquatic)?origin.getY()+e.sizeY()+3:Math.max(origin.getY()+e.sizeY()+1,walkY+64);
             lootTables=BweLootr.available()?BweLootr.tables(w):List.of();
-            chests=b.cells().stream().filter(c->c.state().is(Blocks.CHEST)||c.state().is(Blocks.TRAPPED_CHEST)).map(c->origin.offset(c.pos())).toList();
+            chests=b.cells().stream().filter(c->BweLootr.convertible(c.state())).map(c->origin.offset(c.pos())).toList();
             x0=origin.getX()-margin;z0=origin.getZ()-margin;x1=origin.getX()+e.sizeX()-1+margin;z1=origin.getZ()+e.sizeZ()-1+margin;
             for(var c:b.cells())if(!c.state().isAir()){
                 int px=origin.getX()+c.pos().getX(),pz=origin.getZ()+c.pos().getZ();
@@ -224,7 +224,7 @@ public final class SurfaceBuilder {
                     if(BweLootr.convert(j.world,j.chests.get(j.cursor++),j.lootTables,(at,state)->set(j,at,state)))j.converted++;
                 }else if(j.stage==Stage.POBLACION){
                     if(j.cursor>=j.blueprint.entities().size()){
-                        BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. "+j.converted+" cofres Lootr. /bwe deshacer restaura el terreno original.");active=null;break;}
+                        BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. "+j.converted+" contenedores Lootr (cofres y barriles). /bwe deshacer restaura el terreno original.");active=null;break;}
                     var spawn=j.blueprint.entities().get(j.cursor++);CompoundTag tag=spawn.nbt().copy();tag.remove("UUID");
                     float yaw=tag.getList("Rotation",Tag.TAG_FLOAT).getFloat(0)+spawn.yaw();
                     if(BweCatalog.biomePack(j.entry)){
