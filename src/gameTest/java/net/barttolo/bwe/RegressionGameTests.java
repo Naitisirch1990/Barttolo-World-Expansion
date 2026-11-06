@@ -137,6 +137,7 @@ public final class RegressionGameTests {
      fake.setPos(aerialBase.getX()+0.5,aerialBase.getY()+1,aerialBase.getZ()+0.5);
      command(h,fake,"bwe escanear");command(h,fake,"bwe seleccionar test:height");command(h,fake,"bwe altura "+desired);
      command(h,fake,"bwe borde");command(h,fake,"bwe altura "+desired);command(h,fake,"bwe seleccionar test:height");
+     for(int rotation=0;rotation<4;rotation++)command(h,fake,"bwe rotar");
      command(h,fake,"bwe crear");
      var buf=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
      try{var border=new BweNetwork.Border(w.dimension().location().toString(),true,-5000,-100,5225,124,desired+1);border.encode(buf);h.assertTrue(border.equals(BweNetwork.Border.decode(buf)),"Large border packet lost coordinates or height");}finally{buf.release();}
@@ -158,13 +159,55 @@ public final class RegressionGameTests {
      Files.writeString(dir.resolve("catalogo-biomas-v1.json"),"{\"entries\":[{\"id\":\"bwe_better:test_wall\",\"title\":\"Better Village - Pradera\",\"description\":\"Pradera\",\"biome\":\"Pradera\",\"sizeX\":5,\"sizeY\":5,\"sizeZ\":5,\"ground\":1,\"pieces\":[{\"template\":\"bwe_better:test/wall\",\"x\":3,\"y\":0,\"z\":0,\"rotation\":1},{\"template\":\"bwe_better:test/air\",\"x\":0,\"y\":0,\"z\":0,\"rotation\":0}]}]}");
      BweCatalog.reset();h.assertTrue(BweCatalog.find("test:height")!=null,"New biome catalogue replaced existing entries");var entry=BweCatalog.find("bwe_better:test_wall");h.assertTrue(entry!=null,"New biome catalogue not appended");var plan=BweCatalog.compose(w,entry);
      h.assertTrue(plan.cells().stream().filter(c->!c.state().isAir()).count()==25,"New template padding erased neighbouring structure");var spawn=plan.entities().get(0);h.assertTrue(Math.abs(spawn.x()-2.03125)<0.0001,"Rotated entity centre shifted by one block");h.assertTrue(spawn.nbt().getInt("TileX")==2&&spawn.nbt().getInt("TileZ")==2&&spawn.nbt().getByte("facing")==3,"Hanging anchor or direction did not rotate");
+     rotationAndOutline(h,entry,plan);
+     entry=BweCatalog.turned(entry);plan=BweCatalog.turn(BweCatalog.find("bwe_better:test_wall"),plan);
      h.assertTrue(SurfaceBuilder.start(w,entry,plan,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Biome archive construction rejected");phase=8;h.runAfterDelay(1,()->this.run());return;
     }
-    var paintings=w.getEntitiesOfClass(net.minecraft.world.entity.decoration.Painting.class,new net.minecraft.world.phys.AABB(aerialBase).inflate(6));
-    h.assertTrue(paintings.size()==1,"Imported hanging decoration missing or duplicated");h.assertTrue(paintings.get(0).survives(),"Rotated painting detached from its wall");
-    System.out.println("[BWE-REGRESSION] PASS previous height/borders/Lootr/undo/pirate/airship checks; 35 biome layouts and native palettes; appended catalogue, overlapping padding and rotated hanging entity placement");h.succeed();
+    if(phase==8){
+     var paintings=w.getEntitiesOfClass(net.minecraft.world.entity.decoration.Painting.class,new net.minecraft.world.phys.AABB(aerialBase).inflate(6));
+     h.assertTrue(paintings.size()==1,"Imported hanging decoration missing or duplicated");h.assertTrue(paintings.get(0).survives(),"User-rotated painting detached from its wall");
+     List<BweCatalog.Cell> cells=new ArrayList<>();
+     // Air-padded road, decorative raised post, and a genuine covered underground room.
+     for(int x=0;x<7;x++)for(int z=0;z<7;z++)for(int y=0;y<5;y++){
+      var state=Blocks.AIR.defaultBlockState();
+      if(x==0&&y==2)state=Blocks.STONE_BRICKS.defaultBlockState();
+      if(x==1&&z==3&&y==4)state=Blocks.OAK_FENCE.defaultBlockState();
+      if(x>=3&&x<=5&&z>=2&&z<=4&&(y==0||y==4||x==3||x==5||z==2||z==4))state=Blocks.STONE_BRICKS.defaultBlockState();
+      cells.add(new BweCatalog.Cell(new BlockPos(x,y,z),state,null));
+     }
+     var entry=new BweCatalog.Entry("test:padding","Padding regression","",7,5,7,3,List.of());
+     var plan=new BweCatalog.Blueprint(cells,List.of(),List.of(),2);
+     h.assertTrue(SurfaceBuilder.start(w,entry,plan,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Padding build rejected");phase=9;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==9){
+     BlockPos origin=aerialBase.offset(-3,-2,-3);
+     h.assertTrue(w.getBlockState(origin.offset(0,2,2)).is(Blocks.STONE_BRICKS),"Road changed by terrain repair");
+     h.assertTrue(w.getBlockState(origin.offset(1,2,2)).is(Blocks.GRASS_BLOCK),"Air padding excavated grass beside road");
+     h.assertTrue(w.getBlockState(origin.offset(1,2,3)).is(Blocks.GRASS_BLOCK),"Air padding excavated terrain below raised decoration");
+     h.assertTrue(w.getBlockState(origin.offset(4,2,3)).isAir(),"Underground interior was filled");
+     h.assertTrue(w.getBlockState(origin.offset(4,0,3)).is(Blocks.STONE_BRICKS),"Basement floor changed");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Padding undo rejected");phase=10;h.runAfterDelay(1,()->this.run());return;
+    }
+    System.out.println("[BWE-REGRESSION] PASS rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void rotationAndOutline(GameTestHelper h,BweCatalog.Entry original,BweCatalog.Blueprint plan){
+  h.assertTrue(original.title().startsWith("BV"),"Existing catalogue did not abbreviate title");
+  h.assertTrue(BweCatalog.shortTitle("Grand Capitals - Taiga").equals("GC - Taiga"),"GC abbreviation failed");
+  var entry=original;var current=plan;
+  for(int i=0;i<4;i++){var next=BweCatalog.turn(entry,current);entry=BweCatalog.turned(entry);current=next;}
+  h.assertTrue(entry.sizeX()==original.sizeX()&&entry.sizeZ()==original.sizeZ()&&current.surfaceY()==plan.surfaceY(),"Four turns changed dimensions or height");
+  h.assertTrue(current.cells().equals(plan.cells())&&current.supports().equals(plan.supports()),"Four turns changed block states/coordinates");
+  for(int i=0;i<plan.entities().size();i++){var a=plan.entities().get(i);var b=current.entities().get(i);h.assertTrue(Math.abs(a.x()-b.x())<1e-6&&Math.abs(a.z()-b.z())<1e-6&&a.nbt().equals(b.nbt()),"Four turns changed entity or hanging anchor");}
+  var rectangular=new BweCatalog.Entry("test:rotation","","",3,4,7,2,List.of());var single=new BweCatalog.Blueprint(List.of(new BweCatalog.Cell(new BlockPos(1,2,5),Blocks.OAK_STAIRS.defaultBlockState(),null)),List.of(),List.of(),1);
+  var turned=BweCatalog.turn(rectangular,single);h.assertTrue(turned.cells().get(0).pos().equals(new BlockPos(1,2,1))&&BweCatalog.turned(rectangular).sizeX()==7,"Non-square rotation incorrect");
+  Set<Long> triangle=new HashSet<>();for(int x=0;x<8;x++)for(int z=0;z<=x;z++)triangle.add(VillageFootprint.key(x,z));
+  var edges=VillageFootprint.outline(triangle);Set<String> expected=new HashSet<>(),actual=new HashSet<>();
+  for(long k:triangle){int x=(int)(k>>32),z=(int)k;if(!triangle.contains(VillageFootprint.key(x,z-1)))expected.add("h:"+x+":"+z);if(!triangle.contains(VillageFootprint.key(x,z+1)))expected.add("h:"+x+":"+(z+1));if(!triangle.contains(VillageFootprint.key(x-1,z)))expected.add("v:"+x+":"+z);if(!triangle.contains(VillageFootprint.key(x+1,z)))expected.add("v:"+(x+1)+":"+z);}
+  for(var e:edges){if(e.z0()==e.z1())for(int x=e.x0();x<e.x1();x++)actual.add("h:"+x+":"+e.z0());else for(int z=e.z0();z<e.z1();z++)actual.add("v:"+e.x0()+":"+z);}
+  h.assertTrue(expected.equals(actual)&&edges.size()>4,"Outline lost actual terrain boundary");
+  var buf=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());try{var border=new BweNetwork.Border("minecraft:overworld",true,0,0,8,8,70,edges);border.encode(buf);h.assertTrue(border.equals(BweNetwork.Border.decode(buf)),"Irregular contour packet mismatch");}finally{buf.release();}
  }
  private static void validateBiomes(GameTestHelper h)throws Exception{
   try(var input=RegressionGameTests.class.getResourceAsStream("/biome-validation.json")){
