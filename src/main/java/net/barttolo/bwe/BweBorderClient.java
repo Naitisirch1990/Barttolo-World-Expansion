@@ -27,10 +27,11 @@ public final class BweBorderClient {
             pose.translate(-camera.x,-camera.y,-camera.z);
             var buffers=mc.renderBuffers().bufferSource();var lines=buffers.getBuffer(RenderType.lines());
             double y=b.ground()+0.15;
-            LevelRenderer.renderLineBox(pose,lines,new AABB(b.x0(),y,b.z0(),b.x1(),y+16,b.z1()),0.12f,1f,0.3f,1f);
-            for(int dy=4;dy<16;dy+=4)LevelRenderer.renderLineBox(pose,lines,new AABB(b.x0(),y+dy,b.z0(),b.x1(),y+dy,b.z1()),0.12f,1f,0.3f,1f);
-            for(int x:new int[]{b.x0(),b.x1()})for(int z:new int[]{b.z0(),b.z1()})
-                LevelRenderer.renderLineBox(pose,lines,new AABB(x-0.08,y,z-0.08,x+0.08,y+32,z+0.08),0.4f,1f,0.6f,1f);
+            for(var edge:b.edges()){
+                double x0=Math.min(edge.x0(),edge.x1()),x1=Math.max(edge.x0(),edge.x1()),z0=Math.min(edge.z0(),edge.z1()),z1=Math.max(edge.z0(),edge.z1());
+                LevelRenderer.renderLineBox(pose,lines,new AABB(x0,y,z0,x1,y+16,z1),0.12f,1f,0.3f,1f);
+                for(int dy=4;dy<16;dy+=4)LevelRenderer.renderLineBox(pose,lines,new AABB(x0,y+dy,z0,x1,y+dy,z1),0.12f,1f,0.3f,1f);
+            }
             buffers.endBatch(RenderType.lines());
         }finally{pose.popPose();}
     }
