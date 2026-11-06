@@ -223,7 +223,12 @@ public final class SurfaceBuilder {
                         BweBackup.close();say(j,"Construccion terminada: "+j.entry.title()+" | "+j.entry.sizeX()+"x"+j.entry.sizeZ()+" bloques. "+j.converted+" cofres Lootr. /bwe deshacer restaura el terreno original.");active=null;break;}
                     var spawn=j.blueprint.entities().get(j.cursor++);CompoundTag tag=spawn.nbt().copy();tag.remove("UUID");
                     float yaw=tag.getList("Rotation",Tag.TAG_FLOAT).getFloat(0)+spawn.yaw();
-                    Entity entity=EntityType.loadEntityRecursive(tag,j.world,e->{e.setUUID(UUID.randomUUID());e.moveTo(j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z(),yaw,0);return e;});
+                    if(BweCatalog.biomePack(j.entry)){
+                        ListTag position=new ListTag();for(double v:new double[]{j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z()})position.add(DoubleTag.valueOf(v));tag.put("Pos",position);
+                        ListTag rotation=new ListTag();rotation.add(FloatTag.valueOf(yaw));rotation.add(FloatTag.valueOf(0));tag.put("Rotation",rotation);
+                        if(tag.contains("TileX")){tag.putInt("TileX",tag.getInt("TileX")+j.origin.getX());tag.putInt("TileY",tag.getInt("TileY")+j.origin.getY());tag.putInt("TileZ",tag.getInt("TileZ")+j.origin.getZ());}
+                    }
+                    Entity entity=EntityType.loadEntityRecursive(tag,j.world,e->{e.setUUID(UUID.randomUUID());if(!(BweCatalog.biomePack(j.entry)&&e instanceof net.minecraft.world.entity.decoration.HangingEntity))e.moveTo(j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z(),yaw,0);return e;});
                     if(entity!=null){BweBackup.recordEntity(entity);j.world.addFreshEntityWithPassengers(entity);}
 
                 }
