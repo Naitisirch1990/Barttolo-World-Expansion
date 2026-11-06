@@ -34,7 +34,7 @@ public final class BweCatalog {
         try { bootstrap(); } catch(IOException error) { problem=error.getMessage();catalog=List.of();return catalog; }
         try {
             ArrayList<Entry> result=new ArrayList<>();
-            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json")) {
+            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json","catalogo-biomas-v1.json")) {
             Path file=folder().resolve(filename);if(!Files.isRegularFile(file))continue;
             JsonObject root;try(var reader=Files.newBufferedReader(file)){root=JsonParser.parseReader(reader).getAsJsonObject();}
             for(var item:root.getAsJsonArray("entries")) {
@@ -57,7 +57,7 @@ public final class BweCatalog {
     /** Private deliverable may carry the exact user-provided archives as passive resources. */
     private static void bootstrap() throws IOException {
         Files.createDirectories(folder());
-        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json")) {
+        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json","bwe_better.jar","bwe_capitals.jar","catalogo-biomas-v1.json")) {
             Path target=folder().resolve(name);
             if(Files.exists(target))continue;
             try(InputStream input=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/"+name)) {
@@ -65,6 +65,7 @@ public final class BweCatalog {
             }
         }
     }
+    public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:"); }
     public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village"); }
     public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village"); }
     public static Entry find(String id) { return entries().stream().filter(e -> e.id().equals(id)).findFirst().orElse(null); }
@@ -74,7 +75,7 @@ public final class BweCatalog {
         if(key==null)throw new IOException("ID invalido: "+id);
         Path archive=folder().resolve(key.getNamespace().equals("integrated_villages")?"integrated_vanilla.jar":key.getNamespace()+".jar");
         StructureTemplate result;
-        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra").contains(key.getNamespace())) {
+        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra","bwe_better","bwe_capitals").contains(key.getNamespace())) {
             try(ZipFile zip=new ZipFile(archive.toFile())) {
                 String base="data/"+key.getNamespace()+"/";
                 var entry=zip.getEntry(base+"structures/"+key.getPath()+".nbt");
@@ -122,7 +123,7 @@ public final class BweCatalog {
         Map<Integer,Integer> roadHeights=new TreeMap<>();
         Rotation[] rotations={Rotation.NONE,Rotation.CLOCKWISE_90,Rotation.CLOCKWISE_180,Rotation.COUNTERCLOCKWISE_90};
         for(Piece p:entry.pieces()) {
-            boolean road=!entry.id().contains("airship_village")&&(p.template().contains("/path/")||p.template().contains("/roads/")||p.template().contains("/docks/"));
+            boolean road=!entry.id().contains("airship_village")&&(p.template().contains("/path/")||p.template().contains("/roads/")||p.template().contains("/docks/")||p.template().contains("/streets/")||p.template().contains("/road/")||p.template().endsWith("/main_road"));
             Map<Long,Integer> roadColumns=new HashMap<>();
             StructureTemplate template=template(world,p.template());
             var blueprint=TemplateNbtPiece.readForConstruction(template);
@@ -151,6 +152,7 @@ public final class BweCatalog {
                 if(c.y()==0 && !state.isAir() && state.getFluidState().isEmpty()
                     && !state.canBeReplaced() && !state.hasBlockEntity()
                     && !state.is(net.minecraft.tags.BlockTags.LEAVES)) supports.add(pos);
+                if(biomePack(entry)&&state.isAir()&&cells.containsKey(pos.asLong())&&!cells.get(pos.asLong()).state().isAir())continue;
                 cells.put(pos.asLong(),new Cell(pos,state.rotate(rotations[Math.floorMod(p.rotation(),4)]),data==null?null:data.copy()));
                 if(cells.size()>1_000_000)throw new IOException("Demasiados bloques en una construccion");
             }
@@ -158,9 +160,17 @@ public final class BweCatalog {
             for(Tag raw:saved.getList("entities",Tag.TAG_COMPOUND)) {
                 CompoundTag e=(CompoundTag)raw;ListTag pos=e.getList("pos",Tag.TAG_DOUBLE);
                 double x=pos.getDouble(0),y=pos.getDouble(1),z=pos.getDouble(2);
-                double rx=switch(Math.floorMod(p.rotation(),4)){case 1->-z;case 2->-x;case 3->z;default->x;};
-                double rz=switch(Math.floorMod(p.rotation(),4)){case 1->x;case 2->-z;case 3->-x;default->z;};
-                entities.add(new Spawn(e.getCompound("nbt").copy(),rx+p.x(),y+p.y(),rz+p.z(),90*p.rotation()));
+                double edge=biomePack(entry)?1.0:0.0;
+                double rx=switch(Math.floorMod(p.rotation(),4)){case 1->edge-z;case 2->edge-x;case 3->z;default->x;};
+                double rz=switch(Math.floorMod(p.rotation(),4)){case 1->x;case 2->edge-z;case 3->edge-x;default->z;};
+                CompoundTag entityTag=e.getCompound("nbt").copy();
+                if(biomePack(entry)&&entityTag.contains("TileX")){
+                    BlockPos anchor=rotate(entityTag.getInt("TileX"),entityTag.getInt("TileY"),entityTag.getInt("TileZ"),p.rotation()).offset(p.x(),p.y(),p.z());
+                    entityTag.putInt("TileX",anchor.getX());entityTag.putInt("TileY",anchor.getY());entityTag.putInt("TileZ",anchor.getZ());
+                    if(entityTag.getString("id").equals("minecraft:painting"))entityTag.putByte("facing",(byte)Math.floorMod(entityTag.getByte("facing")+p.rotation(),4));
+                    else if(entityTag.getString("id").endsWith("item_frame"))entityTag.putByte("Facing",(byte)rotations[Math.floorMod(p.rotation(),4)].rotate(net.minecraft.core.Direction.from3DDataValue(entityTag.getByte("Facing"))).get3DDataValue());
+                }
+                entities.add(new Spawn(entityTag,rx+p.x(),y+p.y(),rz+p.z(),90*p.rotation()));
             }
         }
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
