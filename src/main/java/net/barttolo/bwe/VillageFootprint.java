@@ -27,4 +27,26 @@ public final class VillageFootprint {
         }
         return result;
     }
+
+    public record Edge(int x0,int z0,int x1,int z1) {}
+    /** Merge neighbouring unit edges into straight runs; no approximate bounding rectangle. */
+    public static List<Edge> outline(Set<Long> cells){
+        Map<Integer,TreeSet<Integer>> horizontal=new TreeMap<>(),vertical=new TreeMap<>();
+        for(long k:cells){int x=(int)(k>>32),z=(int)k;
+            if(!cells.contains(key(x,z-1)))horizontal.computeIfAbsent(z,n->new TreeSet<>()).add(x);
+            if(!cells.contains(key(x,z+1)))horizontal.computeIfAbsent(z+1,n->new TreeSet<>()).add(x);
+            if(!cells.contains(key(x-1,z)))vertical.computeIfAbsent(x,n->new TreeSet<>()).add(z);
+            if(!cells.contains(key(x+1,z)))vertical.computeIfAbsent(x+1,n->new TreeSet<>()).add(z);
+        }
+        List<Edge> result=new ArrayList<>();
+        for(int axis=0;axis<2;axis++)for(var line:(axis==0?horizontal:vertical).entrySet()){
+            int start=Integer.MIN_VALUE,end=0;
+            for(int at:line.getValue()){
+                if(start!=Integer.MIN_VALUE&&at!=end){result.add(axis==0?new Edge(start,line.getKey(),end,line.getKey()):new Edge(line.getKey(),start,line.getKey(),end));start=Integer.MIN_VALUE;}
+                if(start==Integer.MIN_VALUE)start=at;end=at+1;
+            }
+            if(start!=Integer.MIN_VALUE)result.add(axis==0?new Edge(start,line.getKey(),end,line.getKey()):new Edge(line.getKey(),start,line.getKey(),end));
+        }
+        return List.copyOf(result);
+    }
 }
