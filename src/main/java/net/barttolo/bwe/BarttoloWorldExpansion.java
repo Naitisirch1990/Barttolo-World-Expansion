@@ -29,7 +29,7 @@ public final class BarttoloWorldExpansion {
     private static final Set<UUID> HIDDEN_BORDERS=new HashSet<>();
     private static int borderTicks;
     private static final Map<UUID,Integer> MARGINS=new HashMap<>();
-    public BarttoloWorldExpansion(){BweNetwork.register();MinecraftForge.EVENT_BUS.register(this);}
+    public BarttoloWorldExpansion(){BweLootEntry.TYPES.register(net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext.get().getModEventBus());BweNetwork.register();MinecraftForge.EVENT_BUS.register(this);}
     @SubscribeEvent public void onTick(TickEvent.ServerTickEvent event){
         if(event.phase==TickEvent.Phase.END){BuildEngine.serverTick();SurfaceBuilder.tick();if(++borderTicks%20==0)drawBorders(event.getServer());}
     }
