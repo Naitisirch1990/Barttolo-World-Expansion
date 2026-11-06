@@ -142,11 +142,42 @@ public final class RegressionGameTests {
      try{var border=new BweNetwork.Border(w.dimension().location().toString(),true,-5000,-100,5225,124,desired+1);border.encode(buf);h.assertTrue(border.equals(BweNetwork.Border.decode(buf)),"Large border packet lost coordinates or height");}finally{buf.release();}
      phase=7;h.runAfterDelay(1,()->this.run());return;
     }
-    h.assertTrue(w.getBlockState(new BlockPos(aerialBase.getX(),desired,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Height changed after reselection; road is not at requested Y");
-    h.assertTrue(!w.getBlockState(new BlockPos(aerialBase.getX(),desired-10,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Road was buried at the scheme origin");
-    System.out.println("[BWE-REGRESSION] PASS Lootr and terrain undo, pirate and airship exceptions, exact manual road height through real commands and reselection, large border packet roundtrip");h.succeed();
+    if(phase==7){
+     h.assertTrue(w.getBlockState(new BlockPos(aerialBase.getX(),desired,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Height changed after reselection; road is not at requested Y");
+     h.assertTrue(!w.getBlockState(new BlockPos(aerialBase.getX(),desired-10,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Road was buried at the scheme origin");
+     validateBiomes(h);
+     CompoundTag wall=boat.copy();ListTag walls=new ListTag();
+     for(int x=0;x<5;x++)for(int y=0;y<5;y++){CompoundTag b=new CompoundTag();ListTag pos=new ListTag();for(int v:new int[]{x,y,2})pos.add(IntTag.valueOf(v));b.put("pos",pos);b.putInt("state",0);walls.add(b);}wall.put("blocks",walls);
+     CompoundTag painting=new CompoundTag();painting.putString("id","minecraft:painting");painting.putString("variant","minecraft:kebab");painting.putByte("facing",(byte)2);painting.putInt("TileX",2);painting.putInt("TileY",2);painting.putInt("TileZ",1);
+     ListTag paintingPos=new ListTag();for(double v:new double[]{2.5,2.5,1.96875})paintingPos.add(DoubleTag.valueOf(v));painting.put("Pos",paintingPos);ListTag paintingRotation=new ListTag();paintingRotation.add(FloatTag.valueOf(180));paintingRotation.add(FloatTag.valueOf(0));painting.put("Rotation",paintingRotation);
+     CompoundTag entityInfo=new CompoundTag();entityInfo.put("nbt",painting);entityInfo.put("pos",paintingPos);ListTag anchor=new ListTag();for(int v:new int[]{2,2,1})anchor.add(IntTag.valueOf(v));entityInfo.put("blockPos",anchor);ListTag wallEntities=new ListTag();wallEntities.add(entityInfo);wall.put("entities",wallEntities);
+     CompoundTag empty=wall.copy();ListTag emptyBlocks=new ListTag();for(int x=0;x<5;x++)for(int y=0;y<5;y++)for(int z=0;z<5;z++){CompoundTag b=new CompoundTag();ListTag pos=new ListTag();for(int v:new int[]{x,y,z})pos.add(IntTag.valueOf(v));b.put("pos",pos);b.putInt("state",1);emptyBlocks.add(b);}empty.put("blocks",emptyBlocks);empty.put("entities",new ListTag());
+     try(var zip=new ZipOutputStream(Files.newOutputStream(dir.resolve("bwe_better.jar")))){
+      for(var pair:java.util.Map.of("wall",wall,"air",empty).entrySet()){zip.putNextEntry(new ZipEntry("data/bwe_better/structures/test/"+pair.getKey()+".nbt"));ByteArrayOutputStream out=new ByteArrayOutputStream();NbtIo.writeCompressed(pair.getValue(),out);zip.write(out.toByteArray());zip.closeEntry();}
+     }
+     Files.writeString(dir.resolve("catalogo-biomas-v1.json"),"{\"entries\":[{\"id\":\"bwe_better:test_wall\",\"title\":\"Better Village - Pradera\",\"description\":\"Pradera\",\"biome\":\"Pradera\",\"sizeX\":5,\"sizeY\":5,\"sizeZ\":5,\"ground\":1,\"pieces\":[{\"template\":\"bwe_better:test/wall\",\"x\":3,\"y\":0,\"z\":0,\"rotation\":1},{\"template\":\"bwe_better:test/air\",\"x\":0,\"y\":0,\"z\":0,\"rotation\":0}]}]}");
+     BweCatalog.reset();h.assertTrue(BweCatalog.find("test:height")!=null,"New biome catalogue replaced existing entries");var entry=BweCatalog.find("bwe_better:test_wall");h.assertTrue(entry!=null,"New biome catalogue not appended");var plan=BweCatalog.compose(w,entry);
+     h.assertTrue(plan.cells().stream().filter(c->!c.state().isAir()).count()==25,"New template padding erased neighbouring structure");var spawn=plan.entities().get(0);h.assertTrue(Math.abs(spawn.x()-2.03125)<0.0001,"Rotated entity centre shifted by one block");h.assertTrue(spawn.nbt().getInt("TileX")==2&&spawn.nbt().getInt("TileZ")==2&&spawn.nbt().getByte("facing")==3,"Hanging anchor or direction did not rotate");
+     h.assertTrue(SurfaceBuilder.start(w,entry,plan,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Biome archive construction rejected");phase=8;h.runAfterDelay(1,()->this.run());return;
+    }
+    var paintings=w.getEntitiesOfClass(net.minecraft.world.entity.decoration.Painting.class,new net.minecraft.world.phys.AABB(aerialBase).inflate(6));
+    h.assertTrue(paintings.size()==1,"Imported hanging decoration missing or duplicated");h.assertTrue(paintings.get(0).survives(),"Rotated painting detached from its wall");
+    System.out.println("[BWE-REGRESSION] PASS previous height/borders/Lootr/undo/pirate/airship checks; 35 biome layouts and native palettes; appended catalogue, overlapping padding and rotated hanging entity placement");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void validateBiomes(GameTestHelper h)throws Exception{
+  try(var input=RegressionGameTests.class.getResourceAsStream("/biome-validation.json")){
+   var root=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input)).getAsJsonObject();var registry=net.minecraft.core.registries.BuiltInRegistries.BLOCK;
+   for(var raw:root.getAsJsonArray("states")){
+    var st=raw.getAsJsonObject();var key=new net.minecraft.resources.ResourceLocation(st.get("Name").getAsString());h.assertTrue(registry.containsKey(key),"Unknown new biome block: "+key);var block=registry.get(key);
+    if(st.has("Properties"))for(var prop:st.getAsJsonObject("Properties").entrySet()){var p=block.getStateDefinition().getProperty(prop.getKey());h.assertTrue(p!=null&&p.getValue(prop.getValue().getAsString()).isPresent(),"Invalid biome state property: "+st);}
+   }
+   for(var id:root.getAsJsonArray("entities"))h.assertTrue(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.containsKey(new net.minecraft.resources.ResourceLocation(id.getAsString())),"Unknown new entity: "+id);
+   for(var id:root.getAsJsonArray("painting_variants"))h.assertTrue(net.minecraft.core.registries.BuiltInRegistries.PAINTING_VARIANT.containsKey(new net.minecraft.resources.ResourceLocation(id.getAsString())),"Unknown painting variant: "+id);
+   h.assertTrue(root.getAsJsonArray("entries").size()==35,"New layout count differs");
+   for(var raw:root.getAsJsonArray("entries")){var e=raw.getAsJsonObject();h.assertTrue(e.get("cells").getAsInt()<=1_000_000&&e.get("pieces").getAsInt()<=128,"Imported layout exceeds construction budget");for(var size:e.getAsJsonArray("size"))h.assertTrue(size.getAsInt()>0&&size.getAsInt()<=256,"Imported layout exceeds dimensions");}
+  }
  }
  private static void command(GameTestHelper h,net.minecraft.server.level.ServerPlayer player,String command){
   int result=player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4),command);
