@@ -57,7 +57,7 @@ public final class RegressionGameTests {
   var pig=EntityType.PIG.create(w);pig.moveTo(at.getX()+0.5,at.getY()+1,at.getZ()+0.5,0,0);BweBackup.recordEntity(pig);w.addFreshEntity(pig);
   BweBackup.close();h.assertTrue(BweBackup.restore(w)==null,"Cannot reopen persistent journal");
   h.runAfterDelay(1,new Runnable(){int phase;
-   BlockPos aerialBase;
+   BlockPos aerialBase;int desired;
    public void run(){try{
     if(BweBackup.restoring()){h.runAfterDelay(1,()->this.run());return;}
     if(phase==0){
@@ -125,10 +125,31 @@ public final class RegressionGameTests {
      h.assertTrue(w.getBlockState(aerialBase.below(5)).is(Blocks.STONE),"Pirate excavated below its bounded volume");
      BweBackup.close();h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Pirate undo rejected");phase=6;h.runAfterDelay(1,()->this.run());return;
     }
-    h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS)&&w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Pirate undo did not restore previous road and terrain");
-    h.assertTrue(w.getBlockState(aerialBase.below(2)).is(Blocks.STONE),"Pirate undo did not recover original seafloor");
-    System.out.println("[BWE-REGRESSION] PASS Lootr, persistent undo, all imported palettes, airship and normal construction unchanged; pirate water contour, dry hull, correct waterline and pirate undo");h.succeed();
+    if(phase==6){
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS)&&w.getBlockState(aerialBase.offset(-3,0,-3)).is(Blocks.GRASS_BLOCK),"Pirate undo did not restore previous road and terrain");
+     h.assertTrue(w.getBlockState(aerialBase.below(2)).is(Blocks.STONE),"Pirate undo did not recover original seafloor");
+     // A road ten blocks above the scheme origin must land at the exact requested Y.
+     Files.writeString(dir.resolve("catalogo-iv-v2.json"),"{\"entries\":[{\"id\":\"test:height\",\"title\":\"Height fixture\",\"description\":\"\",\"sizeX\":5,\"sizeY\":13,\"sizeZ\":5,\"ground\":12,\"pieces\":[{\"template\":\"ctov:village/path/regression\",\"x\":0,\"y\":10,\"z\":0,\"rotation\":0}]}]}");
+     BweCatalog.reset();var tall=BweCatalog.find("test:height");h.assertTrue(tall!=null,"Height fixture missing");var plan=BweCatalog.compose(w,tall);
+     h.assertTrue(plan.surfaceY()==10,"Height fixture road reference invalid");desired=aerialBase.getY()+4;
+     h.assertTrue(SurfaceBuilder.originY(tall,plan,desired+1)+plan.surfaceY()==desired,"Manual height incorrectly treated as origin");
+     var fake=net.minecraftforge.common.util.FakePlayerFactory.get(w,new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"BWEHeightTest"));
+     fake.setPos(aerialBase.getX()+0.5,aerialBase.getY()+1,aerialBase.getZ()+0.5);
+     command(h,fake,"bwe escanear");command(h,fake,"bwe seleccionar test:height");command(h,fake,"bwe altura "+desired);
+     command(h,fake,"bwe borde");command(h,fake,"bwe altura "+desired);command(h,fake,"bwe seleccionar test:height");
+     command(h,fake,"bwe crear");
+     var buf=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
+     try{var border=new BweNetwork.Border(w.dimension().location().toString(),true,-5000,-100,5225,124,desired+1);border.encode(buf);h.assertTrue(border.equals(BweNetwork.Border.decode(buf)),"Large border packet lost coordinates or height");}finally{buf.release();}
+     phase=7;h.runAfterDelay(1,()->this.run());return;
+    }
+    h.assertTrue(w.getBlockState(new BlockPos(aerialBase.getX(),desired,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Height changed after reselection; road is not at requested Y");
+    h.assertTrue(!w.getBlockState(new BlockPos(aerialBase.getX(),desired-10,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Road was buried at the scheme origin");
+    System.out.println("[BWE-REGRESSION] PASS Lootr and terrain undo, pirate and airship exceptions, exact manual road height through real commands and reselection, large border packet roundtrip");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void command(GameTestHelper h,net.minecraft.server.level.ServerPlayer player,String command){
+  int result=player.getServer().getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(4),command);
+  h.assertTrue(result==1,"Command failed: "+command);
  }
 }
