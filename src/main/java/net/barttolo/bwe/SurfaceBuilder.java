@@ -22,7 +22,7 @@ public final class SurfaceBuilder {
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;final List<BlockPos> chests;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;aerial=BweCatalog.airship(e);aquatic=BweCatalog.pirate(e);
-            origin=new BlockPos(center.getX()-e.sizeX()/2,(aerial?ground-1:ground-1-b.surfaceY()),center.getZ()-e.sizeZ()/2);
+            origin=new BlockPos(center.getX()-e.sizeX()/2,originY(e,b,ground),center.getZ()-e.sizeZ()/2);
             clearBottom=aerial?origin.getY()-4:aquatic?origin.getY()-2:walkY;clearTop=(aerial||aquatic)?origin.getY()+e.sizeY()+3:Math.max(origin.getY()+e.sizeY()+1,walkY+64);
             lootTables=BweLootr.available()?BweLootr.tables(w):List.of();
             chests=b.cells().stream().filter(c->c.state().is(Blocks.CHEST)||c.state().is(Blocks.TRAPPED_CHEST)).map(c->origin.offset(c.pos())).toList();
@@ -96,10 +96,23 @@ public final class SurfaceBuilder {
         String dim=world.dimension().location().toString();var d=WorldData.get(world);
         if(d.protectedFootprint(dim,x0,z0,x1,z1,0))throw new IllegalArgumentException("Zona protegida expresamente con BWE");
     }
+    static int originY(BweCatalog.Entry e,BweCatalog.Blueprint b,int ground) {
+        return ground-1-(BweCatalog.airship(e)?0:b.surfaceY());
+    }
+    public static String heightProblem(ServerLevel world,BweCatalog.Entry e,BweCatalog.Blueprint b,int ground) {
+        int origin=originY(e,b,ground);boolean aerial=BweCatalog.airship(e),aquatic=BweCatalog.pirate(e);
+        int bottom=aerial?origin-4:aquatic?origin-2:origin,top=(aerial||aquatic)?origin+e.sizeY()+4:origin+e.sizeY();
+        return bottom<world.getMinBuildHeight()||top>world.getMaxBuildHeight()?"La estructura y su espacio de limpieza no caben a esta altura":null;
+    }
     public static String start(ServerLevel world,BweCatalog.Entry e,BlockPos center,int ground,int margin,UUID op) {
         if(busy()||BuildEngine.busy())return "Ya hay una obra en curso";
+        try{return start(world,e,BweCatalog.compose(world,e),center,ground,margin,op);}catch(Exception error){return error.getMessage();}
+    }
+    public static String start(ServerLevel world,BweCatalog.Entry e,BweCatalog.Blueprint blueprint,BlockPos center,int ground,int margin,UUID op) {
+        if(busy()||BuildEngine.busy())return "Ya hay una obra en curso";
         try {
-            Job j=new Job(world,e,BweCatalog.compose(world,e),center,ground,margin,op);
+            String height=heightProblem(world,e,blueprint,ground);if(height!=null)return height;
+            Job j=new Job(world,e,blueprint,center,ground,margin,op);
             checkArea(world,j.x0,j.z0,j.x1,j.z1);
             if(((j.aerial||j.aquatic)?j.clearBottom:j.origin.getY())<world.getMinBuildHeight()||((j.aerial||j.aquatic)?j.clearTop+1:j.origin.getY()+e.sizeY())>world.getMaxBuildHeight())return "La estructura no cabe a esta altura";
             active=j;return null;
