@@ -1,28 +1,53 @@
-# Barttolo World Expansion (BWE)
+# BWE 0.8.0 — construcciones manuales en chunks existentes
 
-Proyecto experimental para **Minecraft Java 1.20.1 / Forge 47.4.10 / Java 17** destinado a ampliar RingWorld con construcciones originales en chunks existentes.
+Minecraft 1.20.1, Forge 47.4.10, Java 17. El entregable privado incorpora los JAR
+originales aportados por el usuario como archivos de recursos PASIVOS dentro de assets,
+no como mods ni datapacks. Se extraen a config/bwe/ solo si no existen. No se registra
+su worldgen, no se cargan sus clases ni se requieren sus dependencias.
+Los recursos de terceros NO se publican en este repositorio ni en los artefactos CI.
+El JAR CI contiene el motor; el entregable privado se completa con los archivos del usuario.
 
-## Estado — 1 de noviembre de 2026
+## Flujo
 
-- **Fuentes locales disponibles: v0.6.3**, preparados como ZIP fuera del repositorio.
-- Ocho tipos originales: `aldea`, `campamento`, `ruina`, `torre`, `refugio`, `altar`, `pozo`, `carreta`.
-- Los planes y la simulación comprueban terreno, chunks, protecciones, entidades y límites de construcción.
-- **14 pruebas Java de geometría superadas**, junto con verificaciones estáticas de metadatos, protección de chunks, paridad y CI.
-- **No hay compilación Forge confirmada, ni JAR instalable, ni prueba de restauración dentro de Minecraft.**
-- El repositorio contiene documentación y GitHub Actions, pero **todavía no contiene el árbol completo de fuentes**. GitHub Actions falla deliberadamente si faltan fuentes, para no mostrar una compilación falsamente exitosa.
+En la zona elegida: `/bwe listar`, clic en `[Ver]` para abrir el esquema de planta o en
+`[Elegir]` para seleccionar directamente. La ventana muestra una imagen esquematica
+superior, el estilo/bioma indicado y las dimensiones. También se puede abrir con
+`/bwe vista <id>`. Luego alejarse horizontalmente del rectangulo indicado y
+`/bwe crear`. No hay auditorias, simulaciones ni finalizacion.
+La lista muestra ancho x largo exactos de cada ensamblaje. Su altura no se muestra.
+La seleccion calcula la mediana de suelo natural; las plantillas conservan la cota de
+entrada declarada en el plan. Se limpia el rectangulo mas 5 bloques de margen y se
+rellenan huecos hasta hallar apoyo (maximo 64 bloques). `/bwe margen 5..10` es opcional.
 
-## Precauciones
+`/bwe estado` informa etapa y espera por jugadores. Se eliminan entidades no jugadoras
+en el rectangulo, sin drops; nunca se elimina al operador. Construye 200 posiciones/tick.
+`/bwe deshacer` RETIRA la obra mas reciente sin restaurar terreno, cofres ni entidades.
+La referencia de retirada se conserva solamente durante la sesion. No se bloquea la
+siguiente obra por un respaldo pendiente. Compatibilidad: si no hay obra nueva, deshacer
+puede recuperar un respaldo v0.7 pendiente mediante el motor anterior.
 
-**No instalar en el servidor principal.** Usar una copia completa del mundo para la primera prueba. Proteger misiones, bases y camino principal. Las comprobaciones no identifican todos los bloques construidos por jugadores.
+El catalogo privado contiene aldeas CTOV ensambladas por conectores con semilla fija,
+estructuras Explorify y edificios individuales. Es un ensamblaje manual determinista:
+no reproduce todos los procesadores aleatorios ni la proyeccion del generador original.
+El entregable privado incluye sus tablas de botin como datos pasivos, sin incluir
+definiciones de generacion. Se conserva NBT de bloques y
+entidades de las plantillas. Las particulas/funciones/datapacks originales no se activan.
 
-Las estructuras de **CTOV y Explorify no están redistribuidas** en este proyecto; su colocación está desactivada hasta verificar permisos y restauración segura de datos NBT.
+## Recursos
 
-## Próximos pasos
+Mantener config/bwe/ctov.jar, explorify.jar y catalogo.json juntos. `/bwe recargar`
+actualiza el catalogo tras cambios. Los archivos originales se usan sin modificarlos.
+`tools/build_previews.py CTOV.jar Explorify.jar catalogo.json carpeta_previews`
+genera las vistas superiores privadas usadas por la ventana del juego; no copia NBT.
+`tools/build_catalog.py CTOV.jar Explorify.jar catalogo.json` prepara SOLO planes JSON
+(identificadores, coordenadas y rotaciones) sin copiar las plantillas. Usa los pools y
+conectores de los archivos aportados; descarta recursos de add-ons no disponibles y
+comprueba que las piezas no se solapan. Ni el generador ni el constructor regeneran chunks.
 
-1. Cambiar el repositorio a privado si se desea mantener el proyecto interno (actualmente es público).
-2. Incorporar los fuentes originales v0.6.3 a la raíz del repositorio.
-3. Ejecutar GitHub Actions, corregir errores de ForgeGradle y obtener el primer JAR experimental.
-4. Probar `/bwe ayuda`, `/bwe planear campamento`, `/bwe simular`, `/bwe confirmar SI` y `/bwe deshacer` en una copia del mundo.
-5. Verificar comportamiento tras reinicio, integridad del terreno y compatibilidad con RingWorld.
+## Pruebas
 
-Seguimiento: [Hito 1 — primer JAR y pruebas seguras](../../issues/1).
+CI compila Forge y ejecuta las 15 regresiones anteriores, mas un ensayo de importacion
+por ZIP, dos piezas nativas rotadas, deteccion de suelo, purga de entidades, carga de NBT
+de cofre y retirada. El ensayo usa recursos originales sinteticos, no los JAR privados.
+Los planes privados se validan offline contra los archivos exactos del usuario. Esto no
+sustituye una inspeccion visual de las 43 opciones en su modpack. Probar en copia primero.
