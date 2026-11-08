@@ -202,13 +202,54 @@ public final class BweCatalog {
                 entities.add(new Spawn(entityTag,rx+p.x(),y+p.y(),rz+p.z(),90*p.rotation()));
             }
         }
+        if(entry.id().equals("bwe_capitals:mansion_bottom_front_left"))lightMansion(world,cells,entities);
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
         sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()?0:1).thenComparingInt(c -> c.pos().getY()));
         int surface=entry.ground()-1,best=0;
         for(var h:roadHeights.entrySet())if(h.getValue()>best){surface=h.getKey();best=h.getValue();}
         // This fixed harbour has its docks at local Y=20 and its waterline at Y=19.
         if(pirate(entry))surface=Math.max(0,entry.ground()-5);
+        // These cropped schematics start with above-ground details, not a complete soil layer.
+        // Put a continuous ground layer below local Y=0 instead of through their first layer.
+        if(Set.of("bwe_extra:mansion","bwe_extra:faro_realista","bwe_extra:coliseo_natural").contains(entry.id()))surface=-1;
         return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surface);
+    }
+
+    /** Only the large hostile mansion: bound persistent entities and keep combat local. */
+    static void lightMansion(ServerLevel world,Map<Long,Cell> cells,List<Spawn> entities){
+        Map<String,Integer> limits=Map.of("minecraft:painting",24,"minecraft:item_frame",8,"minecraft:armor_stand",8);
+        List<Spawn> source=new ArrayList<>(entities),kept=new ArrayList<>();
+        // Deterministic spatial ordering and even sampling avoid keeping one crowded room.
+        source.sort(Comparator.comparingDouble(Spawn::y).thenComparingDouble(Spawn::x).thenComparingDouble(Spawn::z));
+        for(var limit:limits.entrySet()){
+            List<Spawn> candidates=new ArrayList<>();Set<String> occupied=new HashSet<>();
+            for(Spawn s:source)if(s.nbt().getString("id").equals(limit.getKey())){
+                String key=(int)Math.floor(s.x()/4)+":"+(int)Math.floor(s.y()/4)+":"+(int)Math.floor(s.z()/4);
+                if(occupied.add(key))candidates.add(s);
+            }
+            int count=Math.min(limit.getValue(),candidates.size());
+            for(int i=0;i<count;i++){
+                Spawn s=candidates.get(i*candidates.size()/count);CompoundTag tag=s.nbt().copy();
+                tag.remove("Passengers");kept.add(new Spawn(tag,s.x(),s.y(),s.z(),s.yaw()));
+            }
+        }
+        // Four widely separated spawners at existing pillager positions, only on real floors.
+        List<BlockPos> generators=new ArrayList<>();
+        for(Spawn s:source){
+            if(generators.size()>=4)break;
+            if(!s.nbt().getString("id").equals("minecraft:pillager"))continue;
+            BlockPos pos=BlockPos.containing(s.x(),s.y(),s.z());
+            Cell here=cells.get(pos.asLong()),below=cells.get(pos.below().asLong()),above=cells.get(pos.above().asLong());
+            if(here==null||!here.state().isAir()||below==null||!below.state().isSolidRender(world,BlockPos.ZERO)||above==null||!above.state().isAir())continue;
+            if(generators.stream().anyMatch(p->p.distSqr(pos)<24*24))continue;
+            CompoundTag tag=new CompoundTag();tag.putString("id","minecraft:mob_spawner");
+            tag.putShort("Delay",(short)600);tag.putShort("MinSpawnDelay",(short)600);tag.putShort("MaxSpawnDelay",(short)1200);
+            tag.putShort("SpawnCount",(short)1);tag.putShort("MaxNearbyEntities",(short)2);
+            tag.putShort("RequiredPlayerRange",(short)12);tag.putShort("SpawnRange",(short)3);
+            CompoundTag data=new CompoundTag(),mob=new CompoundTag();mob.putString("id","minecraft:pillager");data.put("entity",mob);tag.put("SpawnData",data);
+            cells.put(pos.asLong(),new Cell(pos,Blocks.SPAWNER.defaultBlockState(),tag));generators.add(pos);
+        }
+        entities.clear();entities.addAll(kept);
     }
 }
 
