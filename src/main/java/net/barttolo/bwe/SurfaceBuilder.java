@@ -234,6 +234,8 @@ public final class SurfaceBuilder {
                     }
                     Entity entity=EntityType.loadEntityRecursive(tag,j.world,e->{e.setUUID(UUID.randomUUID());if(!(BweCatalog.biomePack(j.entry)&&e instanceof net.minecraft.world.entity.decoration.HangingEntity))e.moveTo(j.origin.getX()+spawn.x(),j.origin.getY()+spawn.y(),j.origin.getZ()+spawn.z(),yaw,0);return e;});
                     if(entity!=null){BweBackup.recordEntity(entity);j.world.addFreshEntityWithPassengers(entity);}
+                    // Population is substantially heavier than a block write. Spread it over ticks.
+                    if(j.cursor%4==0){j.done++;break;}
 
                 }
                 j.done++;
