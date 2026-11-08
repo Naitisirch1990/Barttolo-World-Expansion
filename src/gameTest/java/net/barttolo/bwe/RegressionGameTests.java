@@ -21,6 +21,7 @@ public final class RegressionGameTests {
  @GameTest(batch="restore_lootr",template="empty",timeoutTicks=900)
  public static void restoresTerrainContainersAndNativeLootr(GameTestHelper h)throws Exception{
   var w=h.getLevel();var server=w.getServer();
+  mansionBudget(h);
   // Reproduce the former 65,536-block rejection using the actual Minecraft template reader.
   CompoundTag big=new CompoundTag();ListTag size=new ListTag();for(int v:new int[]{42,42,42})size.add(IntTag.valueOf(v));big.put("size",size);
   ListTag palette=new ListTag();CompoundTag air=new CompoundTag();air.putString("Name","minecraft:air");palette.add(air);big.put("palette",palette);
@@ -42,6 +43,10 @@ public final class RegressionGameTests {
   try(var zip=new ZipOutputStream(Files.newOutputStream(dir.resolve("ctov.jar")))){zip.putNextEntry(new ZipEntry("data/ctov/structures/village/path/regression.nbt"));ByteArrayOutputStream data=new ByteArrayOutputStream();NbtIo.writeCompressed(road,data);zip.write(data.toByteArray());zip.closeEntry();zip.putNextEntry(new ZipEntry("data/ctov/structures/regression_boat.nbt"));data.reset();NbtIo.writeCompressed(boat,data);zip.write(data.toByteArray());zip.closeEntry();}
   var pieces=List.of(new BweCatalog.Piece("ctov:village/path/regression",0,0,0,0));BweCatalog.reset();
   var entry=new BweCatalog.Entry("test:road","road","",5,3,5,2,pieces);h.assertTrue(BweCatalog.compose(w,entry).surfaceY()==0,"Road surface reference remains one block low");
+  for(String special:List.of("bwe_extra:mansion","bwe_extra:faro_realista","bwe_extra:coliseo_natural")){
+   var cropped=new BweCatalog.Entry(special,"cropped","",5,3,5,5,pieces);var cropPlan=BweCatalog.compose(w,cropped);
+   h.assertTrue(cropPlan.surfaceY()==-1&&SurfaceBuilder.originY(cropped,cropPlan,71)==71,"Cropped base still buried: "+special);
+  }
   var flying=new BweCatalog.Entry("integrated_villages:aldea_airship_village","airship","",5,3,5,2,pieces);h.assertTrue(BweCatalog.compose(w,flying).surfaceY()==1,"Airship placement changed");
   var pirate=new BweCatalog.Entry("integrated_villages:aldea_pirate_village","pirate","",5,5,5,7,List.of(new BweCatalog.Piece("ctov:regression_boat",0,0,0,0)));
   h.assertTrue(BweCatalog.compose(w,pirate).surfaceY()==2,"Pirate waterline reference incorrect");
@@ -199,9 +204,48 @@ public final class RegressionGameTests {
      h.assertTrue(w.getBlockState(origin.offset(4,0,3)).is(Blocks.STONE_BRICKS),"Basement floor changed");
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Padding undo rejected");phase=10;h.runAfterDelay(1,()->this.run());return;
     }
-    System.out.println("[BWE-REGRESSION] PASS native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
+    if(phase==10){
+     List<BweCatalog.Cell> cropCells=new ArrayList<>();
+     for(int x=0;x<5;x++)for(int z=0;z<5;z++)for(int y=0;y<3;y++){
+      var state=Blocks.AIR.defaultBlockState();
+      if(y==0&&(x==0||x==4))state=Blocks.STONE_BRICKS.defaultBlockState();
+      if(y==0&&x==2&&z==2)state=Blocks.GRASS.defaultBlockState();
+      cropCells.add(new BweCatalog.Cell(new BlockPos(x,y,z),state,null));
+     }
+     var cropped=new BweCatalog.Entry("bwe_extra:coliseo_natural","cropped","",5,3,5,1,List.of());
+     var cropPlan=new BweCatalog.Blueprint(cropCells,List.of(),List.of(),-1);
+     h.assertTrue(SurfaceBuilder.start(w,cropped,cropPlan,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Cropped build rejected");
+     phase=11;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==11){
+     for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)h.assertTrue(w.getBlockState(aerialBase.offset(x,0,z)).is(Blocks.GRASS_BLOCK),"Cropped courtyard floor has a hole or relief");
+     h.assertTrue(w.getBlockState(aerialBase.offset(-2,1,0)).is(Blocks.STONE_BRICKS),"Cropped architecture buried");
+     h.assertTrue(w.getBlockState(aerialBase.above()).is(Blocks.GRASS),"Cropped plant replaced soil instead of sitting on it");
+     h.assertTrue(w.getBlockState(aerialBase.offset(1,1,0)).isAir(),"Terrain remains above arena floor");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Cropped undo rejected");phase=12;h.runAfterDelay(1,()->this.run());return;
+    }
+    System.out.println("[BWE-REGRESSION] PASS cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void mansionBudget(GameTestHelper h){
+  Map<Long,BweCatalog.Cell> cells=new LinkedHashMap<>();List<BweCatalog.Spawn> population=new ArrayList<>();
+  for(int i=0;i<598;i++){CompoundTag t=new CompoundTag();t.putString("id","minecraft:painting");t.put("Passengers",new ListTag());population.add(new BweCatalog.Spawn(t,i%80,4+(i/80)*4,i%84,0));}
+  for(String kind:List.of("armor_stand","item_frame"))for(int i=0;i<50;i++){CompoundTag t=new CompoundTag();t.putString("id","minecraft:"+kind);population.add(new BweCatalog.Spawn(t,i*4,3,i*4,0));}
+  for(int i=0;i<300;i++){CompoundTag t=new CompoundTag();t.putString("id","minecraft:pillager");int x=(i%4)*30;BlockPos pos=new BlockPos(x,2,2);
+   population.add(new BweCatalog.Spawn(t,x+0.5,2,2.5,0));
+   for(int y=1;y<=3;y++){BlockPos at=new BlockPos(x,y,2);cells.put(at.asLong(),new BweCatalog.Cell(at,(y==1?Blocks.STONE:Blocks.AIR).defaultBlockState(),null));}
+  }
+  BweCatalog.lightMansion(h.getLevel(),cells,population);
+  h.assertTrue(population.size()==40,"Mansion decoration cap or sampling incorrect");
+  h.assertTrue(population.stream().noneMatch(e->e.nbt().contains("Passengers")||e.nbt().getString("id").equals("minecraft:pillager")),"Mansion imported mobs remain");
+  var spawners=cells.values().stream().filter(c->c.state().is(Blocks.SPAWNER)).toList();
+  h.assertTrue(spawners.size()==4,"Mansion spawners not bounded or missing");
+  for(var c:spawners){
+   var be=new net.minecraft.world.level.block.entity.SpawnerBlockEntity(c.pos(),c.state());be.load(c.nbt());var saved=be.saveWithFullMetadata();
+   h.assertTrue(saved.getShort("SpawnCount")==1&&saved.getShort("MaxNearbyEntities")==2&&saved.getShort("MinSpawnDelay")==600,"Spawner load lost low activity limits");
+   h.assertTrue(saved.getCompound("SpawnData").getCompound("entity").getString("id").equals("minecraft:pillager"),"Spawner mob data invalid");
+  }
  }
  private static void lootRegression(GameTestHelper h,BlockPos pos)throws Exception{
   var w=h.getLevel();var be=w.getBlockEntity(pos);var nbt=be.saveWithFullMetadata();be.load(nbt);
