@@ -99,6 +99,14 @@ public final class BweCatalog {
     public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:")||imported(e); }
     public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village")||"water".equals(PLACEMENT.get(e.id())); }
     public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village")||"air".equals(PLACEMENT.get(e.id())); }
+    static BlockState passiveState(BlockState state){
+        if(Set.of(Blocks.SPAWNER,Blocks.COMMAND_BLOCK,Blocks.CHAIN_COMMAND_BLOCK,Blocks.REPEATING_COMMAND_BLOCK,
+            Blocks.NETHER_PORTAL,Blocks.END_PORTAL,Blocks.END_GATEWAY,Blocks.REDSTONE_WIRE,Blocks.REPEATER,
+            Blocks.COMPARATOR,Blocks.PISTON_HEAD,Blocks.MOVING_PISTON).contains(state.getBlock()))return Blocks.AIR.defaultBlockState();
+        if(state.is(Blocks.TNT)||state.is(Blocks.REDSTONE_BLOCK))return Blocks.RED_TERRACOTTA.defaultBlockState();
+        if(state.is(Blocks.OBSERVER)||state.is(Blocks.PISTON)||state.is(Blocks.STICKY_PISTON))return Blocks.STONE_BRICKS.defaultBlockState();
+        return state;
+    }
     public static boolean imported(Entry e){return e.id().startsWith("bwe_tt:")||e.id().startsWith("bwe_itp:")||e.id().startsWith("bwe_idas:");}
     public static String group(Entry e){
         return switch(e.id().split(":",2)[0]){
@@ -180,7 +188,7 @@ public final class BweCatalog {
                 CompoundTag data=metadata.get(BlockPos.asLong(c.x(),c.y(),c.z()));BlockState state=c.state();
                 String npcPool=state.is(Blocks.JIGSAW)&&data!=null?data.getString("pool"):"";
                 if(state.is(Blocks.STRUCTURE_VOID))continue;
-                if(imported(entry)&&(state.is(Blocks.SPAWNER)||state.is(Blocks.COMMAND_BLOCK)||state.is(Blocks.CHAIN_COMMAND_BLOCK)||state.is(Blocks.REPEATING_COMMAND_BLOCK))){state=Blocks.AIR.defaultBlockState();data=null;}
+                if(imported(entry)){BlockState cleaned=passiveState(state);if(cleaned!=state){state=cleaned;data=null;}}
                 if(state.is(Blocks.JIGSAW)) { state=finalState(data==null?"minecraft:air":data.getString("final_state"));data=null; }
                 if(state.is(Blocks.STRUCTURE_BLOCK)||state.is(Blocks.STRUCTURE_VOID))continue;
                 BlockPos pos=rotate(c.x(),c.y(),c.z(),p.rotation()).offset(p.x(),p.y(),p.z());
