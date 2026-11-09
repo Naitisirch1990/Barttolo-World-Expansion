@@ -99,10 +99,12 @@ public final class BweCatalog {
     public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:")||imported(e); }
     public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village")||"water".equals(PLACEMENT.get(e.id())); }
     public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village")||"air".equals(PLACEMENT.get(e.id())); }
-    static BlockState passiveState(BlockState state){
-        if(Set.of(Blocks.SPAWNER,Blocks.COMMAND_BLOCK,Blocks.CHAIN_COMMAND_BLOCK,Blocks.REPEATING_COMMAND_BLOCK,
+    private static final Set<Block> ACTIVE_IMPORT_BLOCKS=Set.of(Blocks.SPAWNER,Blocks.COMMAND_BLOCK,Blocks.CHAIN_COMMAND_BLOCK,Blocks.REPEATING_COMMAND_BLOCK,
             Blocks.NETHER_PORTAL,Blocks.END_PORTAL,Blocks.END_GATEWAY,Blocks.REDSTONE_WIRE,Blocks.REPEATER,
-            Blocks.COMPARATOR,Blocks.PISTON_HEAD,Blocks.MOVING_PISTON).contains(state.getBlock()))return Blocks.AIR.defaultBlockState();
+            Blocks.COMPARATOR,Blocks.PISTON_HEAD,Blocks.MOVING_PISTON);
+    static BlockState passiveState(BlockState state){
+        if(ACTIVE_IMPORT_BLOCKS.contains(state.getBlock()))return Blocks.AIR.defaultBlockState();
+        if(state.is(Blocks.END_PORTAL_FRAME))return state.setValue(EndPortalFrameBlock.HAS_EYE,false);
         if(state.is(Blocks.TNT)||state.is(Blocks.REDSTONE_BLOCK))return Blocks.RED_TERRACOTTA.defaultBlockState();
         if(state.is(Blocks.OBSERVER)||state.is(Blocks.PISTON)||state.is(Blocks.STICKY_PISTON))return Blocks.STONE_BRICKS.defaultBlockState();
         return state;
