@@ -151,6 +151,7 @@ public final class RegressionGameTests {
      h.assertTrue(SurfaceBuilder.originY(tall,plan,desired+1)+plan.surfaceY()==desired,"Manual height incorrectly treated as origin");
      var fake=net.minecraftforge.common.util.FakePlayerFactory.get(w,new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(),"BWEHeightTest"));
      fake.setPos(aerialBase.getX()+0.5,aerialBase.getY()+1,aerialBase.getZ()+0.5);
+     command(h,fake,"bwe listar");command(h,fake,"bwe listar EXTRAS");command(h,fake,"bwe listar 1");
      command(h,fake,"bwe escanear");command(h,fake,"bwe seleccionar test:height");command(h,fake,"bwe altura "+desired);
      command(h,fake,"bwe borde");command(h,fake,"bwe altura "+desired);command(h,fake,"bwe seleccionar test:height");
      for(int rotation=0;rotation<4;rotation++)command(h,fake,"bwe rotar");
@@ -162,7 +163,7 @@ public final class RegressionGameTests {
     if(phase==7){
      h.assertTrue(w.getBlockState(new BlockPos(aerialBase.getX(),desired,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Height changed after reselection; road is not at requested Y");
      h.assertTrue(!w.getBlockState(new BlockPos(aerialBase.getX(),desired-10,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Road was buried at the scheme origin");
-     validateBiomes(h);
+     validateBiomes(h);validateExpansion(h);
      CompoundTag wall=boat.copy();ListTag walls=new ListTag();
      for(int x=0;x<5;x++)for(int y=0;y<5;y++){CompoundTag b=new CompoundTag();ListTag pos=new ListTag();for(int v:new int[]{x,y,2})pos.add(IntTag.valueOf(v));b.put("pos",pos);b.putInt("state",0);walls.add(b);}wall.put("blocks",walls);
      CompoundTag painting=new CompoundTag();painting.putString("id","minecraft:painting");painting.putString("variant","minecraft:kebab");painting.putByte("facing",(byte)2);painting.putInt("TileX",2);painting.putInt("TileY",2);painting.putInt("TileZ",1);
@@ -227,6 +228,30 @@ public final class RegressionGameTests {
     System.out.println("[BWE-REGRESSION] PASS cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void validateExpansion(GameTestHelper h)throws Exception{
+  try(var input=RegressionGameTests.class.getResourceAsStream("/expansion-validation.json")){
+   var root=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input)).getAsJsonObject();
+   var registry=net.minecraft.core.registries.BuiltInRegistries.BLOCK;
+   for(var raw:root.getAsJsonArray("states")){
+    var st=raw.getAsJsonObject();var id=new net.minecraft.resources.ResourceLocation(st.get("Name").getAsString());
+    h.assertTrue(registry.containsKey(id),"Unknown imported block "+id);var block=registry.get(id);
+    h.assertTrue(!id.getPath().contains("spawner")&&!id.getPath().contains("command_block")&&!id.getPath().contains("sign")&&!id.getPath().contains("banner"),"Active/heavy decoration remains "+id);
+    if(st.has("Properties"))for(var prop:st.getAsJsonObject("Properties").entrySet()){
+     var p=block.getStateDefinition().getProperty(prop.getKey());h.assertTrue(p!=null&&p.getValue(prop.getValue().getAsString()).isPresent(),"Invalid imported property "+st);
+    }
+   }
+   h.assertTrue(root.getAsJsonArray("entries").size()>100,"Expansion catalogue unexpectedly incomplete");
+   for(var raw:root.getAsJsonArray("entries")){
+    var e=raw.getAsJsonObject();h.assertTrue(e.get("cells").getAsInt()<=1000000&&e.get("pieces").getAsInt()<=128,"Expansion exceeds budget");
+    for(var v:e.getAsJsonArray("size"))h.assertTrue(v.getAsInt()>0&&v.getAsInt()<=256,"Expansion outside bounds");
+   }
+  }
+  var neutral=new BweCatalog.Entry("bwe_tt:village_test","TT","Sin mobs",5,3,5,1,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,0,0,0)));
+  var hostile=new BweCatalog.Entry("bwe_itp:bastille","ITP","Hostil · Sin mobs",5,3,5,1,neutral.pieces());
+  h.assertTrue(BweCatalog.group(neutral).equals("TT")&&!BweCatalog.hostile(neutral),"Neutral category classification wrong");
+  h.assertTrue(BweCatalog.group(hostile).equals("ITP")&&BweCatalog.hostile(hostile),"Hostile category classification wrong");
+  h.assertTrue(BweCatalog.compose(h.getLevel(),neutral).entities().isEmpty(),"New import has population");
  }
  private static void mansionBudget(GameTestHelper h){
   Map<Long,BweCatalog.Cell> cells=new LinkedHashMap<>();List<BweCatalog.Spawn> population=new ArrayList<>();
