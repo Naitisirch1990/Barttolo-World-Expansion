@@ -127,7 +127,7 @@ public final class BarttoloWorldExpansion {
             say(s,"Borde VERDE: contorno real de limpieza, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
             say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+heightLabel(e)+(ground-1)+(manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?" (altura manual conservada)":""));
             say(s,"Referencia "+heightLabel(e)+(ground-1)+" | base del esquema Y="+SurfaceBuilder.originY(e,plan,ground));
-            say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":BweCatalog.pirate(e)?"Puerto pirata: agua alrededor, sin plataforma de tierra. /bwe altura Y ajusta el agua.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
+            say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":BweCatalog.pirate(e)?"Estructura acuatica: agua alrededor, sin plataforma de tierra. /bwe altura Y ajusta el agua.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
     }
     private static int create(CommandSourceStack s)throws CommandSyntaxException{
@@ -136,7 +136,7 @@ public final class BarttoloWorldExpansion {
         if(!selected.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
         String problem=SurfaceBuilder.start(s.getLevel(),selected.entry(),selected.blueprint(),selected.center(),selected.ground(),selected.margin(),player);
         if(problem!=null)return fail(s,problem);
-        SELECTED.remove(player);SITES.remove(player);HEIGHTS.remove(player);BweNetwork.clearBorder(s.getPlayerOrException());say(s,BweCatalog.airship(selected.entry())?"Obra aerea iniciada: despejar aire y colocar dirigibles, sin cimentacion. /bwe estado":BweCatalog.pirate(selected.entry())?"Puerto pirata iniciado: despejar, construir y llenar el contorno de agua. /bwe estado":"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
+        SELECTED.remove(player);SITES.remove(player);HEIGHTS.remove(player);BweNetwork.clearBorder(s.getPlayerOrException());say(s,BweCatalog.airship(selected.entry())?"Obra aerea iniciada: despejar aire y colocar dirigibles, sin cimentacion. /bwe estado":BweCatalog.pirate(selected.entry())?"Construccion acuatica iniciada: despejar, construir y llenar el contorno de agua. /bwe estado":"Obra iniciada: limpiar, nivelar y construir. /bwe estado");return 1;
     }
 
     private static int turn(CommandSourceStack s)throws CommandSyntaxException{
