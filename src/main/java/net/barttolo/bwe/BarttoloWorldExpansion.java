@@ -39,8 +39,10 @@ public final class BarttoloWorldExpansion {
     @SubscribeEvent public void onCommands(RegisterCommandsEvent event){
         event.getDispatcher().register(Commands.literal("bwe").requires(s->s.hasPermission(2)).executes(c->help(c.getSource()))
             .then(Commands.literal("ayuda").executes(c->help(c.getSource())))
-            .then(Commands.literal("listar").executes(c->listing(c.getSource(),1))
-                .then(Commands.argument("pagina",IntegerArgumentType.integer(1)).executes(c->listing(c.getSource(),IntegerArgumentType.getInteger(c,"pagina")))))
+            .then(Commands.literal("listar").executes(c->catalogue(c.getSource()))
+                .then(Commands.argument("pagina",IntegerArgumentType.integer(1)).executes(c->listing(c.getSource(),"TODAS",IntegerArgumentType.getInteger(c,"pagina"))))
+                .then(Commands.argument("grupo",StringArgumentType.word()).executes(c->listing(c.getSource(),StringArgumentType.getString(c,"grupo").toUpperCase(java.util.Locale.ROOT),1))
+                    .then(Commands.argument("pagina",IntegerArgumentType.integer(1)).executes(c->listing(c.getSource(),StringArgumentType.getString(c,"grupo").toUpperCase(java.util.Locale.ROOT),IntegerArgumentType.getInteger(c,"pagina"))))))
             .then(Commands.literal("vista").then(Commands.argument("id",StringArgumentType.greedyString())
                 .executes(c->preview(c.getSource(),StringArgumentType.getString(c,"id")))))
             .then(Commands.literal("seleccionar").then(Commands.argument("id",StringArgumentType.greedyString())
@@ -55,7 +57,7 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("deshacer").executes(c->undo(c.getSource())))
             .then(Commands.literal("margen").executes(c->{say(c.getSource(),"Margen: "+MARGINS.getOrDefault(id(c.getSource()),1)+" bloques");return 1;})
                 .then(Commands.argument("bloques",IntegerArgumentType.integer(1,1)).executes(c->{MARGINS.put(id(c.getSource()),IntegerArgumentType.getInteger(c,"bloques"));say(c.getSource(),"Margen actualizado; selecciona la construccion otra vez");return 1;})))
-            .then(Commands.literal("recargar").executes(c->{if(SurfaceBuilder.busy())return fail(c.getSource(),"Espera a que termine la obra");BweCatalog.reset();return listing(c.getSource(),1);}))
+            .then(Commands.literal("recargar").executes(c->{if(SurfaceBuilder.busy())return fail(c.getSource(),"Espera a que termine la obra");BweCatalog.reset();return catalogue(c.getSource());}))
             .then(Commands.literal("proteger").then(Commands.argument("radio",IntegerArgumentType.integer(1,512))
                 .executes(c->{int n=WorldData.get(c.getSource().getLevel()).protect(c.getSource().getLevel().dimension().location().toString(),c.getSource().getPlayerOrException().blockPosition(),IntegerArgumentType.getInteger(c,"radio"));say(c.getSource(),"Proteccion #"+n);return 1;})))
             .then(Commands.literal("desproteger").then(Commands.argument("numero",IntegerArgumentType.integer(1))
@@ -73,11 +75,22 @@ public final class BarttoloWorldExpansion {
         say(s,"La altura del suelo se calcula automaticamente. Se limpian bloques y entidades excepto jugadores.");
         return 1;
     }
-    private static int listing(CommandSourceStack s,int page){
-        var entries=BweCatalog.entries();int pages=Math.max(1,(entries.size()+5)/6);
-        if(entries.isEmpty())return fail(s,BweCatalog.problem()+". Usa el JAR completo con las plantillas incluidas.");
+    private static int catalogue(CommandSourceStack s){
+        if(BweCatalog.entries().isEmpty())return fail(s,BweCatalog.problem()+". Usa el JAR completo con las plantillas.");
+        say(s,"Catalogo BWE: elige un grupo");
+        for(String group:java.util.List.of("IV","BV","GC","EX","CTOV","EXTRAS","TT","ITP","IDAS","HOSTILES")){
+            int count=BweCatalog.category(group).size();if(count==0)continue;
+            String label=group.equals("HOSTILES")?"Estructuras hostiles":group;
+            s.sendSuccess(()->Component.literal("["+label+"] "+count+" estructuras").withStyle(style->style.withColor(group.equals("HOSTILES")?ChatFormatting.GOLD:ChatFormatting.AQUA)
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+group))),false);
+        }
+        return 1;
+    }
+    private static int listing(CommandSourceStack s,String group,int page){
+        var entries=group.equals("TODAS")?BweCatalog.entries():BweCatalog.category(group);int pages=Math.max(1,(entries.size()+5)/6);
+        if(entries.isEmpty())return fail(s,"Grupo vacio o desconocido. /bwe listar");
         if(page>pages)return fail(s,"Ultima pagina: "+pages);
-        say(s,"Aldeas y estructuras: "+entries.size()+" | pagina "+page+"/"+pages);
+        say(s,group+": "+entries.size()+" | pagina "+page+"/"+pages);
         for(var e:entries.subList((page-1)*6,Math.min(entries.size(),page*6))){
             Component option=Component.literal("[Ver] "+e.title()+" "+(e.sizeX()+2)+" x "+(e.sizeZ()+2)+" total ")
                 .withStyle(style->style.withColor(ChatFormatting.AQUA)
@@ -88,8 +101,9 @@ public final class BarttoloWorldExpansion {
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,Component.literal(e.description()+". Elegir en tu ubicacion.")))));
             s.sendSuccess(()->option,false);
         }
-        if(page>1)s.sendSuccess(()->Component.literal("[Anterior]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page-1)))),false);
-        if(page<pages)s.sendSuccess(()->Component.literal("[Siguiente]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+(page+1)))),false);
+        s.sendSuccess(()->Component.literal("[Volver al catalogo]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar"))),false);
+        if(page>1)s.sendSuccess(()->Component.literal("[Anterior]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+group+" "+(page-1)))),false);
+        if(page<pages)s.sendSuccess(()->Component.literal("[Siguiente]").withStyle(style->style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+group+" "+(page+1)))),false);
         return 1;
     }
     private static int preview(CommandSourceStack s,String name)throws CommandSyntaxException{
