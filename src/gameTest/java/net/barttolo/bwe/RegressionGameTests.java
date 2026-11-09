@@ -176,6 +176,8 @@ public final class RegressionGameTests {
      Files.writeString(dir.resolve("catalogo-biomas-v1.json"),"{\"entries\":[{\"id\":\"bwe_better:test_wall\",\"title\":\"Better Village - Pradera\",\"description\":\"Pradera\",\"biome\":\"Pradera\",\"sizeX\":5,\"sizeY\":5,\"sizeZ\":5,\"ground\":1,\"pieces\":[{\"template\":\"bwe_better:test/wall\",\"x\":3,\"y\":0,\"z\":0,\"rotation\":1},{\"template\":\"bwe_better:test/air\",\"x\":0,\"y\":0,\"z\":0,\"rotation\":0}]}]}");
      BweCatalog.reset();h.assertTrue(BweCatalog.find("test:height")!=null,"New biome catalogue replaced existing entries");var entry=BweCatalog.find("bwe_better:test_wall");h.assertTrue(entry!=null,"New biome catalogue not appended");var plan=BweCatalog.compose(w,entry);
      h.assertTrue(plan.cells().stream().filter(c->!c.state().isAir()).count()==25,"New template padding erased neighbouring structure");var spawn=plan.entities().get(0);h.assertTrue(Math.abs(spawn.x()-2.03125)<0.0001,"Rotated entity centre shifted by one block");h.assertTrue(spawn.nbt().getInt("TileX")==2&&spawn.nbt().getInt("TileZ")==2&&spawn.nbt().getByte("facing")==3,"Hanging anchor or direction did not rotate");
+     var cleanEntry=new BweCatalog.Entry("bwe_tt:population_fixture","TT - fixture","Sin mobs",5,5,5,1,entry.pieces());
+     h.assertTrue(BweCatalog.compose(w,cleanEntry).entities().isEmpty(),"Imported stored painting/entity was not removed");
      rotationAndOutline(h,entry,plan);
      entry=BweCatalog.turned(entry);plan=BweCatalog.turn(BweCatalog.find("bwe_better:test_wall"),plan);
      h.assertTrue(SurfaceBuilder.start(w,entry,plan,aerialBase,aerialBase.getY()+1,1,java.util.UUID.randomUUID())==null,"Biome archive construction rejected");phase=8;h.runAfterDelay(1,()->this.run());return;
@@ -230,6 +232,8 @@ public final class RegressionGameTests {
   });
  }
  private static void validateExpansion(GameTestHelper h)throws Exception{
+  h.assertTrue(BweCatalog.passiveState(Blocks.NETHER_PORTAL.defaultBlockState()).isAir()&&BweCatalog.passiveState(Blocks.SPAWNER.defaultBlockState()).isAir(),"Imported portals or spawners active");
+  h.assertTrue(BweCatalog.passiveState(Blocks.TNT.defaultBlockState()).is(Blocks.RED_TERRACOTTA)&&BweCatalog.passiveState(Blocks.OBSERVER.defaultBlockState()).is(Blocks.STONE_BRICKS),"Imported traps/clock still active");
   try(var input=RegressionGameTests.class.getResourceAsStream("/expansion-validation.json")){
    var root=com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(input)).getAsJsonObject();
    var registry=net.minecraft.core.registries.BuiltInRegistries.BLOCK;
