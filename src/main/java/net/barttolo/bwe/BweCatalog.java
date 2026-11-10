@@ -97,7 +97,7 @@ public final class BweCatalog {
         return new Blueprint(List.copyOf(cells),List.copyOf(entities),List.copyOf(supports),b.surfaceY());
     }
     public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:")||imported(e); }
-    public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village")||"water".equals(PLACEMENT.get(e.id())); }
+    public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village")||e.id().equals("bwe_idas:fishermans_lodge")||"water".equals(PLACEMENT.get(e.id())); }
     public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village")||"air".equals(PLACEMENT.get(e.id())); }
     private static final Set<Block> ACTIVE_IMPORT_BLOCKS=Set.of(Blocks.SPAWNER,Blocks.COMMAND_BLOCK,Blocks.CHAIN_COMMAND_BLOCK,Blocks.REPEATING_COMMAND_BLOCK,
             Blocks.NETHER_PORTAL,Blocks.END_PORTAL,Blocks.END_GATEWAY,Blocks.REDSTONE_WIRE,Blocks.REPEATER,
@@ -108,6 +108,15 @@ public final class BweCatalog {
         if(state.is(Blocks.TNT)||state.is(Blocks.REDSTONE_BLOCK))return Blocks.RED_TERRACOTTA.defaultBlockState();
         if(state.is(Blocks.OBSERVER)||state.is(Blocks.PISTON)||state.is(Blocks.STICKY_PISTON))return Blocks.STONE_BRICKS.defaultBlockState();
         return state;
+    }
+    // Stable corrections also cover servers retaining the original 0.15.0 catalogue JSON.
+    static int surfaceReference(Entry e,int detected){
+        return switch(e.id()){
+            case "bwe_idas:bazaar" -> 5; // paved market floor; upper connectors sit on the roof
+            case "bwe_idas:iceandfire_dread_citadel" -> 0; // expose the complete lower fortress
+            case "bwe_idas:fishermans_lodge" -> 17; // poles below, deck at 18, doors at 19
+            default -> detected;
+        };
     }
     public static boolean imported(Entry e){return e.id().startsWith("bwe_tt:")||e.id().startsWith("bwe_itp:")||e.id().startsWith("bwe_idas:");}
     public static String group(Entry e){
@@ -239,7 +248,7 @@ public final class BweCatalog {
         // These cropped schematics start with above-ground details, not a complete soil layer.
         // Put a continuous ground layer below local Y=0 instead of through their first layer.
         if(Set.of("bwe_extra:mansion","bwe_extra:faro_realista","bwe_extra:coliseo_natural").contains(entry.id()))surface=-1;
-        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surface);
+        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surfaceReference(entry,surface));
     }
 
     /** Only the large hostile mansion: bound persistent entities and keep combat local. */
