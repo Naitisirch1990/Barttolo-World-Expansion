@@ -266,6 +266,14 @@ public final class BweCatalog {
                 entities.add(new Spawn(entityTag,rx+p.x(),y+p.y(),rz+p.z(),90*p.rotation()));
             }
         }
+        if(AUDITED_PLACEMENTS.containsKey(entry.id())){
+            // Only the underside of each structural column needs terrain support.
+            // An upper piece's first layer may be a roof or balcony over a lower room.
+            Map<Long,Integer> underside=new HashMap<>();
+            for(Cell c:cells.values())if(!c.state().isAir()&&c.state().getFluidState().isEmpty()&&!c.state().canBeReplaced()&&!c.state().hasBlockEntity()&&!c.state().is(net.minecraft.tags.BlockTags.LEAVES))
+                underside.merge(VillageFootprint.key(c.pos().getX(),c.pos().getZ()),c.pos().getY(),Math::min);
+            supports.removeIf(p->p.getY()>underside.getOrDefault(VillageFootprint.key(p.getX(),p.getZ()),p.getY()));
+        }
         if(entry.id().equals("bwe_capitals:mansion_bottom_front_left"))lightMansion(world,cells,entities);
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
         sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()?0:1).thenComparingInt(c -> c.pos().getY()));
