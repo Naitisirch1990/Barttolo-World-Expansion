@@ -1,0 +1,1167 @@
+{
+  "schema": 1,
+  "entries": [
+    {
+      "id": "bwe_idas:abandoned_lighthouse",
+      "surfaceY": 1,
+      "placement": "ground",
+      "previousSurfaceY": 1,
+      "rootY": 0,
+      "rootSize": [
+        9,
+        13,
+        8
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:abandoned_vineyard",
+      "surfaceY": 7,
+      "placement": "ground",
+      "previousSurfaceY": 7,
+      "rootY": 7,
+      "rootSize": [
+        24,
+        12,
+        22
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:abandonedhouse",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        21,
+        20,
+        17
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ancient_mines",
+      "surfaceY": 101,
+      "placement": "ground",
+      "previousSurfaceY": 101,
+      "rootY": 100,
+      "rootSize": [
+        42,
+        19,
+        35
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ancient_portal_ancient_portal",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 33,
+      "rootY": 0,
+      "rootSize": [
+        28,
+        34,
+        27
+      ],
+      "subterranean": false,
+      "reason": "Base del monumento; el conector superior Y=34 no es suelo."
+    },
+    {
+      "id": "bwe_idas:ancient_portal_nether_ancient_portal",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 33,
+      "rootY": 0,
+      "rootSize": [
+        28,
+        34,
+        27
+      ],
+      "subterranean": false,
+      "reason": "Base del monumento; el conector superior Y=34 no es suelo."
+    },
+    {
+      "id": "bwe_idas:ancient_statue_ancient_statue_desert",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 2,
+      "rootY": 0,
+      "rootSize": [
+        13,
+        23,
+        22
+      ],
+      "subterranean": false,
+      "reason": "Pedestal inferior expuesto; conservar los escalones del monumento."
+    },
+    {
+      "id": "bwe_idas:ancient_statue_ancient_statue_jungle",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        10,
+        14,
+        9
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ancient_statue_ancient_statue_plains",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        15,
+        18,
+        14
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:animal_den_forest_den",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        13,
+        8,
+        15
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:animal_den_foxhound_den",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        13,
+        8,
+        15
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:animal_den_polar_bear_den",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        13,
+        8,
+        15
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:apothecary_abode",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 1,
+      "rootY": 0,
+      "rootSize": [
+        36,
+        39,
+        40
+      ],
+      "subterranean": false,
+      "reason": "Jardin exterior en Y=0; evitar taparlo con un bloque adicional de terreno."
+    },
+    {
+      "id": "bwe_idas:ars_nouveau_archmages_tower",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        79,
+        164,
+        79
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:bazaar",
+      "surfaceY": 5,
+      "placement": "ground",
+      "previousSurfaceY": 5,
+      "rootY": 0,
+      "rootSize": [
+        21,
+        31,
+        17
+      ],
+      "subterranean": false,
+      "reason": "Pavimento Y=5; conservar la correccion previa del conector superior Y=30."
+    },
+    {
+      "id": "bwe_idas:bearclaw_inn",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        35,
+        19,
+        26
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:beekeepers_house",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        33,
+        26,
+        48
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:botanist",
+      "surfaceY": 1,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        47,
+        26,
+        36
+      ],
+      "subterranean": false,
+      "reason": "Suelo de tierra/cesped Y=1; la capa Y=0 es relleno inferior."
+    },
+    {
+      "id": "bwe_idas:brickhouse",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        22,
+        23,
+        17
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:castle",
+      "surfaceY": 5,
+      "placement": "ground",
+      "previousSurfaceY": 5,
+      "rootY": 6,
+      "rootSize": [
+        36,
+        23,
+        26
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:collectors_museum",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        213,
+        53,
+        211
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:cottage",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        9,
+        9,
+        7
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_camp_desert_camp",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        11,
+        4,
+        10
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_camp_desert_camp_bygwindswept",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        11,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_camp_desert_camp_orange",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        10,
+        3,
+        11
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_camp_desert_camp_red",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        10,
+        4,
+        10
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_market_desert_market",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        17,
+        16,
+        17
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_market_desert_market_orange",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        17,
+        16,
+        17
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_market_desert_market_red",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        17,
+        16,
+        17
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_pyramid",
+      "surfaceY": 34,
+      "placement": "ground",
+      "previousSurfaceY": 34,
+      "rootY": 35,
+      "rootSize": [
+        59,
+        26,
+        53
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:desert_ruins",
+      "surfaceY": 12,
+      "placement": "ground",
+      "previousSurfaceY": 12,
+      "rootY": 12,
+      "rootSize": [
+        14,
+        8,
+        15
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:dig_site_dig_site",
+      "surfaceY": 8,
+      "placement": "ground",
+      "previousSurfaceY": 8,
+      "rootY": 9,
+      "rootSize": [
+        29,
+        10,
+        38
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:dig_site_dig_site_desert",
+      "surfaceY": 10,
+      "placement": "ground",
+      "previousSurfaceY": 10,
+      "rootY": 10,
+      "rootSize": [
+        38,
+        33,
+        47
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:enchantingtower",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        11,
+        26,
+        11
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:farmhouse",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        48,
+        43,
+        40
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:fishermans_lodge",
+      "surfaceY": 17,
+      "placement": "water",
+      "previousSurfaceY": 17,
+      "rootY": 0,
+      "rootSize": [
+        25,
+        41,
+        27
+      ],
+      "subterranean": false,
+      "reason": "Agua Y=17, cubierta Y=18 y puertas Y=19; sin tierra entre pilares."
+    },
+    {
+      "id": "bwe_idas:frozen_crypt",
+      "surfaceY": 15,
+      "placement": "ground",
+      "previousSurfaceY": 15,
+      "rootY": 15,
+      "rootSize": [
+        16,
+        5,
+        14
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:haunted_manor",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 46,
+      "rootY": 0,
+      "rootSize": [
+        47,
+        48,
+        36
+      ],
+      "subterranean": false,
+      "reason": "Base exterior de piedra y cesped Y=0; Y=46 es un conector de cubierta."
+    },
+    {
+      "id": "bwe_idas:hermits_hollow",
+      "surfaceY": 1,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        40,
+        14,
+        37
+      ],
+      "subterranean": false,
+      "reason": "Pavimento de musgo y acceso en Y=1; puerta inferior en Y=2."
+    },
+    {
+      "id": "bwe_idas:hunters_cabin",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        26,
+        19,
+        31
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:iceandfire_dread_citadel",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        134,
+        123,
+        69
+      ],
+      "subterranean": false,
+      "reason": "Base completa Y=0; conservar expuestos los accesos inferiores de madera."
+    },
+    {
+      "id": "bwe_idas:iceandfire_sirens_cove",
+      "surfaceY": 3,
+      "placement": "water",
+      "previousSurfaceY": 3,
+      "rootY": 3,
+      "rootSize": [
+        27,
+        20,
+        26
+      ],
+      "subterranean": false,
+      "reason": "Nivel de agua contrastado con el esquema; conservar contorno acuatico."
+    },
+    {
+      "id": "bwe_idas:labyrinth",
+      "surfaceY": 66,
+      "placement": "ground",
+      "previousSurfaceY": 66,
+      "rootY": 65,
+      "rootSize": [
+        47,
+        23,
+        39
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_acacia",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_birch",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_bopmahogany",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_bopredwood",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_bygmahogany",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_bygredwood",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        13,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_dark_oak",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_jungle",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_oak",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:lumber_camp_lumber_camp_spruce",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        14,
+        3,
+        12
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:mason_house",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        43,
+        17,
+        31
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:necromancers_spire",
+      "surfaceY": 0,
+      "placement": "air",
+      "previousSurfaceY": 40,
+      "rootY": 0,
+      "rootSize": [
+        15,
+        42,
+        21
+      ],
+      "subterranean": false,
+      "reason": "Aguja suspendida: punta inferior Y=0, cuerpo por encima; no cimentar con tierra."
+    },
+    {
+      "id": "bwe_idas:nether_pump_camp",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        12,
+        3,
+        10
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:nexus",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 5,
+      "rootY": 0,
+      "rootSize": [
+        57,
+        21,
+        57
+      ],
+      "subterranean": false,
+      "reason": "Cuenca y base completas visibles; no usar la plataforma interior Y=5 como terreno exterior."
+    },
+    {
+      "id": "bwe_idas:pillager_camp",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        17,
+        4,
+        14
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:pillager_fortress",
+      "surfaceY": 3,
+      "placement": "ground",
+      "previousSurfaceY": 46,
+      "rootY": 0,
+      "rootSize": [
+        34,
+        48,
+        45
+      ],
+      "subterranean": false,
+      "reason": "Pavimento principal Y=3; cimentacion maciza Y=0..2 y conector de techo Y=47."
+    },
+    {
+      "id": "bwe_idas:redhorn_guild",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        28,
+        48,
+        29
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ruined_church",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        38,
+        26,
+        29
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ruined_fort",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        13,
+        23,
+        26
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ruined_well",
+      "surfaceY": 12,
+      "placement": "ground",
+      "previousSurfaceY": 12,
+      "rootY": 12,
+      "rootSize": [
+        18,
+        15,
+        23
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:ruins_of_the_deep",
+      "surfaceY": 81,
+      "placement": "ground",
+      "previousSurfaceY": 81,
+      "rootY": 81,
+      "rootSize": [
+        53,
+        21,
+        45
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:snifferhenge",
+      "surfaceY": 7,
+      "placement": "ground",
+      "previousSurfaceY": 7,
+      "rootY": 7,
+      "rootSize": [
+        24,
+        14,
+        27
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:sunken_ship_sunken_ship",
+      "surfaceY": 5,
+      "placement": "water",
+      "previousSurfaceY": 5,
+      "rootY": 0,
+      "rootSize": [
+        16,
+        27,
+        45
+      ],
+      "subterranean": false,
+      "reason": "Nivel de agua contrastado con el esquema; conservar contorno acuatico."
+    },
+    {
+      "id": "bwe_idas:sunken_ship_sunken_ship_coral",
+      "surfaceY": 5,
+      "placement": "water",
+      "previousSurfaceY": 5,
+      "rootY": 0,
+      "rootSize": [
+        16,
+        27,
+        45
+      ],
+      "subterranean": false,
+      "reason": "Nivel de agua contrastado con el esquema; conservar contorno acuatico."
+    },
+    {
+      "id": "bwe_idas:sunken_ship_sunken_ship_ruins",
+      "surfaceY": 5,
+      "placement": "water",
+      "previousSurfaceY": 5,
+      "rootY": 0,
+      "rootSize": [
+        8,
+        6,
+        9
+      ],
+      "subterranean": false,
+      "reason": "Nivel de agua contrastado con el esquema; conservar contorno acuatico."
+    },
+    {
+      "id": "bwe_idas:the_log",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        23,
+        14,
+        15
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:tinkers_citadel",
+      "surfaceY": 6,
+      "placement": "ground",
+      "previousSurfaceY": 6,
+      "rootY": 0,
+      "rootSize": [
+        69,
+        63,
+        53
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:tinkers_workshop",
+      "surfaceY": 95,
+      "placement": "ground",
+      "previousSurfaceY": 102,
+      "rootY": 93,
+      "rootSize": [
+        44,
+        37,
+        27
+      ],
+      "subterranean": true,
+      "reason": "Entrada exterior y pavimento de la pieza inicial en Y=95; conservar dependencias inferiores."
+    },
+    {
+      "id": "bwe_idas:train_ruins",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        27,
+        15,
+        50
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:tree_of_wisdom",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 5,
+      "rootY": 0,
+      "rootSize": [
+        41,
+        15,
+        28
+      ],
+      "subterranean": false,
+      "reason": "Base y raices completas en Y=0; Y=5 corresponde al interior del arbol."
+    },
+    {
+      "id": "bwe_idas:treetop_tavern",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        25,
+        37,
+        26
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:tudor_pub",
+      "surfaceY": 11,
+      "placement": "ground",
+      "previousSurfaceY": 11,
+      "rootY": 11,
+      "rootSize": [
+        31,
+        20,
+        24
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:underground_camp_underground_camp",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        6,
+        3,
+        6
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:underground_camp_underground_camp_deep",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        6,
+        3,
+        6
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:wacky_wares",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        37,
+        28,
+        37
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:washing_camp",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        12,
+        3,
+        11
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:windswept_shrine",
+      "surfaceY": 9,
+      "placement": "ground",
+      "previousSurfaceY": 11,
+      "rootY": 9,
+      "rootSize": [
+        21,
+        21,
+        40
+      ],
+      "subterranean": true,
+      "reason": "Base rocosa expuesta en Y=9; el relieve del santuario asciende sobre ella."
+    },
+    {
+      "id": "bwe_idas:winter_wagon",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        37,
+        19,
+        26
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:witches_treestump",
+      "surfaceY": 0,
+      "placement": "ground",
+      "previousSurfaceY": 0,
+      "rootY": 0,
+      "rootSize": [
+        29,
+        20,
+        24
+      ],
+      "subterranean": false,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    },
+    {
+      "id": "bwe_idas:wizard_tower",
+      "surfaceY": 6,
+      "placement": "ground",
+      "previousSurfaceY": 6,
+      "rootY": 6,
+      "rootSize": [
+        24,
+        42,
+        23
+      ],
+      "subterranean": true,
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+    }
+  ]
+}
