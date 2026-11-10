@@ -21,7 +21,7 @@ public final class RegressionGameTests {
  @GameTest(batch="restore_lootr",template="empty",timeoutTicks=900)
  public static void restoresTerrainContainersAndNativeLootr(GameTestHelper h)throws Exception{
   var w=h.getLevel();var server=w.getServer();
-  mansionBudget(h);
+  mansionBudget(h);idasPlacementAudit(h);
   // Reproduce the former 65,536-block rejection using the actual Minecraft template reader.
   CompoundTag big=new CompoundTag();ListTag size=new ListTag();for(int v:new int[]{42,42,42})size.add(IntTag.valueOf(v));big.put("size",size);
   ListTag palette=new ListTag();CompoundTag air=new CompoundTag();air.putString("Name","minecraft:air");palette.add(air);big.put("palette",palette);
@@ -276,10 +276,41 @@ public final class RegressionGameTests {
      h.assertTrue(SurfaceBuilder.ground(w,waterBase,fisher,1)==waterBase.getY()+1,"Fisher automatic waterline mismatch");
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Fisher undo rejected");phase=18;h.runAfterDelay(1,()->this.run());return;
     }
-    if(phase==18)h.assertTrue(w.getBlockState(waterBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
-    System.out.println("[BWE-REGRESSION] PASS bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
+    if(phase==18){
+     h.assertTrue(w.getBlockState(waterBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
+     var outpost=new BweCatalog.Entry("bwe_idas:pillager_fortress","Fortaleza","",5,52,5,47,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,3,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,47,0,0)));
+     h.assertTrue(SurfaceBuilder.start(w,outpost,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Pillager fortress build rejected");
+     phase=19;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==19){
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Pillager fortress pavement buried by roof connector reference");
+     h.assertTrue(w.getBlockState(aerialBase.above()).isAir(),"Terrain filled fortress entrance");
+     h.assertTrue(w.getBlockState(aerialBase.above(44)).is(Blocks.STONE_BRICKS),"Fortress roof placed at wrong height");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Fortress undo rejected");phase=20;h.runAfterDelay(1,()->this.run());return;
+    }
+    System.out.println("[BWE-REGRESSION] PASS all 83 audited IDAS references and modes, fortress floor vs roof under stale metadata; bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
+ }
+ private static void idasPlacementAudit(GameTestHelper h)throws Exception{
+  var rules=BweCatalog.auditedPlacements();h.assertTrue(rules.size()==83,"IDAS placement audit missing entries");
+  Set<String> wet=Set.of("bwe_idas:fishermans_lodge","bwe_idas:iceandfire_sirens_cove","bwe_idas:sunken_ship_sunken_ship","bwe_idas:sunken_ship_sunken_ship_coral","bwe_idas:sunken_ship_sunken_ship_ruins");
+  for(var pair:rules.entrySet()){
+   String id=pair.getKey();var rule=pair.getValue();
+   var e=new BweCatalog.Entry(id,"audit","",7,Math.max(4,rule.surfaceY()+3),9,200,List.of());
+   h.assertTrue(BweCatalog.surfaceReference(e,199)==rule.surfaceY(),"Stale catalogue bypassed audited height: "+id);
+   h.assertTrue(BweCatalog.pirate(e)==wet.contains(id),"Wrong aquatic classification: "+id);
+   h.assertTrue(BweCatalog.airship(e)==id.equals("bwe_idas:necromancers_spire"),"Wrong aerial classification: "+id);
+   var plan=new BweCatalog.Blueprint(List.of(new BweCatalog.Cell(new BlockPos(2,rule.surfaceY(),3),Blocks.STONE_BRICKS.defaultBlockState(),null)),List.of(),List.of(),rule.surfaceY());
+   for(int turn=0;turn<4;turn++){
+    int origin=SurfaceBuilder.originY(e,plan,101);
+    h.assertTrue(BweCatalog.airship(e)?origin==100:origin+rule.surfaceY()==100,"Reference drift after turn: "+id);
+    plan=BweCatalog.turn(e,plan);e=BweCatalog.turned(e);
+   }
+  }
+  Map<String,Integer> confirmed=Map.of("bwe_idas:pillager_fortress",3,"bwe_idas:haunted_manor",0,"bwe_idas:ancient_portal_ancient_portal",0,"bwe_idas:ancient_portal_nether_ancient_portal",0,"bwe_idas:necromancers_spire",0,"bwe_idas:bazaar",5,"bwe_idas:fishermans_lodge",17,"bwe_idas:tinkers_workshop",95);
+  for(var p:confirmed.entrySet())h.assertTrue(rules.get(p.getKey()).surfaceY()==p.getValue(),"Audited entrance/floor mismatch: "+p.getKey());
+  h.assertTrue(rules.get("bwe_idas:ancient_mines").surfaceY()==101&&rules.get("bwe_idas:labyrinth").surfaceY()==66&&rules.get("bwe_idas:frozen_crypt").surfaceY()==15,"Intentional underground entrance references changed");
  }
  private static void validateExpansion(GameTestHelper h)throws Exception{
   h.assertTrue(BweCatalog.passiveState(Blocks.NETHER_PORTAL.defaultBlockState()).isAir()&&BweCatalog.passiveState(Blocks.SPAWNER.defaultBlockState()).isAir(),"Imported portals or spawners active");
