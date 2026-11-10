@@ -23,6 +23,22 @@ public final class BweCatalog {
     public record Cell(BlockPos pos,BlockState state,CompoundTag nbt) {}
     public record Spawn(CompoundTag nbt,double x,double y,double z,float yaw) {}
     public record Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports,int surfaceY) {}
+    record PlacementRule(int surfaceY,String mode,boolean subterranean) {}
+    private static final Map<String,PlacementRule> AUDITED_PLACEMENTS=loadPlacements();
+    private static Map<String,PlacementRule> loadPlacements(){
+        try(InputStream in=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/idas-placement-v1.json")){
+            if(in==null)return Map.of();
+            var root=JsonParser.parseReader(new InputStreamReader(in,java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            Map<String,PlacementRule> result=new HashMap<>();
+            for(var raw:root.getAsJsonArray("entries")){
+                var item=raw.getAsJsonObject();String id=item.get("id").getAsString(),mode=item.get("placement").getAsString();int surface=item.get("surfaceY").getAsInt();
+                if(!id.startsWith("bwe_idas:")||surface<0||surface>255||!Set.of("ground","water","air").contains(mode)||result.containsKey(id))throw new IOException("Referencia IDAS invalida: "+id);
+                result.put(id,new PlacementRule(surface,mode,item.has("subterranean")&&item.get("subterranean").getAsBoolean()));
+            }
+            return Map.copyOf(result);
+        }catch(Exception error){throw new IllegalStateException("No se pueden leer las referencias de altura IDAS",error);}
+    }
+    static Map<String,PlacementRule> auditedPlacements(){return AUDITED_PLACEMENTS;}
     private static final Map<String,StructureTemplate> CACHE=new HashMap<>();
     private static List<Entry> catalog;
     private static String problem="";
@@ -49,7 +65,7 @@ public final class BweCatalog {
                     throw new IllegalArgumentException("Tamano fuera del limite: "+o.get("id"));
                 if(o.has("placement"))PLACEMENT.put(o.get("id").getAsString(),o.get("placement").getAsString());
                 result.add(new Entry(o.get("id").getAsString(),shortTitle(o.get("title").getAsString()),
-                    o.get("description").getAsString(),x,y,z,o.get("ground").getAsInt(),List.copyOf(pieces)));
+                    placementDescription(o.get("id").getAsString(),o.get("description").getAsString()),x,y,z,o.get("ground").getAsInt(),List.copyOf(pieces)));
             }
             }
             catalog=List.copyOf(result);
@@ -78,6 +94,12 @@ public final class BweCatalog {
         }
         return Set.copyOf(result);
     }
+    private static String placementDescription(String id,String description){
+        var rule=AUDITED_PLACEMENTS.get(id);if(rule==null)return description;
+        if(rule.mode().equals("air"))return description+" · Construccion flotante";
+        if(rule.subterranean())return description+" · Entrada en superficie; niveles inferiores subterraneos";
+        return description;
+    }
     public static String shortTitle(String title){return title.replace("Better Village", "BV").replace("Grand Capitals", "GC");}
     public static Entry turned(Entry e){return new Entry(e.id(),e.title(),e.description(),e.sizeZ(),e.sizeY(),e.sizeX(),e.ground(),e.pieces());}
     /** Rotate the already selected plan, never reassemble it or resample its height. */
@@ -97,8 +119,14 @@ public final class BweCatalog {
         return new Blueprint(List.copyOf(cells),List.copyOf(entities),List.copyOf(supports),b.surfaceY());
     }
     public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:")||imported(e); }
-    public static boolean pirate(Entry e) { return e.id().equals("integrated_villages:aldea_pirate_village")||e.id().equals("bwe_idas:fishermans_lodge")||"water".equals(PLACEMENT.get(e.id())); }
-    public static boolean airship(Entry e) { return e.id().equals("integrated_villages:aldea_airship_village")||"air".equals(PLACEMENT.get(e.id())); }
+    public static boolean pirate(Entry e) {
+        var rule=AUDITED_PLACEMENTS.get(e.id());if(rule!=null)return rule.mode().equals("water");
+        return e.id().equals("integrated_villages:aldea_pirate_village")||e.id().equals("bwe_idas:fishermans_lodge")||"water".equals(PLACEMENT.get(e.id()));
+    }
+    public static boolean airship(Entry e) {
+        var rule=AUDITED_PLACEMENTS.get(e.id());if(rule!=null)return rule.mode().equals("air");
+        return e.id().equals("integrated_villages:aldea_airship_village")||"air".equals(PLACEMENT.get(e.id()));
+    }
     private static final Set<Block> ACTIVE_IMPORT_BLOCKS=Set.of(Blocks.SPAWNER,Blocks.COMMAND_BLOCK,Blocks.CHAIN_COMMAND_BLOCK,Blocks.REPEATING_COMMAND_BLOCK,
             Blocks.NETHER_PORTAL,Blocks.END_PORTAL,Blocks.END_GATEWAY,Blocks.REDSTONE_WIRE,Blocks.REPEATER,
             Blocks.COMPARATOR,Blocks.PISTON_HEAD,Blocks.MOVING_PISTON);
@@ -111,6 +139,7 @@ public final class BweCatalog {
     }
     // Stable corrections also cover servers retaining the original 0.15.0 catalogue JSON.
     static int surfaceReference(Entry e,int detected){
+        var rule=AUDITED_PLACEMENTS.get(e.id());if(rule!=null)return rule.surfaceY();
         return switch(e.id()){
             case "bwe_idas:bazaar" -> 5; // paved market floor; upper connectors sit on the roof
             case "bwe_idas:iceandfire_dread_citadel" -> 0; // expose the complete lower fortress
