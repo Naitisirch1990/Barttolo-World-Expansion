@@ -78,7 +78,7 @@ public final class RegressionGameTests {
   var pig=EntityType.PIG.create(w);pig.moveTo(at.getX()+0.5,at.getY()+1,at.getZ()+0.5,0,0);BweBackup.recordEntity(pig);w.addFreshEntity(pig);
   BweBackup.close();h.assertTrue(BweBackup.restore(w)==null,"Cannot reopen persistent journal");
   h.runAfterDelay(1,new Runnable(){int phase;
-   BlockPos aerialBase;int desired;
+   BlockPos aerialBase,waterBase;int desired;
    public void run(){try{
     if(BweBackup.restoring()){h.runAfterDelay(1,()->this.run());return;}
     if(phase==0){
@@ -255,6 +255,7 @@ public final class RegressionGameTests {
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Citadel undo rejected");phase=16;h.runAfterDelay(1,()->this.run());return;
     }
     if(phase==16){
+     waterBase=aerialBase.above(24); // GameTest origin is near world minimum; allow the full 19-block wet envelope.
      List<BweCatalog.Cell> cells=new ArrayList<>();
      for(int x=0;x<5;x++)for(int z=0;z<5;z++)for(int y=0;y<24;y++){
       var state=Blocks.AIR.defaultBlockState();
@@ -262,20 +263,20 @@ public final class RegressionGameTests {
       else if(y<18&&(x==0||x==4)&&(z==0||z==4))state=Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
       cells.add(new BweCatalog.Cell(new BlockPos(x,y,z),state,null));
      }
-     w.setBlock(aerialBase.offset(1,-8,1),Blocks.GOLD_BLOCK.defaultBlockState(),50);
+     w.setBlock(waterBase.offset(1,-8,1),Blocks.GOLD_BLOCK.defaultBlockState(),50);
      var plan=new BweCatalog.Blueprint(cells,List.of(),List.of(),BweCatalog.surfaceReference(fisher,0));
-     h.assertTrue(SurfaceBuilder.start(w,fisher,plan,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Fisher water placement rejected");
+     String fisherError=SurfaceBuilder.start(w,fisher,plan,waterBase,waterBase.getY()+1,1,UUID.randomUUID());h.assertTrue(fisherError==null,"Fisher water placement rejected: "+fisherError);
      phase=17;h.runAfterDelay(1,()->this.run());return;
     }
     if(phase==17){
-     for(int depth=0;depth<=17;depth++)h.assertTrue(w.getBlockState(aerialBase.below(depth)).is(Blocks.WATER),"Air or earth remains between fisher pillars at depth "+depth);
-     h.assertTrue(w.getBlockState(aerialBase.offset(-2,-17,-2)).is(Blocks.STRIPPED_SPRUCE_LOG),"Fisher pillar was replaced with water");
-     h.assertTrue(w.getBlockState(aerialBase.above()).is(Blocks.STONE_BRICKS)&&w.getBlockState(aerialBase.above(2)).isAir(),"Fisher deck not one block above waterline");
-     h.assertTrue(w.getBlockState(aerialBase.offset(1,-8,1)).is(Blocks.WATER),"Fisher underwater terrain not cleared");
-     h.assertTrue(SurfaceBuilder.ground(w,aerialBase,fisher,1)==aerialBase.getY()+1,"Fisher automatic waterline mismatch");
+     for(int depth=0;depth<=17;depth++)h.assertTrue(w.getBlockState(waterBase.below(depth)).is(Blocks.WATER),"Air or earth remains between fisher pillars at depth "+depth);
+     h.assertTrue(w.getBlockState(waterBase.offset(-2,-17,-2)).is(Blocks.STRIPPED_SPRUCE_LOG),"Fisher pillar was replaced with water");
+     h.assertTrue(w.getBlockState(waterBase.above()).is(Blocks.STONE_BRICKS)&&w.getBlockState(waterBase.above(2)).isAir(),"Fisher deck not one block above waterline");
+     h.assertTrue(w.getBlockState(waterBase.offset(1,-8,1)).is(Blocks.WATER),"Fisher underwater terrain not cleared");
+     h.assertTrue(SurfaceBuilder.ground(w,waterBase,fisher,1)==waterBase.getY()+1,"Fisher automatic waterline mismatch");
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Fisher undo rejected");phase=18;h.runAfterDelay(1,()->this.run());return;
     }
-    if(phase==18)h.assertTrue(w.getBlockState(aerialBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
+    if(phase==18)h.assertTrue(w.getBlockState(waterBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
     System.out.println("[BWE-REGRESSION] PASS bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
