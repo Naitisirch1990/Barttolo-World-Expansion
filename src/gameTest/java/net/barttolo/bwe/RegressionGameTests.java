@@ -279,6 +279,9 @@ public final class RegressionGameTests {
     if(phase==18){
      h.assertTrue(w.getBlockState(waterBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
      var outpost=new BweCatalog.Entry("bwe_idas:pillager_fortress","Fortaleza","",5,52,5,47,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,3,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,47,0,0)));
+     var supportFixture=new BweCatalog.Entry(outpost.id(),"supports","",10,52,5,47,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,3,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,47,0,0),new BweCatalog.Piece("ctov:village/path/regression",5,5,0,0)));
+     var supported=BweCatalog.compose(w,supportFixture);
+     h.assertTrue(supported.supports().size()==50&&supported.supports().stream().noneMatch(p->p.getY()==47)&&supported.supports().stream().anyMatch(p->p.getY()==5),"Upper roofs treated as foundation or real raised platform lost support");
      h.assertTrue(SurfaceBuilder.start(w,outpost,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Pillager fortress build rejected");
      phase=19;h.runAfterDelay(1,()->this.run());return;
     }
