@@ -9,6 +9,8 @@ notes='''BWE 0.15.2 - Revision de alturas del catalogo IDAS
 
 Sustituir BWE en CLIENTE Y SERVIDOR y reiniciar. Conservar config/bwe y los respaldos. Las 83 referencias auditadas se cargan desde el JAR por identificador, incluso si config/bwe conserva el catalogo anterior. No hace falta borrar la configuracion.
 
+Se evita tambien que los primeros bloques de una pieza superior se traten como cimentacion dentro de una sala: solo se apoya el bloque estructural inferior de cada columna. Se conservan los apoyos de plataformas realmente elevadas.
+
 Se han contrastado las capas inferiores, pavimentos, accesos, terreno y agua de las 83 opciones IDAS. Se corrigen 13 referencias adicionales respecto de 0.15.1. La causa principal era tomar conectores de ensamblaje de los tejados como si fueran el suelo.
 
 Fortaleza de saqueadores: pavimento principal local Y=3, en lugar de Y=46 cerca del techo. Las capas Y=0..2 son cimentacion; la fortaleza queda sobre el terreno elegido.
