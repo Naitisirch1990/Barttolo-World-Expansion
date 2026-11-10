@@ -50,6 +50,12 @@ public final class RegressionGameTests {
   var flying=new BweCatalog.Entry("integrated_villages:aldea_airship_village","airship","",5,3,5,2,pieces);h.assertTrue(BweCatalog.compose(w,flying).surfaceY()==1,"Airship placement changed");
   var pirate=new BweCatalog.Entry("integrated_villages:aldea_pirate_village","pirate","",5,5,5,7,List.of(new BweCatalog.Piece("ctov:regression_boat",0,0,0,0)));
   h.assertTrue(BweCatalog.compose(w,pirate).surfaceY()==2,"Pirate waterline reference incorrect");
+  var market=new BweCatalog.Entry("bwe_idas:bazaar","Bazar","",5,10,5,30,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,5,0,0)));
+  var fortress=new BweCatalog.Entry("bwe_idas:iceandfire_dread_citadel","Ciudadela","",5,8,5,39,pieces);
+  var fisher=new BweCatalog.Entry("bwe_idas:fishermans_lodge","Refugio","",5,24,5,1,pieces);
+  h.assertTrue(BweCatalog.compose(w,market).surfaceY()==5,"Stale bazaar metadata still uses roof as ground");
+  h.assertTrue(BweCatalog.compose(w,fortress).surfaceY()==0,"Stale citadel metadata buries lower fortress");
+  h.assertTrue(BweCatalog.compose(w,fisher).surfaceY()==17&&BweCatalog.pirate(fisher),"Stale fisher metadata still creates earth foundation");
   BlockPos at=h.absolutePos(new BlockPos(1,2,1)),chest=h.absolutePos(new BlockPos(3,2,1));
   w.setBlock(at,Blocks.STONE.defaultBlockState(),50);w.setBlock(chest,Blocks.CHEST.defaultBlockState(),50);
   ((ChestBlockEntity)w.getBlockEntity(chest)).setItem(0,new ItemStack(Items.DIAMOND,7));
@@ -227,7 +233,50 @@ public final class RegressionGameTests {
      h.assertTrue(w.getBlockState(aerialBase.offset(1,1,0)).isAir(),"Terrain remains above arena floor");
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Cropped undo rejected");phase=12;h.runAfterDelay(1,()->this.run());return;
     }
-    System.out.println("[BWE-REGRESSION] PASS cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
+    if(phase==12){
+     h.assertTrue(SurfaceBuilder.start(w,market,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Market placement rejected");
+     phase=13;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==13){
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Market floor is not at selected terrain Y");
+     h.assertTrue(w.getBlockState(aerialBase.above()).isAir(),"Market buried under generated terrain");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Market undo rejected");phase=14;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==14){
+     var plan=BweCatalog.compose(w,fortress);var cells=new ArrayList<>(plan.cells());
+     cells.add(new BweCatalog.Cell(new BlockPos(2,5,2),Blocks.OAK_PLANKS.defaultBlockState(),null));
+     plan=new BweCatalog.Blueprint(cells,List.of(),plan.supports(),plan.surfaceY());
+     h.assertTrue(SurfaceBuilder.start(w,fortress,plan,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Citadel placement rejected");
+     phase=15;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==15){
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Citadel lower base still buried");
+     h.assertTrue(w.getBlockState(aerialBase.above(5)).is(Blocks.OAK_PLANKS)&&w.getBlockState(aerialBase.offset(1,5,0)).isAir(),"Lower wooden entrance covered by terrain");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Citadel undo rejected");phase=16;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==16){
+     List<BweCatalog.Cell> cells=new ArrayList<>();
+     for(int x=0;x<5;x++)for(int z=0;z<5;z++)for(int y=0;y<24;y++){
+      var state=Blocks.AIR.defaultBlockState();
+      if(y==18)state=Blocks.STONE_BRICKS.defaultBlockState();
+      else if(y<18&&(x==0||x==4)&&(z==0||z==4))state=Blocks.STRIPPED_SPRUCE_LOG.defaultBlockState();
+      cells.add(new BweCatalog.Cell(new BlockPos(x,y,z),state,null));
+     }
+     w.setBlock(aerialBase.offset(1,-8,1),Blocks.GOLD_BLOCK.defaultBlockState(),50);
+     var plan=new BweCatalog.Blueprint(cells,List.of(),List.of(),BweCatalog.surfaceReference(fisher,0));
+     h.assertTrue(SurfaceBuilder.start(w,fisher,plan,aerialBase,aerialBase.getY()+1,1,UUID.randomUUID())==null,"Fisher water placement rejected");
+     phase=17;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==17){
+     for(int depth=0;depth<=17;depth++)h.assertTrue(w.getBlockState(aerialBase.below(depth)).is(Blocks.WATER),"Air or earth remains between fisher pillars at depth "+depth);
+     h.assertTrue(w.getBlockState(aerialBase.offset(-2,-17,-2)).is(Blocks.STRIPPED_SPRUCE_LOG),"Fisher pillar was replaced with water");
+     h.assertTrue(w.getBlockState(aerialBase.above()).is(Blocks.STONE_BRICKS)&&w.getBlockState(aerialBase.above(2)).isAir(),"Fisher deck not one block above waterline");
+     h.assertTrue(w.getBlockState(aerialBase.offset(1,-8,1)).is(Blocks.WATER),"Fisher underwater terrain not cleared");
+     h.assertTrue(SurfaceBuilder.ground(w,aerialBase,fisher,1)==aerialBase.getY()+1,"Fisher automatic waterline mismatch");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Fisher undo rejected");phase=18;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==18)h.assertTrue(w.getBlockState(aerialBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
+    System.out.println("[BWE-REGRESSION] PASS bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
  }
