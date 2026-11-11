@@ -81,7 +81,7 @@ public final class BarttoloWorldExpansion {
     private static int catalogue(CommandSourceStack s){
         if(BweCatalog.entries().isEmpty())return fail(s,BweCatalog.problem()+". Usa el JAR completo con las plantillas.");
         say(s,"Catalogo BWE: elige un grupo");
-        for(String group:java.util.List.of("IV","BV","GC","EX","CTOV","EXTRAS","TT","ITP","IDAS","SUBTERRANEO","HOSTILES")){
+        for(String group:java.util.List.of("IV","BV","GC","EX","CTOV","EXTRAS","TT","ITP","IDAS","SUBTERRANEO","CW","HOSTILES")){
             int count=BweCatalog.category(group).size();if(count==0)continue;
             String label=group.equals("HOSTILES")?"Estructuras hostiles":group.equals("SUBTERRANEO")?"Subterráneo":group;
             s.sendSuccess(()->Component.literal("["+label+"] "+count+" estructuras").withStyle(style->style.withColor(group.equals("HOSTILES")?ChatFormatting.GOLD:ChatFormatting.AQUA)
@@ -129,10 +129,11 @@ public final class BarttoloWorldExpansion {
             String heightError=SurfaceBuilder.heightProblem(s.getLevel(),e,plan,ground);if(heightError!=null)return fail(s,heightError);
             SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin,plan));HIDDEN_BORDERS.remove(player);showBorder(s.getPlayerOrException(),SELECTED.get(player));
             say(s,BweCatalog.underground(e)?"Borde verde del volumen subterraneo. /bwe altura Y fija el piso."
-                :BweCatalog.desertPyramid(e)?"Borde verde de las entradas en superficie. El laberinto se extiende por debajo."
+                :BweCatalog.surfaceEntrance(e)?"Borde verde de las entradas en superficie. El laberinto se extiende por debajo."
                 :"Borde VERDE: contorno real de limpieza, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
             say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+heightLabel(e)+(ground-1)+(manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?" (altura manual conservada)":""));
             say(s,"Centro X="+center.getX()+" Z="+center.getZ()+" | /bwe x X | /bwe z Z | "+heightLabel(e)+(ground-1)+" | base del esquema Y="+SurfaceBuilder.originY(e,plan,ground));
+            if(BweCatalog.crawlspace(e)){say(s,"La torre queda en el centro indicado. Las galerias se colocan debajo sin nivelar sobre ellas. Alejate y usa /bwe crear.");return 1;}
             if(BweCatalog.underground(e)){say(s,"Solo se reemplazan los bloques del plano, incluidos agua y lava. Usa /bwe crear.");return 1;}
             say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":BweCatalog.pirate(e)?"Estructura acuatica: agua alrededor, sin plataforma de tierra. /bwe altura Y ajusta el agua.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
