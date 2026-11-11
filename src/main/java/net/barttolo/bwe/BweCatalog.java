@@ -13,6 +13,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipFile;
 
 /** Manual-only source archives. Never registers their worldgen or loads their mod code. */
@@ -45,9 +46,13 @@ public final class BweCatalog {
                 Map<String,List<AirRun>> excavationAir=new HashMap<>();
                 if(item.has("excavationAir"))for(var piece:item.getAsJsonObject("excavationAir").entrySet()){
                     List<AirRun> runs=new ArrayList<>();
-                    for(var encoded:piece.getValue().getAsJsonArray()){
-                        var run=encoded.getAsJsonArray();
-                        runs.add(new AirRun(run.get(0).getAsInt(),run.get(1).getAsInt(),run.get(2).getAsInt(),run.get(3).getAsInt()));
+                    try(var data=new GZIPInputStream(new ByteArrayInputStream(Base64.getDecoder().decode(piece.getValue().getAsString())))){
+                        int x;
+                        while((x=data.read())!=-1){
+                            int z=data.read(),bottom=data.read(),top=data.read();
+                            if(bottom<0||top<bottom)throw new IOException("Excavacion IDAS invalida: "+piece.getKey());
+                            runs.add(new AirRun(x,z,bottom,top));
+                        }
                     }
                     excavationAir.put(piece.getKey(),List.copyOf(runs));
                 }
