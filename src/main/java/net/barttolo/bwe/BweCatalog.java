@@ -74,11 +74,13 @@ public final class BweCatalog {
         try { bootstrap(); } catch(IOException error) { problem=error.getMessage();catalog=List.of();return catalog; }
         try {
             ArrayList<Entry> result=new ArrayList<>();
-            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json")) {
+            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","catalogo-subterraneo-v1.json")) {
             Path file=folder().resolve(filename);if(!Files.isRegularFile(file))continue;
             JsonObject root;try(var reader=Files.newBufferedReader(file)){root=JsonParser.parseReader(reader).getAsJsonObject();}
             for(var item:root.getAsJsonArray("entries")) {
-                JsonObject o=item.getAsJsonObject();ArrayList<Piece> pieces=new ArrayList<>();
+                JsonObject o=item.getAsJsonObject();
+                if(o.get("id").getAsString().equals("bwe_idas:tree_of_wisdom"))continue;
+                ArrayList<Piece> pieces=new ArrayList<>();
                 for(var value:o.getAsJsonArray("pieces")) {
                     var p=value.getAsJsonObject();pieces.add(new Piece(p.get("template").getAsString(),
                         p.get("x").getAsInt(),p.get("y").getAsInt(),p.get("z").getAsInt(),p.get("rotation").getAsInt()));
@@ -98,7 +100,7 @@ public final class BweCatalog {
     /** Private deliverable may carry the exact user-provided archives as passive resources. */
     private static void bootstrap() throws IOException {
         Files.createDirectories(folder());
-        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json","bwe_better.jar","bwe_capitals.jar","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","bwe_tt.jar","bwe_itp.jar","bwe_idas.jar")) {
+        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json","bwe_better.jar","bwe_capitals.jar","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","bwe_tt.jar","bwe_itp.jar","bwe_idas.jar","catalogo-subterraneo-v1.json","bwe_subterraneo.jar")) {
             Path target=folder().resolve(name);
             if(Files.exists(target))continue;
             try(InputStream input=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/"+name)) {
@@ -112,9 +114,11 @@ public final class BweCatalog {
         if(BweCatalog.airship(e)||BweCatalog.pirate(e)){
             for(int x=-margin;x<e.sizeX()+margin;x++)for(int z=-margin;z<e.sizeZ()+margin;z++)result.add(VillageFootprint.key(x,z));
         }else{
-            for(var c:b.cells())if(!c.state().isAir())for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
-            result.addAll(b.excavation().keySet());
-            result=VillageFootprint.withCourtyards(result);
+            for(var c:b.cells())if(!c.state().isAir()&&(!desertPyramid(e)||c.pos().getY()>=b.surfaceY()))for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
+            if(!desertPyramid(e)&&!underground(e)){
+                result.addAll(b.excavation().keySet());
+                result=VillageFootprint.withCourtyards(result);
+            }
         }
         return Set.copyOf(result);
     }
@@ -174,9 +178,11 @@ public final class BweCatalog {
         };
     }
     public static boolean imported(Entry e){return e.id().startsWith("bwe_tt:")||e.id().startsWith("bwe_itp:")||e.id().startsWith("bwe_idas:");}
+    static boolean underground(Entry e){return e.id().startsWith("bwe_subterraneo:");}
+    static boolean desertPyramid(Entry e){return e.id().equals("bwe_idas:desert_pyramid");}
     public static String group(Entry e){
         return switch(e.id().split(":",2)[0]){
-            case "bwe_tt" -> "TT";case "bwe_itp" -> "ITP";case "bwe_idas" -> "IDAS";
+            case "bwe_subterraneo" -> "SUBTERRANEO";case "bwe_tt" -> "TT";case "bwe_itp" -> "ITP";case "bwe_idas" -> "IDAS";
             case "bwe_capitals" -> "GC";case "bwe_better" -> "BV";case "integrated_villages" -> "IV";
             case "explorify" -> "EX";case "ctov" -> "CTOV";default -> "EXTRAS";
         };
@@ -193,7 +199,7 @@ public final class BweCatalog {
         if(key==null)throw new IOException("ID invalido: "+id);
         Path archive=folder().resolve(key.getNamespace().equals("integrated_villages")?"integrated_vanilla.jar":key.getNamespace()+".jar");
         StructureTemplate result;
-        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra","bwe_better","bwe_capitals","bwe_tt","bwe_itp","bwe_idas").contains(key.getNamespace())) {
+        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra","bwe_better","bwe_capitals","bwe_tt","bwe_itp","bwe_idas","bwe_subterraneo").contains(key.getNamespace())) {
             try(ZipFile zip=new ZipFile(archive.toFile())) {
                 String base="data/"+key.getNamespace()+"/";
                 var entry=zip.getEntry(base+"structures/"+key.getPath()+".nbt");
@@ -317,7 +323,7 @@ public final class BweCatalog {
         }
         if(entry.id().equals("bwe_capitals:mansion_bottom_front_left"))lightMansion(world,cells,entities);
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
-        sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()?0:1).thenComparingInt(c -> c.pos().getY()));
+        sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()==underground(entry)?1:0).thenComparingInt(c -> c.pos().getY()));
         int surface=entry.ground()-1,best=0;
         for(var h:roadHeights.entrySet())if(h.getValue()>best){surface=h.getKey();best=h.getValue();}
         // This fixed harbour has its docks at local Y=20 and its waterline at Y=19.
