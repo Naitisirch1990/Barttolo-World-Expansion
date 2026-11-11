@@ -15,12 +15,16 @@ import java.util.*;
 public final class SurfaceBuilder {
     private static final int BUDGET=200,FLAGS=2|16|32;
     private static Job active,last;
-    private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,AGUA,LOOTR,POBLACION }
+    private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,EXCAVACION,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,AGUA,LOOTR,POBLACION }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
         final boolean aerial,aquatic;final BitSet water,dry;final int waterWidth,waterDepth,waterHeight;final int clearBottom,clearTop;final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;final Map<Long,Integer> lowest=new HashMap<>();
+        final Iterator<Map.Entry<Long,BitSet>> excavation;
+        Map.Entry<Long,BitSet> excavationColumn;
+        int excavationY;
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;final List<BlockPos> chests;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
+            excavation=b.excavation().entrySet().iterator();
             world=w;entry=e;blueprint=b;walkY=ground;operator=op;aerial=BweCatalog.airship(e);aquatic=BweCatalog.pirate(e);
             origin=new BlockPos(center.getX()-e.sizeX()/2,originY(e,b,ground),center.getZ()-e.sizeZ()/2);
             clearBottom=aerial?origin.getY()-4:aquatic?origin.getY()-2:walkY;clearTop=(aerial||aquatic)?origin.getY()+e.sizeY()+3:Math.max(origin.getY()+e.sizeY()+1,walkY+64);
@@ -46,6 +50,9 @@ public final class SurfaceBuilder {
             placementFootprint=Set.copyOf(footprint);
             footprint.clear();for(long k:BweCatalog.terrain(e,b,margin))footprint.add(columnKey(origin.getX()+(int)(k>>32),origin.getZ()+(int)k));
             x=x0;z=z0;area=new AABB(x0,(aerial||aquatic)?clearBottom:w.getMinBuildHeight(),z0,x1+1.0,(aerial||aquatic)?clearTop+1:w.getMaxBuildHeight(),z1+1.0);
+        }
+        boolean excavates(BlockPos at){
+            return blueprint.excavates(at.getX()-origin.getX(),at.getY()-origin.getY(),at.getZ()-origin.getZ());
         }
         void column() {y=Integer.MIN_VALUE;if(++z>z1){z=z0;x++;}}
     }
@@ -178,7 +185,7 @@ public final class SurfaceBuilder {
                     requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
                 }else if(j.stage==Stage.LIMPIEZA){
                     if(j.x>j.x1){
-                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=(j.aerial||j.aquatic)?Stage.CONSTRUCCION:Stage.CIMENTACION;j.cursor=0;continue;
+                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=(j.aerial||j.aquatic)?Stage.CONSTRUCCION:Stage.EXCAVACION;j.cursor=0;continue;
                     }
                     if(!affected(j,j.x,j.z)){j.column();continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,j.clearTop);
@@ -187,12 +194,24 @@ public final class SurfaceBuilder {
                     if(j.y<j.clearBottom){j.column();continue;}
                     if(skipped==32)continue;
                     set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
+                }else if(j.stage==Stage.EXCAVACION){
+                    if(j.excavationColumn==null){
+                        if(!j.excavation.hasNext()){j.stage=Stage.CIMENTACION;continue;}
+                        j.excavationColumn=j.excavation.next();
+                        j.excavationY=0;
+                    }
+                    int localY=j.excavationColumn.getValue().nextSetBit(j.excavationY);
+                    if(localY<0){j.excavationColumn=null;continue;}
+                    long key=j.excavationColumn.getKey();
+                    set(j,j.origin.offset((int)(key>>32),localY,(int)key),Blocks.AIR.defaultBlockState());
+                    j.excavationY=localY+1;
                 }else if(j.stage==Stage.CIMENTACION){
                     if(j.x>j.x1){j.stage=Stage.APOYOS;j.cursor=0;j.y=Integer.MIN_VALUE;continue;}
                     if(!affected(j,j.x,j.z)){j.column();continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=j.walkY-1;
                     if(j.y<baseBottom(j)){j.column();continue;}
                     BlockPos at=new BlockPos(j.x,j.y,j.z);var old=j.world.getBlockState(at);
+                    if(j.excavates(at)){j.column();continue;}
                     boolean support=firm(old);
                     if(j.y==j.walkY-1||!support)set(j,at,(j.y==j.walkY-1?Blocks.GRASS_BLOCK:j.y>=j.walkY-3?Blocks.DIRT:Blocks.STONE).defaultBlockState());
                     if(support)j.column();else j.y--;
@@ -202,7 +221,7 @@ public final class SurfaceBuilder {
                     if(j.y==Integer.MIN_VALUE)j.y=floor.getY()-1;
                     if(j.y<baseBottom(j)){j.cursor++;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos at=new BlockPos(floor.getX(),j.y,floor.getZ());var old=j.world.getBlockState(at);
-                    if(firm(old)) {j.cursor++;j.y=Integer.MIN_VALUE;}
+                    if(j.excavates(at)||firm(old)) {j.cursor++;j.y=Integer.MIN_VALUE;}
                     else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
                 }else if(j.stage==Stage.CONSTRUCCION){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
