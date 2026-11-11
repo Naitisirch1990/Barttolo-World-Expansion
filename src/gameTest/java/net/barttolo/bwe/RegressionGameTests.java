@@ -159,7 +159,10 @@ public final class RegressionGameTests {
      fake.setPos(aerialBase.getX()+0.5,aerialBase.getY()+1,aerialBase.getZ()+0.5);
      command(h,fake,"bwe listar");command(h,fake,"bwe listar EXTRAS");command(h,fake,"bwe listar 1");
      command(h,fake,"bwe escanear");command(h,fake,"bwe seleccionar test:height");command(h,fake,"bwe altura "+desired);
-     command(h,fake,"bwe borde");command(h,fake,"bwe altura "+desired);command(h,fake,"bwe seleccionar test:height");
+     command(h,fake,"bwe borde");command(h,fake,"bwe altura "+desired);
+     BlockPos moved=aerialBase.offset(8,0,8);
+     for(int dx:new int[]{-3,3})for(int dz:new int[]{-3,3})w.getChunk((moved.getX()+dx)>>4,(moved.getZ()+dz)>>4);
+     command(h,fake,"bwe x "+moved.getX());command(h,fake,"bwe z "+moved.getZ());command(h,fake,"bwe seleccionar test:height");
      for(int rotation=0;rotation<4;rotation++)command(h,fake,"bwe rotar");
      command(h,fake,"bwe crear");
      var buf=new net.minecraft.network.FriendlyByteBuf(io.netty.buffer.Unpooled.buffer());
@@ -167,7 +170,7 @@ public final class RegressionGameTests {
      phase=7;h.runAfterDelay(1,()->this.run());return;
     }
     if(phase==7){
-     h.assertTrue(w.getBlockState(new BlockPos(aerialBase.getX(),desired,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Height changed after reselection; road is not at requested Y");
+     h.assertTrue(w.getBlockState(new BlockPos(aerialBase.getX()+8,desired,aerialBase.getZ()+8)).is(Blocks.STONE_BRICKS),"Road is not at the adjusted X, Y and Z after reselection and rotation");
      h.assertTrue(!w.getBlockState(new BlockPos(aerialBase.getX(),desired-10,aerialBase.getZ())).is(Blocks.STONE_BRICKS),"Road was buried at the scheme origin");
      validateBiomes(h);validateExpansion(h);
      CompoundTag wall=boat.copy();ListTag walls=new ListTag();
@@ -325,6 +328,7 @@ public final class RegressionGameTests {
   int recoveredAir=rules.get("bwe_idas:labyrinth").excavationAir().values().stream().flatMap(List::stream)
    .mapToInt(run->run.top()-run.bottom()+1).sum();
   h.assertTrue(recoveredAir==400,"Original IDAS labyrinth shaft clearance is missing");
+  h.assertTrue(rules.get("bwe_idas:tinkers_workshop").excavationAir().size()>1,"Workshop lower passages lack recovered air");
   Set<String> wet=Set.of("bwe_idas:fishermans_lodge","bwe_idas:iceandfire_sirens_cove","bwe_idas:sunken_ship_sunken_ship","bwe_idas:sunken_ship_sunken_ship_coral","bwe_idas:sunken_ship_sunken_ship_ruins");
   for(var pair:rules.entrySet()){
    String id=pair.getKey();var rule=pair.getValue();
@@ -339,7 +343,7 @@ public final class RegressionGameTests {
     plan=BweCatalog.turn(e,plan);e=BweCatalog.turned(e);
    }
   }
-  Map<String,Integer> confirmed=Map.of("bwe_idas:pillager_fortress",0,"bwe_idas:apothecary_abode",1,"bwe_idas:haunted_manor",0,"bwe_idas:ancient_portal_ancient_portal",0,"bwe_idas:ancient_portal_nether_ancient_portal",0,"bwe_idas:necromancers_spire",0,"bwe_idas:bazaar",5,"bwe_idas:fishermans_lodge",17,"bwe_idas:tinkers_workshop",95);
+  Map<String,Integer> confirmed=Map.of("bwe_idas:pillager_fortress",0,"bwe_idas:apothecary_abode",1,"bwe_idas:haunted_manor",0,"bwe_idas:ancient_portal_ancient_portal",0,"bwe_idas:ancient_portal_nether_ancient_portal",0,"bwe_idas:necromancers_spire",0,"bwe_idas:bazaar",5,"bwe_idas:fishermans_lodge",17,"bwe_idas:tinkers_workshop",93);
   for(var p:confirmed.entrySet())h.assertTrue(rules.get(p.getKey()).surfaceY()==p.getValue(),"Audited entrance/floor mismatch: "+p.getKey());
   h.assertTrue(rules.get("bwe_idas:ancient_mines").surfaceY()==101&&rules.get("bwe_idas:labyrinth").surfaceY()==66&&rules.get("bwe_idas:frozen_crypt").surfaceY()==15,"Intentional underground entrance references changed");
  }
