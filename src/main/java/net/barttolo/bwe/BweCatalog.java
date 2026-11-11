@@ -114,7 +114,7 @@ public final class BweCatalog {
         if(BweCatalog.airship(e)||BweCatalog.pirate(e)){
             for(int x=-margin;x<e.sizeX()+margin;x++)for(int z=-margin;z<e.sizeZ()+margin;z++)result.add(VillageFootprint.key(x,z));
         }else{
-            for(var c:b.cells())if(!c.state().isAir()&&(!desertPyramid(e)||c.pos().getY()>=b.surfaceY()))for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
+            for(var c:b.cells())if(!c.state().isAir()&&(!desertPyramid(e)||c.pos().getY()>b.surfaceY()))for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
             if(!desertPyramid(e)&&!underground(e)){
                 result.addAll(b.excavation().keySet());
                 result=VillageFootprint.withCourtyards(result);
