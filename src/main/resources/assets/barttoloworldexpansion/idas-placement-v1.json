@@ -171,7 +171,7 @@
     },
     {
       "id": "bwe_idas:apothecary_abode",
-      "surfaceY": 0,
+      "surfaceY": 1,
       "placement": "ground",
       "previousSurfaceY": 1,
       "rootY": 0,
@@ -181,7 +181,7 @@
         40
       ],
       "subterranean": false,
-      "reason": "Jardin exterior en Y=0; evitar taparlo con un bloque adicional de terreno."
+      "reason": "Capa de apoyo de tierra en Y=0; ajustar la rasante a losas y caminos exteriores en Y=1."
     },
     {
       "id": "bwe_idas:ars_nouveau_archmages_tower",
@@ -815,7 +815,7 @@
     },
     {
       "id": "bwe_idas:pillager_fortress",
-      "surfaceY": 3,
+      "surfaceY": 0,
       "placement": "ground",
       "previousSurfaceY": 46,
       "rootY": 0,
@@ -825,7 +825,7 @@
         45
       ],
       "subterranean": false,
-      "reason": "Pavimento principal Y=3; cimentacion maciza Y=0..2 y conector de techo Y=47."
+      "reason": "Rasante en Y=0 al pie de la cimentacion; pavimento interior elevado tres bloques."
     },
     {
       "id": "bwe_idas:redhorn_guild",
