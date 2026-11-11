@@ -51,6 +51,8 @@ public final class BarttoloWorldExpansion {
             .then(Commands.literal("borde").executes(c->{UUID who=id(c.getSource());if(!SELECTED.containsKey(who))return fail(c.getSource(),"Primero elige una construccion");if(!HIDDEN_BORDERS.add(who))HIDDEN_BORDERS.remove(who);var player=c.getSource().getPlayerOrException();if(HIDDEN_BORDERS.contains(who))BweNetwork.clearBorder(player);else showBorder(player,SELECTED.get(who));say(c.getSource(),HIDDEN_BORDERS.contains(who)?"Borde oculto":"Borde visible: pared verde virtual de 16 bloques de alto");return 1;}))
             .then(Commands.literal("rotar").executes(c->turn(c.getSource())))
             .then(Commands.literal("altura").then(Commands.argument("y",IntegerArgumentType.integer()).executes(c->height(c.getSource(),IntegerArgumentType.getInteger(c,"y")))))
+            .then(Commands.literal("z").then(Commands.argument("z",IntegerArgumentType.integer(-29999984,29999984)).executes(c->position(c.getSource(),null,IntegerArgumentType.getInteger(c,"z")))))
+            .then(Commands.literal("x").then(Commands.argument("x",IntegerArgumentType.integer(-29999984,29999984)).executes(c->position(c.getSource(),IntegerArgumentType.getInteger(c,"x"),null))))
             .then(Commands.literal("restaurar").executes(c->{String error=SurfaceBuilder.restoreTerrain(c.getSource().getLevel(),id(c.getSource()));if(error!=null)return fail(c.getSource(),error);say(c.getSource(),"Restaurando bloques originales del ultimo respaldo de esta dimension. /bwe estado");return 1;}))
             .then(Commands.literal("crear").executes(c->create(c.getSource())))
             .then(Commands.literal("estado").executes(c->{say(c.getSource(),SurfaceBuilder.busy()?SurfaceBuilder.status():BuildEngine.status());return 1;}))
@@ -72,6 +74,7 @@ public final class BarttoloWorldExpansion {
         say(s,"En el lugar elegido: /bwe escanear -> clic en una construccion -> alejarse -> /bwe crear");
         say(s,"/bwe estado | /bwe deshacer (RESTAURA terreno e inventarios respaldados) | /bwe margen 1");
         say(s,"/bwe rotar: gira 90 grados antes de crear | /bwe altura Y | /bwe borde");
+        say(s,"/bwe x X | /bwe z Z: mueve el centro del borde y de la obra");
         say(s,"La altura del suelo se calcula automaticamente. Se limpian bloques y entidades excepto jugadores.");
         return 1;
     }
@@ -126,7 +129,7 @@ public final class BarttoloWorldExpansion {
             SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin,plan));HIDDEN_BORDERS.remove(player);showBorder(s.getPlayerOrException(),SELECTED.get(player));
             say(s,"Borde VERDE: contorno real de limpieza, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
             say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+heightLabel(e)+(ground-1)+(manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?" (altura manual conservada)":""));
-            say(s,"Referencia "+heightLabel(e)+(ground-1)+" | base del esquema Y="+SurfaceBuilder.originY(e,plan,ground));
+            say(s,"Centro X="+center.getX()+" Z="+center.getZ()+" | /bwe x X | /bwe z Z | "+heightLabel(e)+(ground-1)+" | base del esquema Y="+SurfaceBuilder.originY(e,plan,ground));
             say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":BweCatalog.pirate(e)?"Estructura acuatica: agua alrededor, sin plataforma de tierra. /bwe altura Y ajusta el agua.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
     }
@@ -158,6 +161,26 @@ public final class BarttoloWorldExpansion {
         Selection next=new Selection(a.entry(),a.center(),a.dimension(),y+1,a.margin(),a.blueprint(),a.turns(),a.outline());
         SELECTED.put(who,next);HEIGHTS.put(who,new ManualHeight(a.dimension(),y));HIDDEN_BORDERS.remove(who);showBorder(s.getPlayerOrException(),next);
         say(s,"Altura fijada: "+heightLabel(a.entry())+y+" | base del esquema Y="+SurfaceBuilder.originY(a.entry(),a.blueprint(),y+1)+". Se conserva al cambiar de modelo; /bwe escanear inicia otra ubicacion.");return 1;
+    }
+    private static int position(CommandSourceStack s,Integer x,Integer z)throws CommandSyntaxException{
+        if(SurfaceBuilder.busy()||BuildEngine.busy())return fail(s,"Espera a que termine la obra");
+        UUID who=id(s);Selection a=SELECTED.get(who);
+        if(a==null)return fail(s,"Primero selecciona una construccion");
+        if(!a.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
+        BlockPos center=new BlockPos(x==null?a.center().getX():x,a.center().getY(),z==null?a.center().getZ():z);
+        try{
+            var manual=HEIGHTS.get(who);
+            int ground;
+            if(manual!=null&&manual.dimension().equals(a.dimension())){
+                SurfaceBuilder.validateSite(s.getLevel(),center,a.entry(),a.margin());
+                ground=manual.y()+1;
+            }else ground=SurfaceBuilder.ground(s.getLevel(),center,a.entry(),a.margin());
+            String problem=SurfaceBuilder.heightProblem(s.getLevel(),a.entry(),a.blueprint(),ground);
+            if(problem!=null)return fail(s,problem);
+            Selection next=new Selection(a.entry(),center,a.dimension(),ground,a.margin(),a.blueprint(),a.turns(),a.outline());
+            SELECTED.put(who,next);SITES.put(who,center);HIDDEN_BORDERS.remove(who);showBorder(s.getPlayerOrException(),next);
+            say(s,"Centro de la obra X="+center.getX()+" Z="+center.getZ()+" | "+heightLabel(a.entry())+(ground-1));return 1;
+        }catch(IllegalArgumentException error){return fail(s,error.getMessage());}
     }
     private static void drawBorders(net.minecraft.server.MinecraftServer server){
         for(var item:SELECTED.entrySet()){
