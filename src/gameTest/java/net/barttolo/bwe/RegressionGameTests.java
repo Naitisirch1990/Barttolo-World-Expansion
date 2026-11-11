@@ -78,7 +78,7 @@ public final class RegressionGameTests {
   var pig=EntityType.PIG.create(w);pig.moveTo(at.getX()+0.5,at.getY()+1,at.getZ()+0.5,0,0);BweBackup.recordEntity(pig);w.addFreshEntity(pig);
   BweBackup.close();h.assertTrue(BweBackup.restore(w)==null,"Cannot reopen persistent journal");
   h.runAfterDelay(1,new Runnable(){int phase;
-   BlockPos aerialBase,waterBase;int desired;
+   BlockPos aerialBase,waterBase,labyrinthGrade;int desired;
    public void run(){try{
     if(BweBackup.restoring()){h.runAfterDelay(1,()->this.run());return;}
     if(phase==0){
@@ -278,7 +278,7 @@ public final class RegressionGameTests {
     }
     if(phase==18){
      h.assertTrue(w.getBlockState(waterBase.offset(1,-8,1)).is(Blocks.GOLD_BLOCK),"Fisher undo failed to recover original submerged terrain");
-     var outpost=new BweCatalog.Entry("bwe_idas:pillager_fortress","Fortaleza","",5,52,5,47,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,3,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,47,0,0)));
+     var outpost=new BweCatalog.Entry("bwe_idas:pillager_fortress","Fortaleza","",5,52,5,47,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,0,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,3,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,47,0,0)));
      var supportFixture=new BweCatalog.Entry(outpost.id(),"supports","",10,52,5,47,List.of(new BweCatalog.Piece("ctov:village/path/regression",0,3,0,0),new BweCatalog.Piece("ctov:village/path/regression",0,47,0,0),new BweCatalog.Piece("ctov:village/path/regression",5,5,0,0)));
      var supported=BweCatalog.compose(w,supportFixture);
      h.assertTrue(supported.supports().size()==50&&supported.supports().stream().noneMatch(p->p.getY()==47)&&supported.supports().stream().anyMatch(p->p.getY()==5),"Upper roofs treated as foundation or real raised platform lost support");
@@ -286,12 +286,37 @@ public final class RegressionGameTests {
      phase=19;h.runAfterDelay(1,()->this.run());return;
     }
     if(phase==19){
-     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Pillager fortress pavement buried by roof connector reference");
+     h.assertTrue(w.getBlockState(aerialBase).is(Blocks.STONE_BRICKS),"Pillager fortress lowest foundation must meet grade");
      h.assertTrue(w.getBlockState(aerialBase.above()).isAir(),"Terrain filled fortress entrance");
-     h.assertTrue(w.getBlockState(aerialBase.above(44)).is(Blocks.STONE_BRICKS),"Fortress roof placed at wrong height");
+     h.assertTrue(w.getBlockState(aerialBase.above(3)).is(Blocks.STONE_BRICKS),"Fortress floor must remain three blocks above its lowest course");
+     h.assertTrue(w.getBlockState(aerialBase.above(47)).is(Blocks.STONE_BRICKS),"Fortress roof placed at wrong height");
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Fortress undo rejected");phase=20;h.runAfterDelay(1,()->this.run());return;
     }
-    System.out.println("[BWE-REGRESSION] PASS all 83 audited IDAS references and modes, fortress floor vs roof under stale metadata; bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
+    if(phase==20){
+     labyrinthGrade=aerialBase.above(66);
+     var lab=new BweCatalog.Entry("bwe_idas:labyrinth","Laberinto","",5,69,5,67,List.of(
+      new BweCatalog.Piece("ctov:village/path/regression",0,66,0,0),
+      new BweCatalog.Piece("ctov:regression_boat",0,20,0,0),
+      new BweCatalog.Piece("ctov:regression_boat",0,5,0,0)));
+     var plan=BweCatalog.compose(w,lab);
+     h.assertTrue(plan.surfaceY()==66&&plan.excavates(1,22,3)&&!plan.excavates(1,18,3),"Separate labyrinth levels merged or lost");
+     h.assertTrue(BweCatalog.turn(lab,plan).excavates(1,22,1),"Rotating loses the excavation");
+     for(int y:new int[]{7,18,22})w.setBlock(aerialBase.offset(-1,y,1),Blocks.GOLD_BLOCK.defaultBlockState(),50);
+     w.setBlock(aerialBase.offset(4,22,1),Blocks.GOLD_BLOCK.defaultBlockState(),50);
+     String error=SurfaceBuilder.start(w,lab,plan,labyrinthGrade,labyrinthGrade.getY()+1,1,UUID.randomUUID());
+     h.assertTrue(error==null,"Labyrinth build rejected: "+error);
+     phase=21;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==21){
+     h.assertTrue(w.getBlockState(labyrinthGrade).is(Blocks.STONE_BRICKS),"Pyramid grade changed");
+     for(int y:new int[]{7,22})h.assertTrue(w.getBlockState(aerialBase.offset(-1,y,1)).isAir(),"Buried corridor still blocked at local Y="+y);
+     h.assertTrue(w.getBlockState(aerialBase.offset(-1,18,1)).is(Blocks.GOLD_BLOCK),"Excavation removed terrain between separate levels");
+     h.assertTrue(w.getBlockState(aerialBase.offset(4,22,1)).is(Blocks.GOLD_BLOCK),"Excavation removed terrain outside the model");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Labyrinth undo rejected");
+     phase=22;h.runAfterDelay(1,()->this.run());return;
+    }
+    h.assertTrue(w.getBlockState(aerialBase.offset(-1,22,1)).is(Blocks.GOLD_BLOCK),"Undo lost excavated terrain");
+    System.out.println("[BWE-REGRESSION] PASS subterranean excavation, rotation, outside terrain, undo; all 83 audited IDAS references and modes, fortress floor vs roof under stale metadata; bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
  }
@@ -311,7 +336,7 @@ public final class RegressionGameTests {
     plan=BweCatalog.turn(e,plan);e=BweCatalog.turned(e);
    }
   }
-  Map<String,Integer> confirmed=Map.of("bwe_idas:pillager_fortress",3,"bwe_idas:haunted_manor",0,"bwe_idas:ancient_portal_ancient_portal",0,"bwe_idas:ancient_portal_nether_ancient_portal",0,"bwe_idas:necromancers_spire",0,"bwe_idas:bazaar",5,"bwe_idas:fishermans_lodge",17,"bwe_idas:tinkers_workshop",95);
+  Map<String,Integer> confirmed=Map.of("bwe_idas:pillager_fortress",0,"bwe_idas:apothecary_abode",1,"bwe_idas:haunted_manor",0,"bwe_idas:ancient_portal_ancient_portal",0,"bwe_idas:ancient_portal_nether_ancient_portal",0,"bwe_idas:necromancers_spire",0,"bwe_idas:bazaar",5,"bwe_idas:fishermans_lodge",17,"bwe_idas:tinkers_workshop",95);
   for(var p:confirmed.entrySet())h.assertTrue(rules.get(p.getKey()).surfaceY()==p.getValue(),"Audited entrance/floor mismatch: "+p.getKey());
   h.assertTrue(rules.get("bwe_idas:ancient_mines").surfaceY()==101&&rules.get("bwe_idas:labyrinth").surfaceY()==66&&rules.get("bwe_idas:frozen_crypt").surfaceY()==15,"Intentional underground entrance references changed");
  }
