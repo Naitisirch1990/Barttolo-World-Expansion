@@ -318,8 +318,33 @@ public final class RegressionGameTests {
      h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Labyrinth undo rejected");
      phase=22;h.runAfterDelay(1,()->this.run());return;
     }
-    h.assertTrue(w.getBlockState(aerialBase.offset(-1,22,1)).is(Blocks.GOLD_BLOCK),"Undo lost excavated terrain");
-    System.out.println("[BWE-REGRESSION] PASS subterranean excavation, rotation, outside terrain, undo; all 83 audited IDAS references and modes, fortress floor vs roof under stale metadata; bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
+    if(phase==22){
+     h.assertTrue(w.getBlockState(aerialBase.offset(-1,22,1)).is(Blocks.GOLD_BLOCK),"Undo lost excavated terrain");
+     BlockPos base=aerialBase.above(25);
+     for(int x=-2;x<=2;x++)for(int z=-2;z<=2;z++)w.setBlock(base.offset(x,6,z),Blocks.GRASS_BLOCK.defaultBlockState(),50);
+     w.setBlock(base.above(),Blocks.WATER.defaultBlockState(),50);
+     w.setBlock(base.offset(2,1,0),Blocks.LAVA.defaultBlockState(),50);
+     w.setBlock(base.offset(2,1,2),Blocks.GOLD_BLOCK.defaultBlockState(),50);
+     var mine=new BweCatalog.Entry("bwe_subterraneo:test","Mine","",5,4,5,1,List.of());
+     var plan=new BweCatalog.Blueprint(List.of(
+      new BweCatalog.Cell(new BlockPos(2,0,2),Blocks.STONE_BRICKS.defaultBlockState(),null),
+      new BweCatalog.Cell(new BlockPos(2,3,2),Blocks.STONE_BRICKS.defaultBlockState(),null),
+      new BweCatalog.Cell(new BlockPos(2,1,2),Blocks.AIR.defaultBlockState(),null),
+      new BweCatalog.Cell(new BlockPos(4,1,2),Blocks.AIR.defaultBlockState(),null),
+      new BweCatalog.Cell(new BlockPos(4,3,2),Blocks.STONE_BRICKS.defaultBlockState(),null)),List.of(),List.of(),0);
+     h.assertTrue(SurfaceBuilder.start(w,mine,plan,base,base.getY()+1,0,UUID.randomUUID())==null,"Mine placement rejected");
+     phase=23;h.runAfterDelay(1,()->this.run());return;
+    }
+    if(phase==23){
+     BlockPos base=aerialBase.above(25);
+     h.assertTrue(w.getBlockState(base.above()).isAir()&&w.getBlockState(base.offset(2,1,0)).isAir(),"Mine did not remove water and lava");
+     h.assertTrue(w.getBlockState(base.above(3)).is(Blocks.STONE_BRICKS)&&w.getBlockState(base.above(6)).is(Blocks.GRASS_BLOCK),"Mine roof or surface changed incorrectly");
+     h.assertTrue(w.getBlockState(base.offset(2,1,2)).is(Blocks.GOLD_BLOCK),"Mine touched a cell outside the plan");
+     h.assertTrue(SurfaceBuilder.restoreTerrain(w)==null,"Mine undo rejected");
+     phase=24;h.runAfterDelay(1,()->this.run());return;
+    }
+    h.assertTrue(w.getBlockState(aerialBase.above(26)).is(Blocks.WATER)&&w.getBlockState(aerialBase.offset(2,26,0)).is(Blocks.LAVA),"Mine undo lost liquids");
+    System.out.println("[BWE-REGRESSION] PASS sealed underground placement with fluid removal and undo, limited pyramid surface, subterranean excavation, rotation, outside terrain, undo; all 83 audited IDAS references and modes, fortress floor vs roof under stale metadata; bazaar/citadel ground references with stale metadata, fisher water between pillars and deck clearance, water undo; cropped bases/courtyard, bounded mansion decorations and spawners; native Lootr chest/barrel per-player rewards, no refill on reopen, 256 seeds with empty/modded loot sources, barrel restore; rotation command, four-turn identity, entities, exact footprint packet, terrain padding and basement preservation; previous height/Lootr/undo/water/airship checks");h.succeed();
    }catch(Exception e){BweBackup.close();h.fail(e.toString());}}
   });
  }
@@ -327,6 +352,13 @@ public final class RegressionGameTests {
   var rules=BweCatalog.auditedPlacements();h.assertTrue(rules.size()==83,"IDAS placement audit missing entries");
   int recoveredAir=rules.get("bwe_idas:labyrinth").excavationAir().values().stream().flatMap(List::stream)
    .mapToInt(run->run.top()-run.bottom()+1).sum();
+  var pyramid=new BweCatalog.Entry("bwe_idas:desert_pyramid","Pyramid","",20,40,20,35,List.of());
+  var pyramidPlan=new BweCatalog.Blueprint(List.of(
+   new BweCatalog.Cell(new BlockPos(1,10,1),Blocks.STONE.defaultBlockState(),null),
+   new BweCatalog.Cell(new BlockPos(10,35,10),Blocks.SANDSTONE.defaultBlockState(),null)),List.of(),List.of(),34);
+  var surface=BweCatalog.terrain(pyramid,pyramidPlan,1);
+  h.assertTrue(surface.size()==9&&surface.contains(VillageFootprint.key(10,10))&&!surface.contains(VillageFootprint.key(1,1)),"Pyramid projects underground chambers onto surface");
+  h.assertTrue(rules.get(pyramid.id()).excavationAir().containsKey("bwe_idas:desert_pyramid/desert_pyramid_entrance1_bottom"),"Pyramid lost its entrance shaft");
   h.assertTrue(recoveredAir==400,"Original IDAS labyrinth shaft clearance is missing");
   h.assertTrue(rules.get("bwe_idas:tinkers_workshop").excavationAir().size()>1,"Workshop lower passages lack recovered air");
   Set<String> wet=Set.of("bwe_idas:fishermans_lodge","bwe_idas:iceandfire_sirens_cove","bwe_idas:sunken_ship_sunken_ship","bwe_idas:sunken_ship_sunken_ship_coral","bwe_idas:sunken_ship_sunken_ship_ruins");
