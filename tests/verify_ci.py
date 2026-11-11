@@ -1,0 +1,35 @@
+"""Static CI wiring audit. Does not compile Forge or contact GitHub."""
+from pathlib import Path
+root = Path(__file__).resolve().parents[1]
+yaml = (root / '.github/workflows/build-forge.yml').read_text()
+assert 'TerraformBackupFileTest.java' in (root / 'tests/run_geometry_tests.sh').read_text()
+assert 'TerraformBackupFileTest' in (root / 'tests/run_geometry_tests.sh').read_text()
+assert (root / 'src/main/java/net/barttolo/bwe/TerraformBackupFile.java').is_file()
+assert 'python3 tests/verify_simulation_parity.py' in yaml
+assert 'python3 tests/verify_ci.py' in yaml
+assert 'python3 tests/test_live_occupancy_guard.py' in yaml
+assert 'python3 tests/test_simple_workflow.py' in yaml
+assert 'python3 tests/test_dynamic_catalog.py' in yaml
+assert 'python3 tests/test_template_footprint_preflight.py' in yaml
+assert 'python3 tests/test_template_site_audit.py' in yaml
+assert 'python3 tests/test_template_surface_survey.py' in yaml
+assert 'python3 tests/test_strict_undo_codec.py' in yaml
+assert 'python3 tests/test_completion_marker.py' in yaml
+assert 'python3 tests/test_server_lifecycle.py' in yaml
+assert 'python3 tests/test_undo_entity_guard.py' in yaml
+assert 'pull_request:' in yaml
+assert 'branches: [main]' in yaml
+assert 'python3 tests/test_template_command_id.py' in yaml
+assert 'python3 tests/test_command_safety.py' in yaml
+assert 'python3 tests/verify_no_third_party_assets.py' in yaml
+assert 'if-no-files-found: error' in yaml
+assert 'path: build/libs/*.jar' in yaml
+assert 'Validar version, integridad y bytecode del JAR' in yaml
+assert 'version="0.7.0"' in yaml
+assert 'major version: 61' in yaml
+assert 'gradle --no-daemon --stacktrace build' in yaml
+assert 'if [[ ! -f build.gradle' in yaml, 'CI debe fallar si faltan los fuentes'
+assert '::error::' in yaml
+assert 'java-version: \'17\'' in yaml
+print('OK: CI verifica fuentes y pruebas y recoge el JAR; no equivale a ejecutar Actions')
+

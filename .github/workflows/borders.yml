@@ -1,0 +1,33 @@
+name: BWE Bordes
+on:
+  push:
+    branches: [dev/bwe-v0.6.6-ci]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
+      - name: Check compact village courtyard geometry
+        run: |
+          mkdir -p /tmp/bwe-footprint
+          javac -d /tmp/bwe-footprint src/main/java/net/barttolo/bwe/VillageFootprint.java tools/FootprintCheck.java
+          java -cp /tmp/bwe-footprint FootprintCheck
+      - run: gradle build --no-daemon
+      - name: Native Forge restoration and Lootr regression
+        run: |
+          mkdir -p src/gameTest/resources/data/bwe_regression/structures run-gametest/mods
+          cp src/gameTest/resources/data/barttoloworldexpansion/structures/empty.nbt src/gameTest/resources/data/bwe_regression/structures/empty.nbt
+          gradle -Dbwe.testNamespaces=bwe_regression createSrgToMcp runGameTestServer --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BWE-Bordes
+          path: build/libs/*.jar
