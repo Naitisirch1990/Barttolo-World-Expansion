@@ -69,7 +69,7 @@ public final class BarttoloWorldExpansion {
     private static void say(CommandSourceStack s,String text){s.sendSuccess(()->Component.literal("[BWE] "+text),false);}
     private static int fail(CommandSourceStack s,String text){s.sendFailure(Component.literal("[BWE] "+text));return 0;}
     private static int help(CommandSourceStack s){
-        say(s,"En el lugar elegido: /bwe listar -> clic en una construccion -> alejarse -> /bwe crear");
+        say(s,"En el lugar elegido: /bwe escanear -> clic en una construccion -> alejarse -> /bwe crear");
         say(s,"/bwe estado | /bwe deshacer (RESTAURA terreno e inventarios respaldados) | /bwe margen 1");
         say(s,"/bwe rotar: gira 90 grados antes de crear | /bwe altura Y | /bwe borde");
         say(s,"La altura del suelo se calcula automaticamente. Se limpian bloques y entidades excepto jugadores.");
@@ -112,7 +112,7 @@ public final class BarttoloWorldExpansion {
     }
     private static int scan(CommandSourceStack s)throws CommandSyntaxException{
         UUID who=id(s);HEIGHTS.remove(who);SELECTED.remove(who);HIDDEN_BORDERS.remove(who);BweNetwork.clearBorder(s.getPlayerOrException());
-        SITES.put(who,s.getPlayerOrException().blockPosition());say(s,"Ubicacion guardada. /bwe listar y elige una construccion.");return 1;
+        SITES.put(who,s.getPlayerOrException().blockPosition());say(s,"Ubicacion guardada. Elige una construccion del catalogo.");return catalogue(s);
     }
     private static int select(CommandSourceStack s,String name)throws CommandSyntaxException{
         if(SurfaceBuilder.busy()||BuildEngine.busy())return fail(s,"Espera a que termine la obra");
