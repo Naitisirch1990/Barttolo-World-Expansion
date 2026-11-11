@@ -97,12 +97,16 @@ public final class SurfaceBuilder {
         }
         Collections.sort(heights);return heights.get(heights.size()/2);
     }
+    static void validateSite(ServerLevel world,BlockPos center,BweCatalog.Entry e,int margin){
+        int x0=center.getX()-e.sizeX()/2-margin,z0=center.getZ()-e.sizeZ()/2-margin;
+        checkArea(world,x0,z0,x0+e.sizeX()-1+2*margin,z0+e.sizeZ()-1+2*margin);
+    }
     private static void checkArea(ServerLevel world,int x0,int z0,int x1,int z1) {
-        for(int cx=x0>>4;cx<=x1>>4;cx++)for(int cz=z0>>4;cz<=z1>>4;cz++)
-            if(!world.hasChunk(cx,cz))throw new IllegalArgumentException("Acercate al lugar: hay chunks sin cargar");
         for(int x:new int[]{x0,x1})for(int z:new int[]{z0,z1})
             if(!world.getWorldBorder().isWithinBounds(new BlockPos(x,world.getMinBuildHeight(),z)))
                 throw new IllegalArgumentException("La obra sale del borde del mundo");
+        for(int cx=x0>>4;cx<=x1>>4;cx++)for(int cz=z0>>4;cz<=z1>>4;cz++)
+            if(!world.hasChunk(cx,cz))throw new IllegalArgumentException("Acercate al lugar: hay chunks sin cargar");
         String dim=world.dimension().location().toString();var d=WorldData.get(world);
         if(d.protectedFootprint(dim,x0,z0,x1,z1,0))throw new IllegalArgumentException("Zona protegida expresamente con BWE");
     }
