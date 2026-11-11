@@ -322,6 +322,9 @@ public final class RegressionGameTests {
  }
  private static void idasPlacementAudit(GameTestHelper h)throws Exception{
   var rules=BweCatalog.auditedPlacements();h.assertTrue(rules.size()==83,"IDAS placement audit missing entries");
+  int recoveredAir=rules.get("bwe_idas:labyrinth").excavationAir().values().stream().flatMap(List::stream)
+   .mapToInt(run->run.top()-run.bottom()+1).sum();
+  h.assertTrue(recoveredAir==400,"Original IDAS labyrinth shaft clearance is missing");
   Set<String> wet=Set.of("bwe_idas:fishermans_lodge","bwe_idas:iceandfire_sirens_cove","bwe_idas:sunken_ship_sunken_ship","bwe_idas:sunken_ship_sunken_ship_coral","bwe_idas:sunken_ship_sunken_ship_ruins");
   for(var pair:rules.entrySet()){
    String id=pair.getKey();var rule=pair.getValue();
