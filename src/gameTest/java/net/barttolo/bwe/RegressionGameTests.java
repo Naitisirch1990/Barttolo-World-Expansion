@@ -355,9 +355,10 @@ public final class RegressionGameTests {
   var pyramid=new BweCatalog.Entry("bwe_idas:desert_pyramid","Pyramid","",20,40,20,35,List.of());
   var pyramidPlan=new BweCatalog.Blueprint(List.of(
    new BweCatalog.Cell(new BlockPos(1,10,1),Blocks.STONE.defaultBlockState(),null),
+   new BweCatalog.Cell(new BlockPos(2,34,2),Blocks.SANDSTONE.defaultBlockState(),null),
    new BweCatalog.Cell(new BlockPos(10,35,10),Blocks.SANDSTONE.defaultBlockState(),null)),List.of(),List.of(),34);
   var surface=BweCatalog.terrain(pyramid,pyramidPlan,1);
-  h.assertTrue(surface.size()==9&&surface.contains(VillageFootprint.key(10,10))&&!surface.contains(VillageFootprint.key(1,1)),"Pyramid projects underground chambers onto surface");
+  h.assertTrue(surface.size()==9&&surface.contains(VillageFootprint.key(10,10))&&!surface.contains(VillageFootprint.key(1,1))&&!surface.contains(VillageFootprint.key(2,2)),"Pyramid projects underground chambers onto surface");
   h.assertTrue(rules.get(pyramid.id()).excavationAir().containsKey("bwe_idas:desert_pyramid/desert_pyramid_entrance1_bottom"),"Pyramid lost its entrance shaft");
   h.assertTrue(recoveredAir==400,"Original IDAS labyrinth shaft clearance is missing");
   h.assertTrue(rules.get("bwe_idas:tinkers_workshop").excavationAir().size()>1,"Workshop lower passages lack recovered air");
