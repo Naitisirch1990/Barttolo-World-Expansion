@@ -27,7 +27,10 @@
         22
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:abandoned_vineyard/abandoned_vineyard_bottom": "H4sIAAAAAAACA2PhYmNj5WRlY+NkYWXjYmVl52JmBQCdNzFbFAAAAA=="
+      }
     },
     {
       "id": "bwe_idas:abandonedhouse",
@@ -55,7 +58,21 @@
         35
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:ancient_mines/ancient_mines_room1": "H4sIAAAAAAACAw3FQQ4AEAwEwGwbbajiwjP4/+/sYTJIuGw8ObjK9dRXAu4V3gKWNDolbPLJV6itXuwDClQ58DwAAAA=",
+        "bwe_idas:ancient_mines/ancient_mines_room3": "H4sIAAAAAAACAxWKSxKAMAxChy6QpNOPtbrw/gcVF294hDCgQ0USJLsSCpLhTN8yi7I6G1SjqPm3ex9mXuDc4Olc7st+NdPNMDe47XuCj/f3Jwo/ZNTNSHQAAAA=",
+        "bwe_idas:ancient_mines/ancient_mines_room2": "H4sIAAAAAAACAxWKSQ4CMQwE5SyOE5YTGoidAQn+/0cqh1KXulvuovkmWsg+Uu14x8dF6riS+EOSHVXsmWGnir0K4JNu4nN7E/MEdE7ndM7X6UPUgi3Ygi3Ygm0ltZWbrQK12cnn5PPe8PvAt1f9NdU/2W89E6wAAAA=",
+        "bwe_idas:ancient_mines/ancient_mines_room4": "H4sIAAAAAAACAxWO2Q7CIBREGxOVshRKLUsTGq3z/9/o8eFmhjOXgZu9LvscspbxQw7vzFduRh0D83hP7t2pQB7MRwEW7KnFvLXM6GsorpNiPhS3UylNSvj092QruqIZzfvQhu7cL4+hQmehr9Bf70OVczUMrPJu5R8N3thtZA3e4A3e4Z3dDjvIfs13u5nQAAAA",
+        "bwe_idas:ancient_mines/ancient_mines_room6": "H4sIAAAAAAACAxWNSw6DMAwFZSdxDFRAuqn4rQq0QO9/vg6Lpxk/Jba26qETD0U9wtiLJ7qEp9sLeYobbnimz9BD8ErMKxWvsuQa1km8gU0gUfwBX0HTIGKDkiJ5FLUxiE3M080oNuMzvsCF+c29lXsr3LrsWzHf8J1ux3f802f/8vbg33EzkTamkx0n3Ul3wYv+B//6rtB36AAAAA==",
+        "bwe_idas:ancient_mines/ancient_mines_room5": "H4sIAAAAAAACAxWMQQ4AIQgDAwg0irgX//9Vu4dmGCAdmnBRuArcDEGGMS5IU+QgrwdIkLMF8xMsch1BhWRtkl70XQx9//ONaNNs7pr3w47D/welaf2HdAAAAA==",
+        "bwe_idas:ancient_mines/ancient_mines_room8": "H4sIAAAAAAACAw3MORICMQxE0XECBSSexWptvv81+UEn+q+0rqF1s4ctZlN2Dhl3427cjbsZ00+aQ6KLLrrooosuMf/KMY5xjGMc4xjHOMb9UWACE5jAxDMsMIEJTPitxCQmMYlJ/iQmMYlJl2ouFaYwhSlMYQpTmD5falrTmta0prU+2u/j2Jdp30ubtmnbTH90Oox/FAEAAA==",
+        "bwe_idas:ancient_mines/ancient_mines_room7": "H4sIAAAAAAACAw3ISw6AMAhF0YGCrZqCvxiNMChv/2uUwclN7iAGGq2TOGh7gsk6yw3WtGvwZZhOR2ke5fiiroaqL2r+uSV1LNkfu+RbUkgAAAA=",
+        "bwe_idas:ancient_mines/ancient_mines_hall1": "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",
+        "bwe_idas:ancient_mines/ancient_mines_hall4": "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",
+        "bwe_idas:ancient_mines/ancient_mines_hall2": "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",
+        "bwe_idas:ancient_mines/ancient_mines_hall3": "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"
+      }
     },
     {
       "id": "bwe_idas:ancient_portal_ancient_portal",
@@ -209,7 +226,17 @@
         17
       ],
       "subterranean": false,
-      "reason": "Pavimento Y=5; conservar la correccion previa del conector superior Y=30."
+      "reason": "Pavimento Y=5; conservar la correccion previa del conector superior Y=30.",
+      "excavationAir": {
+        "bwe_idas:bazaar/bazaar4": "H4sIAAAAAAACAyXQCxKDIAxFUUNAEfCz/9X2tHXmOuTFXKPbFrkFChIVDTsOdJwYmFi4cOPBGxkcwRGlMKCiYQdHcARHcARHcMSld+PBW7JsCJRkQAVH4SgHOApH4ShTvcBRbs89eA1tiPwLvhdHNuzgyI4TAxzJkZceR3Lk+x+pbtVcNVcPdJwwV83V5Wyu6Tf9pt/028CE/q7e1bv6sFf/YrfuPd17TrXPydN5OPus31rDLsMzQz7lftdv1Smf8ilfcr/wt/6SLdklu/EBZzU+wdABAAA=",
+        "bwe_idas:bazaar/bazaar2": "H4sIAAAAAAACAy3QB64lIQxE0QZ3fp0I+1/rP4xGwpKrfA3G05RiSjmmHDGFmMUuDnGKn7jFI17xRSQ9SY8TCZuwCZuw6RL4hE/4jM3AjM3YjMu4jMu4/IxHU/y7zAl3hXqoh9pssFltVpv5M3/hLbyFt8BWeqVXeqU3eqM3eqN3eqd3+pAf8kN+yk/5OfLxLP2jf/n/COa66MvwY5zLbm7ezbt5xo+b9/Ae3sMb33l4L+/lvTxriJf38T7ex7PG+Ibnoc/lRa2oFbViEUWt2EVRL6PusYqpmIqpmIqpFlDttWKrT1R8xdfBG6bpaUnoaXqanqan4Ru+4Ru+4Ru+4zu+4zu+4zu+4zu+4zu2D9bH/gBWobhKQAIAAA==",
+        "bwe_idas:bazaar/bazaar8": "H4sIAAAAAAACAw3R2XKDMBBEUUZiMzYGJL1nTyrx8v+fl/PQVdM9tykYupecu1d6o3f6pC/6ph/6pT+6pdzd6RG5e0YOndAJnfggvdALvdALvdALvdALvdBLOkkn6SSdpJPwCZ/wCZ/w6UH4jM/YjM2enTEZkzEZkzG9fW/f2/U3suvtertBNsgG2SAbZKNslI2yUTbKJtkkm2STbJLNslk2y2bZLDvxpzvxp2fKC7/wC7/wZ/PZfDZfzBfzxbziVn7lV/7KX/krf+U3fuM3fuN337T7pl22y3bZ4W6H/JAfbnHYHXaH9yruVOyLfbEv7lowxW0LruAKruIqruIqruIqrmIqpmKaf9twDdcwDdMwzT2a92zYhm3Yf+zCYOhAAgAA",
+        "bwe_idas:bazaar/bazaar6": "H4sIAAAAAAACAxXOWXKDQAxFUdPyBB53kBiwq+Ke9r+7HD5uIT2k2/rZRfxuDHhGvNQv9SvhAdksm2WzftYv6sX/5Q7ZIlvNrPJVv+rf+rf+rf74fnz/jjjhHPHd4wDZV/bdshETLhE5YCYfUuQjzGQz2Uw2k7eZK24RxVvFG8VNxV7Zpyj2ir1ywhkj7BV7xV7Z9txf3FvcVjkqR+WokaJyVI56HKKecAZHnXABR+WoHPWhf6ZoOwxI4Gj7IdoBHI2jcbQRHI2jXXHDHQ/5c4i+w4CEAEfn6Bydo3N0jj7hgituuIOjc/wDJQuVJtQBAAA=",
+        "bwe_idas:bazaar/bazaar3": "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",
+        "bwe_idas:bazaar/bazaar1": "H4sIAAAAAAACAx3Wh3YiRxAF0IUh55wmJ5A06f//zhfbp3x23a+qLj0g9O/fKPg3UmMVjIN/kyD4N1VLtVJrtVFbtVP7IBjpGekZ6RnpGekZ6RnpGekZ6RnpGekZ6RnpGesZ6xmPx8H//+oZ6xnLjmXHcuNv7hBYMtI09hf1/Uc2MDeQDWQDcwP5QD6Qn8hP5Cfy3+jEfyayE9mJ7ER2Ijv5Zo/qFARTPVM9Uz0YwVR2KjuVncpOZaeyU9mZ7Ex2JjuTnZk/k5/Jz+Rn8jPZmexcdi47l53LzuXmcnO5udzc3LnsQm4ht5BbyC14F7IL2YXsQnYhu5Bdyi7d3VJ26e6WskvZpexSdim7klnJrDyTlcyKceXOVrIr2ZXsSnb1zZq7ll/Lr+XX8mv5tfxafi27lt3IbGQ2MhuZjbONWRvnG+db51vnW+db74TtZBxszdjKbeW2clu5ndxObie3k9vJ7Vz6zvtlJ7uT3cnuZPeye9m97N7Ovexedi+7N3svv5ffy++/ea/noOeg5+B+DnoOXstBz0H+IH+QP8gf5A/yR/mj/FH+KH+UP8ofPYijnqOeo56j/FH+JH/yrE7yHnFwkj/xnGRPsifZk/kn+ZP8Wf4sf5Y/y5/lz2af9Zz1nPWc9Zz1nPWc9Vz0XPRc9Fz0XPRcvIEu+i76Lnouei56Lnqu8lf5q/xV/ip/lb/KXu24yl/lr/LXb96Oq+d+03fz2m/6bvpu5t/03PTc9Nz03PTc9Nz03OXv8nf5u/xd/i5/l7/L3+Xv8nf5+zdvx0PPg+2h56HnwfaQf8g/5B/yD9nHN+v9/ZR/yj/ln57HU/4p/5R/yj/ln+Y/9Tz1PL89HsTT5b7+jYOX3pfel10vvS99L30vfS99L30vfS99L32vb59LftXqrT7qR/0GQWheaF7oR09oXsgRmheaF5oXmheaF5oXmheaF5oXmhe60LBU5obmhuaG5obfuU0QRGZHZkdmR+4wMjsyOzI7MjsyOzI7MjsyOzI7MjsyO/KQo6fKVaXsiOyI7IjsiOyI/tR3Tx8EsV2xH6OxXbFdsV2xXbE9sT2xPbE9sT2xPbE9sT2xPbHXEXvYsYcX2xm72NhlxJGKVaJSlSmeuFBed8wVc8VcMVfMFDPFTHGruiBIuBKuhCfhSbz2hClhSpgSpoQpYUqYEp6EJ+FJeBKehCfhSXgSnoQn4Ul4Ep6EJ+FJeBKehCfhSdxTwpQwJUwJU/I1ua9kCIKULWVLvcdTd5YypowpY8qYMqaMKWPKmDKmjKl7SzlTzpQz5Uw5U86UM+VMOVPGlDFlTBlTxpQxZUwZU8aUMWVMGVPGlDFlTBlTxowxY8wYM8aMMWPMGDPGjDFjzBgzxowxY8wYM8aMMWPMGDPGjDFjzBgzxsxdZpwZZ8aZcWacGWfGmXFmnBlnxplxZpwZY8aYMeaMOWPuvZfz5Xw5X86X8+V8OV/Ol/PlfDlfzpfz5Xw5X86X8+V8OV/Ol/PlfDlfzpfz5Xw5X86X8+V8OV/Ol/PlfLl7zBlzxpyxYCx8FgtGI4LCXRasBWvBWrAWrAVrwVqwFqwFa8FasBasBWvBWrAWrAVrwVqwFqwFa8FasBYWFawFZ8FZcBacBWfBWXAWnAVnwVlwln42lpwlp9ag9POtZCz5Sr6Sr2Qr2Uq2kq1kK9lKtpKt5Cq5Sq6Sq+QquUqukqvkKg0v3WHJUrKULCVLyVKylCwVS8VS+VkrGlQsle/NiqViqVgqd1XxVDwVT8VT8VQ8FU/FU7mriqliqpgqpoqpYqqYKqbKgso9VSwVQ8VQMdQMte+jmqH2XVEz1Aw1Q21/bX9tf21/bX9tf213bXdtd213bXdtd213bXdtd213bUdtx9uOtx1vv4O87Xj7HeRtx9svf2/fsW873na8zXub9zbvbd7bvLdZbzM+ZnzM+JjxMeNjxmeqzPiY8dH70fvR+yP7I/sj++P3o5+Jkv2R/ZH9df7r/Nf5r/Nf579T5fzP2Z+zP2d/zv6c/Tn7c9Y4a5w1zhpnDUNjbvM9M7fxPmrcW+PZNe6rcV+Ne2g8g8YzaNx9433QeB80nkHjflozWzNbM1uvqzWzdTetma2fSa3PUetz1JrdbpxtlfmtZ9O6t9a9tXa1drWeTeu90Xo+refTupPWnbTupHWfrftsPZ/WnbapOVytHyqtD23r89P6/LQ+P633bPvn/zWqVazt1+o5dLwdb8fb8Xa8HW/H27mDjrlj7pi7tTPmjrnbqb06qKNi7pg75o65Y+6YO+aOuWPumDvmjrlL9DB3mWLumDsf4q5Wb/VRP+pXsXfsHXvXqV4N46Bn79l79t7z6z3b3vPrZ4q9Z+/Z+5W/s/cb51u1U3t1UOz9SbH37P3Vn2/qrh7qqV7KLzy9X0x6vzD07D17z96z94U5paoUf8/f8/c//v6r/hR/z993/twr/oF/4B/4B/6Bf/DeHPiHuVqopVr5f2vFP/AP/AP/wD8cFf9wVhfFP/AP/MPD2VPxD/wD/8A/8A++yAdflIMvooF/4B/4h1q91UfxD/wD/9CoVvEP/MMwCv4DPf1//hwPAAA=",
+        "bwe_idas:bazaar/bazaar9": "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",
+        "bwe_idas:bazaar/bazaar7": "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"
+      }
     },
     {
       "id": "bwe_idas:bearclaw_inn",
@@ -279,7 +306,10 @@
         26
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:castle/castle1_bottom": "H4sIAAAAAAACAw3HwREAIAzDsCO10xnYf1HQT4KKnbEc+7cTl3gDD1K+onMgAAAA"
+      }
     },
     {
       "id": "bwe_idas:collectors_museum",
@@ -419,7 +449,11 @@
         53
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:desert_pyramid/desert_pyramid_entrance3": "H4sIAAAAAAACAxNk4REQAmFWHj4hVgEBYRZefgC29BMxFAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_room5": "H4sIAAAAAAACAxXDAQ4AIAgDMUQQl/3/v55NGpFeYSc3i83D+ReTm8Xm4fDKI2lkP/dR6YNIAAAA"
+      }
     },
     {
       "id": "bwe_idas:desert_ruins",
@@ -447,7 +481,10 @@
         38
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:dig_site/dig_site_bottom": "H4sIAAAAAAACAx3UUZKrIBQFwKqJCCoiKIruf6Ov633ccpLMaY/XmN8vpt80p19wnB1jSL9klin9Vq83k81uijn8XzUtpek3pUl2Co5zTFM0ySxmNbKT7CQ7Fa9lJ9lJNsiGKaQgG2SDbJANskE2yAbZIBtkg2yocrLzL6RZdpaddZ6jozPPi791nmVn2Vl2lp1lZ9lZNv7mFHWOwcjG+L9xiq43ykbZmGOKstH1Rtmoc5S1HBdtZJ0YZpw5OW+STduUkmzaHWXTYWST7CK7OO8iu8gusovsIrvILrKL7CK7yC6yi+zSYlp1XmVX92iVXeMvre7Suhh9V7lV31VulVurkdvktmlKm9w2O8pttry51s05N9nNnjbZzZ422U12a+Y0l+nm9tljhnnNN6fMzuzMzuxsj9kes06ZndmZndlZr8zO7MzOpww7s/MdUn7MkH0Ne2fv7J29s3e9d/a+/KV9New9e83e9d7ZO3tn73rv7L17X+9d713vXe/9i6mwC7uwC7voXeyy6F3YxX0o7MIuehd2YRd20buwi97l9j+PGSEVvYveB/twnw724T4deh/sg32wD/bBPtgH+2Af7KP5nH1cPmMf7OPx3jCvYVd2ZVffn8qu8S9VdrWTat/VTqp9V3Yt3j9MNezKruzaDbvqXdlV78pu7MZu7OZZbJ7F5qlonsXmWWzsxm7sxm7sxm7sxm7sxm7s9vylNozejX3qetrDqetpD6euJ+/knbzTHk57OO3hbFM6eacdn+7fyTt1PYfXr+Fdul66XtyLe3Ev7rWazWTDvbgX9+Je3It7cS/u5Xtx+V5cvhcX9+J2bud2O+js7vnsnpXuWenszu46d3b3netHSt3z2X0v+hljZ3f3ruvcnzl2nTu7s2/2zb65N/fm3tybe3NvnW/uzb393tw6327EPQzjZjyyj+zjN+Pxm/HY42OPj06P7ON6H9f7yD46Pa7tkX1kh/MP5x+ubXAGZ7i/gzM4gzM4gzM4gzM4gzNcx+AMzus37OW8nJfzcl59Xs7LeTkv5+W8nJfzcl7Oy3k5L+fT5/M7+nlOPs7H+Tgf5+N8nI/zcT7Ox/k4n518dvJxPs4/gXlnwrwGAAA="
+      }
     },
     {
       "id": "bwe_idas:dig_site_dig_site_desert",
@@ -461,7 +498,11 @@
         47
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:dig_site/dig_site_desert": "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",
+        "bwe_idas:dig_site/dig_site_desert_bottom": "H4sIAAAAAAACAxWQW5bDIAxDT5NgUErAThPoDjr7X+HcfOhYtiTzeG1FryQt1CUBg2dpXQCzldlqIBdtC1gB8wRP8AQ3vAa3h+M3vBme4Rle4IX6Xk3vDSRgpkqm0lf6St84vOFpzBrZVqlHVmumzqU6WkfraD3TF7jALnW8/QCPt6M5OIucM5zzHb/jd/y+A/yO3/E7fnc8AcgEbwtyQS6yKcgFmSATBzMyQSbIBJkgc5ask93nTq30+M5W9GHHh/+7qBf3vh6OduO5n4rn/kn3nzTwDP5i8Bejw9k92D3QB/okPy1rok20iTbRJtqX2Zf+HwonG4jQAQAA"
+      }
     },
     {
       "id": "bwe_idas:enchantingtower",
@@ -517,7 +558,10 @@
         14
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:frozen_crypt/frozen_crypt2": "H4sIAAAAAAACAxXNQQ6AIBBD0YyJboB2UEDvf1I/iy7al8mUESqTrFB9yDhU6XX3N9Ruwt7GqTbJInv/QsKECdO8JEyYMGPGjJk7Y8aMJXvyN/mT/En2Tu/0Tv8BTOTheZQAAAA="
+      }
     },
     {
       "id": "bwe_idas:haunted_manor",
@@ -603,252 +647,9 @@
       "subterranean": true,
       "reason": "Entrada Y=66. Restaurar 400 bloques de aire del esquema original recortados durante la importacion.",
       "excavationAir": {
-        "bwe_idas:labyrinth/labyrinth_entrance": [
-          [
-            18,
-            32,
-            0,
-            0
-          ],
-          [
-            18,
-            33,
-            1,
-            1
-          ],
-          [
-            19,
-            32,
-            0,
-            0
-          ],
-          [
-            19,
-            33,
-            0,
-            1
-          ],
-          [
-            20,
-            32,
-            0,
-            0
-          ],
-          [
-            20,
-            33,
-            1,
-            1
-          ],
-          [
-            21,
-            32,
-            1,
-            1
-          ],
-          [
-            21,
-            33,
-            1,
-            1
-          ],
-          [
-            22,
-            32,
-            0,
-            0
-          ],
-          [
-            22,
-            33,
-            0,
-            1
-          ],
-          [
-            23,
-            32,
-            0,
-            1
-          ],
-          [
-            23,
-            33,
-            1,
-            1
-          ],
-          [
-            24,
-            32,
-            0,
-            0
-          ],
-          [
-            24,
-            33,
-            1,
-            1
-          ],
-          [
-            25,
-            32,
-            0,
-            1
-          ],
-          [
-            25,
-            33,
-            1,
-            1
-          ],
-          [
-            26,
-            32,
-            1,
-            1
-          ],
-          [
-            26,
-            33,
-            1,
-            1
-          ],
-          [
-            27,
-            33,
-            1,
-            1
-          ]
-        ],
-        "bwe_idas:labyrinth/floor1": [
-          [
-            1,
-            45,
-            4,
-            6
-          ],
-          [
-            2,
-            45,
-            4,
-            6
-          ],
-          [
-            3,
-            45,
-            4,
-            6
-          ],
-          [
-            26,
-            17,
-            4,
-            22
-          ],
-          [
-            26,
-            18,
-            4,
-            22
-          ],
-          [
-            26,
-            19,
-            7,
-            22
-          ],
-          [
-            27,
-            17,
-            4,
-            22
-          ],
-          [
-            27,
-            18,
-            4,
-            21
-          ],
-          [
-            27,
-            19,
-            4,
-            22
-          ],
-          [
-            28,
-            17,
-            4,
-            22
-          ],
-          [
-            28,
-            18,
-            4,
-            22
-          ],
-          [
-            28,
-            19,
-            4,
-            22
-          ]
-        ],
-        "bwe_idas:labyrinth/floor2": [
-          [
-            16,
-            1,
-            4,
-            26
-          ],
-          [
-            16,
-            2,
-            5,
-            26
-          ],
-          [
-            16,
-            3,
-            3,
-            26
-          ],
-          [
-            17,
-            1,
-            5,
-            26
-          ],
-          [
-            17,
-            2,
-            5,
-            25
-          ],
-          [
-            17,
-            3,
-            4,
-            26
-          ],
-          [
-            18,
-            1,
-            5,
-            26
-          ],
-          [
-            18,
-            2,
-            5,
-            26
-          ],
-          [
-            18,
-            3,
-            5,
-            26
-          ]
-        ]
+        "bwe_idas:labyrinth/labyrinth_entrance": "H4sIAAAAAAACAw3KwQ0AIAgEQWhBUAE/0H+T7uMyWcJqkTWqhjaijk7vZnjow/02o4MOTDqx+Ct87AN0cd82TAAAAA==",
+        "bwe_idas:labyrinth/floor1": "H4sIAAAAAAACA2PUZWFjAmJmIJYSZBGTEgJiYXYxaSBbWohFVFqYRUwGyJYBissA2QAwoHqzMAAAAA==",
+        "bwe_idas:labyrinth/floor2": "H4sIAAAAAAACAw3IsQ0AQAgCwCjSI92z/6BvdznVRM0IyBazzbeY+Ox7g/nPTj7PJAAAAA=="
       }
     },
     {
@@ -1143,7 +944,13 @@
         45
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:ruins_of_the_deep/ruins_of_the_deep_entrance": "H4sIAAAAAAACAxWMQQ4AIAjD9gejgIz/f9N6WLY2gdhShJSLsPOQzyUVu9iV0qXvb3zjG264YXNrnHHGGTf8GnjgB8LPXWdkAAAA",
+        "bwe_idas:ruins_of_the_deep/ruins_of_the_deep_tunnel": "H4sIAAAAAAACAxXQSQ7DMAxDUTexRspG73/a/i6ILPgIwVlu9qT0VOj9uL+29frSGyRJkSZa2psYod/0m37Tb/pNby/BGMYwhjGMYQxjfzPkuHyZOd7xjne84x3veMc73vF+lgIb2MAGNrCBDWxgAxvY+Nsr5VNKNskm2SSbZJP5UbJJNskmZ3WyyesqfOELX/jCFzcKX/jCFzcKX9xofOMb3/jGN77xjW984xvPj5SwwvJ4CSussMIKK6wOH8xgBjOYwQxmMDOhQ3foDt2hO3Tnut+QbrYup7689AeEtNYd3AEAAA==",
+        "bwe_idas:ruins_of_the_deep/ruins_of_the_deep1": "H4sIAAAAAAACAxXT2U4cRwAF0AgQyA9WpBkpZmZ67+qBBpzY1Gqy/P9n5fBwBVV17xyMzG+/f/ly80cIN9/kJOcQbp1vnW+db53vnO+c75zvnO+d753vH8XdvbsHdw/uHtw9uHtw92077I83X78+Lr6ush33x6uvT4f95O7k7hRE7+T+9Hn/fNzP3s7ezt7O3s7ezt7Oz7If9ssk83G/6F30LnoXvYveRe+id/nsvcjrYe8GselmselsunDcO5vOprPpbDqbzqZ7O+69fq/f6/f6PaPX7/V7/V6/3/X0e0b/dtgHzjCK7WA72A62g+1gO9gOtoPtwBpsB9vBdrQdbcfpuI+2o+1oO/o5x+3wPNqOtqPtaDvajrbj5/b7YZ/sJ/uJPdlP9pP9xJ7Yk/1kP/n9TvaT/WQ/28w2s81sM9vMNrPNbDPbzMzZZraZPzfMhbfYLtN1X2wX28V2sV1sF9vFdrFdbBfbxW5lrfqr/qq/+vet+qv+qr/qr36vq37QDbphOe5BN/jsoBt0g27QDT5709u8b94375v3zfvm7eru6u7q/OT/35O3l8MQXuVNfoQh/BxklElWcffu/D6F8D7LIqsE2eQqT/Isfqr3F3mVN/kuf8pf8kN+iuF7lCRZilRp8ks+5G/5R/6V/0KI7MiO7Mg2D5Ed2ZEd2ZEd2ZEd2ZEd2ZEd2ZEd2dE4siM7siM7siM7siM7siM7shM7sRM7sU1DYid2Yid2Yid2Yid2Yid2Yid2Yid2YicfkNiJndiJndiJndiJndiJndmZndmZbRYyO7MzO7MzO7MzO7MzO7MzO7MzO7MzO7OzD8nszM7szM7szM7szM7swi7swi5sk1DYhV3YhV3YhV3YhV3YhV3YhV3YhV3YhV3YxQcVdmEXdmEXdmEXdmFXdmVXdmWrh8qu7Mqu7Mqu7Mqu7Mqu7Mqu7Mqu7Mqu7Mqu7OrDKruyK7uyK7uyK7uxG7uxG1s1NHZjN3ZjN3ZjN3ZjN3ZjN3ZjN3ZjN3ZjN3ZjN3bzgY3d2I3d2I3d2L/8zf2ah/Dh7+3D9x++/x901UGxlAYAAA==",
+        "bwe_idas:ruins_of_the_deep/ruins_of_the_deep2": "H4sIAAAAAAACA2M0YWDgUeTiAgBNzMecCAAAAA=="
+      }
     },
     {
       "id": "bwe_idas:snifferhenge",
@@ -1157,7 +964,10 @@
         27
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:snifferhenge/snifferhenge1": "H4sIAAAAAAACA2NjY2BgY2dg4OQDYn4GBgDhLvJiEAAAAA=="
+      }
     },
     {
       "id": "bwe_idas:sunken_ship_sunken_ship",
@@ -1227,11 +1037,16 @@
         53
       ],
       "subterranean": false,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:tinkers_citadel/tinkers_citadel1": "H4sIAAAAAAACAxXQ3VLCMBAGUAnEgiOiCCqiN3KBafkpIERwhvd/LE8uzuzXzGyy3eo+xGrCO3M++GJBTRtif8Arb+xCHNzQIdClR+SWin2II6Z8siDpSXqSnqQn6UnOa7V2Z6M23mu8t5JXCd9reS1v1M038lbeyq3aLpF38r6QD+oPR07FuBuzms2YzZjNmPv4r3yHHeQhD4x45Ikxz9jPbzHlJcRzYR9n+7gUM+zvj6v9Xc3wD5on2KNYAQAA",
+        "bwe_idas:tinkers_citadel/tinkers_citadel2": "H4sIAAAAAAACAw3MuQHAMAwDMYkUy/jbf9hciwK1ktqTOk5dpV6nv6TXpLfTR+nbESZMmDBhxowZM2Zs+IZv+IZv+H6DZSxSZAAAAA==",
+        "bwe_idas:tinkers_citadel/tinkers_citadel3": "H4sIAAAAAAACAxXQxxKCABBEQUQxZyWIaUz//4s2h6497tQrRmVVlIyZUDFlxpwFS1as2bBlx54DR06cqWlo6bjQc+XGgyfhxZsPX35lNSqwqXTHTDCwmjJjzoIlW3bsOXDkxJmahpaOCz1Xbtx58Bz4l4EO0SE6RIfoEB2iQ3SIDtEhOkSH6BAdokM0iAbRIBpEg2gQDaJBNIgG0SB3dIgO0SE6RIfoEB2iwx/cEmoUmAEAAA=="
+      }
     },
     {
       "id": "bwe_idas:tinkers_workshop",
-      "surfaceY": 95,
+      "surfaceY": 93,
       "placement": "ground",
       "previousSurfaceY": 102,
       "rootY": 93,
@@ -1241,7 +1056,15 @@
         27
       ],
       "subterranean": true,
-      "reason": "Entrada exterior y pavimento de la pieza inicial en Y=95; conservar dependencias inferiores."
+      "reason": "Base de arenisca de la entrada en Y=93; los escalones y el pavimento quedan sobre la rasante.",
+      "excavationAir": {
+        "bwe_idas:tinkers_workshop/tinkers_workshop1": "H4sIAAAAAAACAxWPCwqEMBBD2fmmIotIEVlEvP8p94k80tpkmrq5PEL+fiu6o0fJb/RxRZiiQLCw/6Ib4IuzFD/WF9yAP5mXAQVkcvkoyeS0yFlKZie5JJfkknsqWrWaagd8Ndmf8JjaSs2cXl3NnObuJif+qyxUKOeimzjThBOYr9dHp0GXQZvB+8bGGs+4UDr/Aer1NiIAAQAA",
+        "bwe_idas:tinkers_workshop/tinkers_workshop2": "H4sIAAAAAAACAw2P4QrDIAyEYVmxGqMXSilFRhl7/3fc9+NIjF6+8/Wr1ZBvLncr7lU+TX41+c1s2e6rqZurF1Tp3fbu1LTSs6of9Ce6uMfTP6b+oK8p8EVpiqBnb6TtkZwP5mdXwAkYASPwBZ5BlkGWQZaBb8AZcMbdNBb9qpq8meydlXoiePO7SfDEDLCET/hEPsES2QRLsARLz1vJnuRPyfvkD0mefDYlOf7FyDodHAEAAA==",
+        "bwe_idas:tinkers_workshop/tinkers_workshop3": "H4sIAAAAAAACAxWS0a6DIBBEbxAVKOBAFIGYpun/f+Q9fdjQsmdmB8Hal2wIsjKyJ2vn/8doZX/dglZH0V+j2dfotWZ6sGtd/FphTqrTn6wPzAPzpo/Hhse2Ueg3dFu12hq/6W+//tdqx3/He8d7h9nx2/Hb8drx2r+LnA1yZHHuJReNHPNdZR/WTfYf49zDiq/D1zPXw3vmenifF3k0Ho1H48ngOacns3/YRxPgA1kCmkCOUCm4gH/AN3yNol0UN1ZHwUSY2IyLcPGdlOgneilQzE3MTDDppDq9yfpEpR/7Yf1GZWuU8cqwGTbD5kZ1qwybYQ5mHvgeeB5wB8zRqSfpeNPHSzBirmCEnzir8BEzRb+QrcAUfApcgSl4FbwKXMGvwBY8C57lp/kmVbuEaqMquqpFFb7CVs5QyXbSO6MJZ2SdTtffS5dJuraoy1GBisZfkX1mXnhcnPM6YTs1vS6+7/Wxamgbfg1tQ9fgWzVbq06tebXpXOM+Gm+jcd8NXeNe7r+g20TdNulGczenm95Nr7PfydHx6+Ts5Oycu+Pb8e3k6PCdLJ230HkLgwyDDAPd4HsO3s9AM+qyjrproBnwg/MONOOnYdYkx0Q7XdYMSTNbTeZM5kzeyISf5JqfRf/TLQWCeAMAAA==",
+        "bwe_idas:tinkers_workshop/tinkers_workshop4": "H4sIAAAAAAACAxWMSQrAMAwDP+BNOoYSQsn/39jpQZgZCccKx0NuOrm5ySEvueGiL7hXueka3/hhO/DAYiNYsNjqd/wzzrDZf/ckNlpoAAAA",
+        "bwe_idas:tinkers_workshop/tinkers_workshop5": "H4sIAAAAAAACAxWKSw6AIBBDV81kRD5iQA6AEXv/A1oXzXttGoEtYmd0vAlgCmA2PNleZhdd1FZsrWJkkR/6VVus8tMmGxS/2cJkx82u7fqjPtSHi/IPQnWqR2wAAAA=",
+        "bwe_idas:tinkers_workshop/tinkers_workshop6": "H4sIAAAAAAACAxWP246rMBRDZ6AhCTT3BhxQVVXV0fz/H57VByuQvWzv/NiqH1/1a5p++Z44J/6nrelmqm7fs8y69dJv/dBtbLq9kwycgTewZkNhziZwplkG3jTUt27wmLHKXJvME98L4V/wL/gXvAueBX45Vi2vrOU7/yRZ32TJteRaGEuWJcuSY5k79nO2ycG5MCcXihzdjizX1+7g3bXKwTtyHbkej6fX0+vDlD3ZnmyPz+Pz+Dw+f2zydHn29s8sj3ela+W9K94Vz9omrXArzMq77mbW3SKPmN+Z3w/0mhWYBT8pbCiggpiHzv3gvDif6Mu+0WdWNJMiORE2wsaOyIvwETbCJPoSuYnMxBsSTGKemCeyElnZTsr05sA3eZl35gPRmZkXegpMIafAFZhCVmG3AlcGgi1kFjLL10N3NXOoJqniq/AVvsJWmMr8YbIeIepxTXr8NXWb1D3asjr3PfFdUEu9t0Mdf2f3Dt9fVf2N5x/nX9VOz45/31CK2lvsO56d/fZrSvtVtD+bdnz7B+E76D/oOGCOV9PBvXyWyFBAJUpNEr2CEd16wrwRnYO+wb6DXQedg10HvYPegWfAj2vK44Kle+AbH066B/7TSCf+k76TPU7eeeI96Tovn052Ptnr5J0n/H/h5wqtjAMAAA=="
+      }
     },
     {
       "id": "bwe_idas:train_ruins",
@@ -1297,7 +1120,10 @@
         24
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:tudor_pub/tudor_pub_bottom": "H4sIAAAAAAACA+MX4uLiF+bkEgDSAkAaAAm92VIQAAAA"
+      }
     },
     {
       "id": "bwe_idas:underground_camp_underground_camp",
@@ -1367,7 +1193,14 @@
         40
       ],
       "subterranean": true,
-      "reason": "Base rocosa expuesta en Y=9; el relieve del santuario asciende sobre ella."
+      "reason": "Base rocosa expuesta en Y=9; el relieve del santuario asciende sobre ella.",
+      "excavationAir": {
+        "bwe_idas:windswept_shrine/windswept_shrine1": "H4sIAAAAAAACAyXTh47iMBhFYWynMAxx36ZtszXv/4b7rYJ0RcDnHkL8+3bzOiRLkSpNugyZ8l4+ymf5Il/lm7zJD/kpv+S3/JG/ct5uwVvgDbyBN/AG3sAbOMMH4Q2fhCtwBa7AFbgCV+AKXJErckWuyBW5Ilfkiu4xvhPOyBl5Ik/kiTyRJ/JEnqSf9JN+0k/6ST/pJnzCJ3zCJ/yCX/ALfsEv+AW/4Bbcgltw6ya73EVn1Vl1Vp1VZ9VZ8St+xW/4Db/hN/yG3/AbfsNsmB2zY3bMjtkxu7Xd2t3nu+u76xd5eD4Pz+fh+tX1q+un96e9feZriw8bcniQRxLQATgsHP/X+Y7zGoOMy7iMy4us4l6ye8nuJb+IH8wcmSNzZMXMkc9rjApH4SgchaNwFI7CUTgKR+EoHIWjcBSO4j8W/6uc1yhWnspTeSpPxVd8xVd89WMVWD3bqlfPa3ybXtNruIZruIZrFptn3Oxf02k67bzGvet0na7TsR3b7V23dx3f8R3fz+toDPzADdwgGL4c2GEWh3kaZnCYqaE7dIfuOK8jNXWne5r6U3/qT/1pcepP/WmWp7M2nbX5XZyRabYn7+SdvJN38k7ef21P6AjMAwAA",
+        "bwe_idas:windswept_shrine/windswept_shrine3": "H4sIAAAAAAACAyXWV7LqSBAFwGkZnICLN5LwctP7X+DkRL+Ieh+XyjolkBr++ce/oDKVq0It1UpVaq02aqv+1E7t1UEd1Umd1UVd1U3dVa0a1aqHeqqXequP+qqf6lSvBjWqSf2rYlor+C/YLdgn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfYJ9gn2CfE9BZl9snskdkjs0dmj8wemT0ye2T2yOyR2SOzR2aPzB6ZPTJ7ZPbI7JHJz+Rn8jP5mfxMfiY/k5/Jz+Rn8jP5WUwfTy4/l5vLzeXmcnO5udxcbi43l5vLzeXmcnO5udxcXi4vl5fLy+Xl8nJ5ubxcXi4vl5fHdCsUMgoZhYxCRiGjkFHIKGQUMgoZhYzC7MLswuzC7MLswuzC7MLswuzC7MLs0qzSrNKs0qzSrNKs0qySLdmSLdmSLdmSLdkZN+Nm3IybcTNuxsyYGTNjZsyMmTFz/XP9c/1z/XP9c71zvXO9c71zvXO9C9e90LvQu9C70LtwfQvzF8yCWTALZsEsYnpklvqX+pf6l/qX3vOl92Lpepbskl2yS3bJLtllTI/ailtxK27FrbyPK3bFrtgVu2JX7IpdsauYHtHKPVFxFVe5tyr3eOUer/iKr/iKr/iKr/iKr2J6vNf8mltza27t3lyza3bNrtk1u2bX7Jpdx3QsbNgNt+E23MbeG3bDbtiN/o3+TUxHyFb/Vu9W79b9uHXPbJkts43piPnT8+f1P6//vdORs/O3nQdw5+87f9/9/3duF9NxtPf63ut7r+29tvfa3sy9Pfb22NthH9OxddB70HvQd9B30HfQd9B3cK0H13pwrQe7H7hDTEfdkTtyRw/ikT2yR/bIHtkje2SP7JE9sseYjsgTe2JP7Ik7cSfuxJ24E3fiTtyJO8V0rJ65M3fmztyZO3Nn7syduTN35s7cOaaj+MJduAt38SBfuAt34S7chbtwF+7CXWI6vq/clbtyV+5aKvbKXtkre2Wv7JW9steYjv0be2Nv7I29sbeZYm/sjb2xN/bG3thbTF8Xd/bO3tk7e2fv7H2u+Dt/5+/8nb/zd/4e01dNzdd8zdd8zdd8zdce6NqM2ozajNqM2ozajNqMOqavqsaMxozGjMaMxozGjMaMxozGQ96Y0ZjRmNGY0ZjRmNHE9FXXmtGa0ZrRmtHyLd/yLd/yLd/yLd/yLd/G9DX54B/cg3twD+7BPRwSD/bBPtgH+2Af7COmr9enfZ/ck3tyT+7JPR0ST/bJPtkn+2Sf7DOmr+WX/pf+l/6X/pf368W8mBfzYl7Mi3nF9DX+tuubeTNv5u0weXNv7s29uTf35t7cO6av/g/34T7Mh/kwH+bDfPR9Yvp58NX39V5+zf/q/er9OnS+DpKvg+LLfbkv843p58SP+TE/7/+P+3E/7sf9uB/3c6D8HBo/IT/oF9PPkI7t2I7t2I7t2I7t2I7t2I7tHCSdi+nM6GL6CdPzPd/zvc+wd429Ob05vTm9Ob05vTm9Ob05vTm9w6V3SPTe1N7MPqafQ4N5g3mDeYN5g8938PkOPqvB7MHcwdzB3MHcwdzB3MHcwdzB3MHcwUEyOBQGD/jgQR184IOs4ZN+co1yRjmjnFHOKGeUM7qPRlmjrNF1jPJGeaO8Ud4ob5Q3yhvljfJGeaO8Ud4ob5Q3esBHN/foJh1lj7JH1zjJneROcie5k9xJ7iR3kjvJnWRO8iZ5k7zJzMnMyUM/eWgnD91k9mT2ZPZk9uS6JvP/AxOjXKjcCgAA",
+        "bwe_idas:windswept_shrine/windswept_shrine2": "H4sIAAAAAAACAyXQQZLDMAhEUWwnmcSWBNz/svOcLKgG+lMCxYqIFCU6YpNv8k2+050e9KAP8YQ96Yv+3bFFvOmbfujn1j3ilJ/y887xl/pSX+pLPdRDPdTjEN4Y+lN/6k/9qT8fgjd596qLt3iLt3jLQou/+ndG8pOf/OQnPy2bhhOQ2OzfuYUtbGELW9jClsMKX/gCVn+/Jhrf+MY3vvGNb3z7hPYB7bB2RJtv822+Df8Dgl8JZWgBAAA=",
+        "bwe_idas:windswept_shrine/windswept_shrine1_bottom": "H4sIAAAAAAACAw3KUQoAMQwCUVpqnCbd+193/ZBBePI+Muiuo5v2QpO9jT6oPqo2NaLyHe94xzve8Z6CMT+1PXcxTAAAAA==",
+        "bwe_idas:windswept_shrine/windswept_shrine3_bottom": "H4sIAAAAAAACAxMXZ2RU12JnBwDb6AOeCAAAAA=="
+      }
     },
     {
       "id": "bwe_idas:winter_wagon",
@@ -1409,7 +1242,10 @@
         23
       ],
       "subterranean": true,
-      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial."
+      "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
+      "excavationAir": {
+        "bwe_idas:wizard_tower/redwizardtower2": "H4sIAAAAAAACAxXKQQoAMQxCUWjGRgPt/Y/bPwtRHu4u7SztKXUvtcm/j9T3kzFj5mPch76l4MGDB8tdGpcmhN8DHbGCaVgAAAA="
+      }
     }
   ]
 }
