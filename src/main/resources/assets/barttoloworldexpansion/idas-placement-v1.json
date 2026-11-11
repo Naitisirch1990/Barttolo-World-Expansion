@@ -451,8 +451,30 @@
       "subterranean": true,
       "reason": "Referencia baja contrastada con pavimento, terreno exterior o acceso de la pieza inicial.",
       "excavationAir": {
-        "bwe_idas:desert_pyramid/desert_pyramid_entrance3": "H4sIAAAAAAACAxNk4REQAmFWHj4hVgEBYRZefgC29BMxFAAAAA==",
-        "bwe_idas:desert_pyramid/desert_pyramid_room5": "H4sIAAAAAAACAxXDAQ4AIAgDMUQQl/3/v55NGpFeYSc3i83D+ReTm8Xm4fDKI2lkP/dR6YNIAAAA"
+        "bwe_idas:desert_pyramid/desert_pyramid_entrance1_bottom": "H4sIAAAAAAACA7MzY2AAAKzJVhEEAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_entrance2_bottom": "H4sIAAAAAAACA2PSYmAAAKHUl74EAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_entrance3": "H4sIAAAAAAACA2NgYWISZOEREAJhVh4+IVYBAWEWXgEFFkZGACbp6nccAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_intersection1": "H4sIAAAAAAACA2NgYWNjYQBiDjY2DiAbAE9c2tAQAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_main": "H4sIAAAAAAACA2PgZWNjkGFjE2EAYkU2NgAzNV9qEAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_hallway1": "H4sIAAAAAAACA2NgYmRkA2IAML5yTAgAAAA=",
+        "bwe_idas:desert_pyramid/desert_pyramid_hallway6": "H4sIAAAAAAACA2NgYmTkBWIAMTlzmwgAAAA=",
+        "bwe_idas:desert_pyramid/desert_pyramid_room1": "H4sIAAAAAAACA2NlYGQEAPkuhngEAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_hallway4": "H4sIAAAAAAACA2NgZmQUAGIA8Ne1nggAAAA=",
+        "bwe_idas:desert_pyramid/desert_pyramid_room4": "H4sIAAAAAAACA2Pl5OAAAJsWSd8EAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_room3": "H4sIAAAAAAACA2NgYmQEAKUK3EwEAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_intersection4": "H4sIAAAAAAACA2NgZ2VlZ+DkZOfn5eVj5+QEAOshFT8QAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_hallway3": "H4sIAAAAAAACA2NgZmTkAWIA1z96hAgAAAA=",
+        "bwe_idas:desert_pyramid/desert_pyramid_staircase1": "H4sIAAAAAAACA2Ng4uBgYWJkBAACRWTMCAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_hallway5": "H4sIAAAAAAACA2NgYmTkAGIAA8mtrAgAAAA=",
+        "bwe_idas:desert_pyramid/desert_pyramid_turn3": "H4sIAAAAAAACA2NiYGRkZ2VkBACE2TskCAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_library": "H4sIAAAAAAACA2PgYGXlYGBkBAD1pkhlCAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_room5": "H4sIAAAAAAACAxXFyQ0AIAwEsRxAWG3//TI8LEeUM+xCY33q3nwwX6LQWNg4GFx5JI3sB/7+DqVMAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_turn2": "H4sIAAAAAAACA2NgYmRkZmVkBACHWON+CAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_room6": "H4sIAAAAAAACA2PlZGICAA8Xc8UEAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_room8": "H4sIAAAAAAACA+NiY2QEAB1CaCQEAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_room9": "H4sIAAAAAAACA2Nj4uAAAJRWqcEEAAAA",
+        "bwe_idas:desert_pyramid/desert_pyramid_staircase2": "H4sIAAAAAAACA2NgYmVlZ2JkBACDPd+aCAAAAA==",
+        "bwe_idas:desert_pyramid/desert_pyramid_intersection2": "H4sIAAAAAAACA2NgYWRkYQBiDkZGAEf5rq4MAAAA"
       }
     },
     {
