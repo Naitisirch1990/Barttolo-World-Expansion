@@ -325,7 +325,7 @@ public final class RegressionGameTests {
      w.setBlock(base.above(),Blocks.WATER.defaultBlockState(),50);
      w.setBlock(base.offset(2,1,0),Blocks.LAVA.defaultBlockState(),50);
      w.setBlock(base.offset(2,1,2),Blocks.GOLD_BLOCK.defaultBlockState(),50);
-     var mine=new BweCatalog.Entry("bwe_subterraneo:test","Mine","",5,4,5,1,List.of());
+     var mine=new BweCatalog.Entry("bwe_mazmorras:test","Mine","",5,4,5,1,List.of());
      var plan=new BweCatalog.Blueprint(List.of(
       new BweCatalog.Cell(new BlockPos(2,0,2),Blocks.STONE_BRICKS.defaultBlockState(),null),
       new BweCatalog.Cell(new BlockPos(2,3,2),Blocks.STONE_BRICKS.defaultBlockState(),null),
@@ -359,6 +359,8 @@ public final class RegressionGameTests {
    new BweCatalog.Cell(new BlockPos(10,35,10),Blocks.SANDSTONE.defaultBlockState(),null)),List.of(),List.of(),34);
   var surface=BweCatalog.terrain(pyramid,pyramidPlan,1);
   h.assertTrue(surface.size()==9&&surface.contains(VillageFootprint.key(10,10))&&!surface.contains(VillageFootprint.key(1,1))&&!surface.contains(VillageFootprint.key(2,2)),"Pyramid projects underground chambers onto surface");
+  var cw=new BweCatalog.Entry("bwe_cw:test","CW","",20,40,20,35,List.of());
+  h.assertTrue(BweCatalog.group(cw).equals("CW")&&BweCatalog.terrain(cw,pyramidPlan,1).equals(surface),"CW includes buried galleries in the surface outline");
   h.assertTrue(rules.get(pyramid.id()).excavationAir().containsKey("bwe_idas:desert_pyramid/desert_pyramid_entrance1_bottom"),"Pyramid lost its entrance shaft");
   h.assertTrue(recoveredAir==400,"Original IDAS labyrinth shaft clearance is missing");
   h.assertTrue(rules.get("bwe_idas:tinkers_workshop").excavationAir().size()>1,"Workshop lower passages lack recovered air");
