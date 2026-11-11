@@ -22,7 +22,15 @@ public final class BweCatalog {
                         int ground,List<Piece> pieces) {}
     public record Cell(BlockPos pos,BlockState state,CompoundTag nbt) {}
     public record Spawn(CompoundTag nbt,double x,double y,double z,float yaw) {}
-    public record Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports,int surfaceY) {}
+    public record Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports,int surfaceY,Map<Long,BitSet> excavation) {
+        public Blueprint(List<Cell> cells,List<Spawn> entities,List<BlockPos> supports,int surfaceY){
+            this(cells,entities,supports,surfaceY,Map.of());
+        }
+        boolean excavates(int x,int y,int z){
+            BitSet layers=excavation.get(VillageFootprint.key(x,z));
+            return layers!=null&&y>=0&&layers.get(y);
+        }
+    }
     record PlacementRule(int surfaceY,String mode,boolean subterranean) {}
     private static final Map<String,PlacementRule> AUDITED_PLACEMENTS=loadPlacements();
     private static Map<String,PlacementRule> loadPlacements(){
@@ -90,6 +98,7 @@ public final class BweCatalog {
             for(int x=-margin;x<e.sizeX()+margin;x++)for(int z=-margin;z<e.sizeZ()+margin;z++)result.add(VillageFootprint.key(x,z));
         }else{
             for(var c:b.cells())if(!c.state().isAir())for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
+            result.addAll(b.excavation().keySet());
             result=VillageFootprint.withCourtyards(result);
         }
         return Set.copyOf(result);
@@ -116,7 +125,9 @@ public final class BweCatalog {
             }
             entities.add(new Spawn(tag,depth-spawn.z(),spawn.y(),spawn.x(),(spawn.yaw()+90)%360));
         }
-        return new Blueprint(List.copyOf(cells),List.copyOf(entities),List.copyOf(supports),b.surfaceY());
+        Map<Long,BitSet> excavation=new HashMap<>();
+        b.excavation().forEach((key,layers)->excavation.put(VillageFootprint.key(depth-1-(int)(long)key,(int)(key>>32)),layers));
+        return new Blueprint(List.copyOf(cells),List.copyOf(entities),List.copyOf(supports),b.surfaceY(),Map.copyOf(excavation));
     }
     public static boolean biomePack(Entry e) { return e.id().startsWith("bwe_better:")||e.id().startsWith("bwe_capitals:")||imported(e); }
     public static boolean pirate(Entry e) {
@@ -213,10 +224,13 @@ public final class BweCatalog {
     public static Blueprint compose(ServerLevel world,Entry entry) throws IOException {
         LinkedHashMap<Long,Cell> cells=new LinkedHashMap<>();ArrayList<Spawn> entities=new ArrayList<>();Set<BlockPos> supports=new HashSet<>();
         Map<Integer,Integer> roadHeights=new TreeMap<>();
+        PlacementRule rule=AUDITED_PLACEMENTS.get(entry.id());
+        Map<Long,BitSet> excavation=new HashMap<>();
         Rotation[] rotations={Rotation.NONE,Rotation.CLOCKWISE_90,Rotation.CLOCKWISE_180,Rotation.COUNTERCLOCKWISE_90};
         for(Piece p:entry.pieces()) {
             boolean road=!entry.id().contains("airship_village")&&(p.template().contains("/path/")||p.template().contains("/roads/")||p.template().contains("/docks/")||p.template().contains("/streets/")||p.template().contains("/road/")||p.template().endsWith("/main_road"));
             Map<Long,Integer> roadColumns=new HashMap<>();
+            Map<Long,BitSet> pieceLayers=new HashMap<>();
             StructureTemplate template=template(world,p.template());
             var blueprint=TemplateNbtPiece.readForConstruction(template);
             CompoundTag saved=template.save(new CompoundTag());Map<Long,CompoundTag> metadata=new HashMap<>();
@@ -234,6 +248,8 @@ public final class BweCatalog {
                 BlockPos pos=rotate(c.x(),c.y(),c.z(),p.rotation()).offset(p.x(),p.y(),p.z());
                 if(pos.getX()<0||pos.getX()>=entry.sizeX()||pos.getY()<0||pos.getY()>=entry.sizeY()||pos.getZ()<0||pos.getZ()>=entry.sizeZ())
                     { if(state.isAir())continue;throw new IOException("Plan fuera de limites en "+entry.id()+": "+pos); }
+                if(rule!=null&&rule.subterranean()&&pos.getY()<=rule.surfaceY())
+                    pieceLayers.computeIfAbsent(VillageFootprint.key(pos.getX(),pos.getZ()),key->new BitSet()).set(pos.getY());
                 if(road&&Math.abs(pos.getY()-(entry.ground()-1))<=3&&!state.isAir()&&!state.hasBlockEntity()&&state.getFluidState().isEmpty()
                     &&!state.is(net.minecraft.tags.BlockTags.LEAVES)&&!state.is(net.minecraft.tags.BlockTags.LOGS)
                     &&(state.is(Blocks.DIRT_PATH)||state.isSolidRender(world,BlockPos.ZERO)))
@@ -249,6 +265,9 @@ public final class BweCatalog {
                 cells.put(pos.asLong(),new Cell(pos,state.rotate(rotations[Math.floorMod(p.rotation(),4)]),data==null?null:data.copy()));
                 if(cells.size()>1_000_000)throw new IOException("Demasiados bloques en una construccion");
             }
+            // Fill omissions inside a piece column, keeping separate levels independent.
+            pieceLayers.forEach((key,layers)->excavation.computeIfAbsent(key,k->new BitSet())
+                .set(layers.nextSetBit(0),layers.length()));
             for(int height:roadColumns.values())roadHeights.merge(height,1,Integer::sum);
             for(Tag raw:imported(entry)?new ListTag():saved.getList("entities",Tag.TAG_COMPOUND)) {
                 CompoundTag e=(CompoundTag)raw;ListTag pos=e.getList("pos",Tag.TAG_DOUBLE);
@@ -285,7 +304,7 @@ public final class BweCatalog {
         // These cropped schematics start with above-ground details, not a complete soil layer.
         // Put a continuous ground layer below local Y=0 instead of through their first layer.
         if(Set.of("bwe_extra:mansion","bwe_extra:faro_realista","bwe_extra:coliseo_natural").contains(entry.id()))surface=-1;
-        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surfaceReference(entry,surface));
+        return new Blueprint(List.copyOf(sorted),List.copyOf(entities),List.copyOf(supports),surfaceReference(entry,surface),Map.copyOf(excavation));
     }
 
     /** Only the large hostile mansion: bound persistent entities and keep combat local. */
