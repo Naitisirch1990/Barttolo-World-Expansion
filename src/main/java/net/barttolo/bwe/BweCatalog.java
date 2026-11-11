@@ -31,7 +31,8 @@ public final class BweCatalog {
             return layers!=null&&y>=0&&layers.get(y);
         }
     }
-    record PlacementRule(int surfaceY,String mode,boolean subterranean) {}
+    record AirRun(int x,int z,int bottom,int top) {}
+    record PlacementRule(int surfaceY,String mode,boolean subterranean,Map<String,List<AirRun>> excavationAir) {}
     private static final Map<String,PlacementRule> AUDITED_PLACEMENTS=loadPlacements();
     private static Map<String,PlacementRule> loadPlacements(){
         try(InputStream in=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/idas-placement-v1.json")){
@@ -41,7 +42,16 @@ public final class BweCatalog {
             for(var raw:root.getAsJsonArray("entries")){
                 var item=raw.getAsJsonObject();String id=item.get("id").getAsString(),mode=item.get("placement").getAsString();int surface=item.get("surfaceY").getAsInt();
                 if(!id.startsWith("bwe_idas:")||surface<0||surface>255||!Set.of("ground","water","air").contains(mode)||result.containsKey(id))throw new IOException("Referencia IDAS invalida: "+id);
-                result.put(id,new PlacementRule(surface,mode,item.has("subterranean")&&item.get("subterranean").getAsBoolean()));
+                Map<String,List<AirRun>> excavationAir=new HashMap<>();
+                if(item.has("excavationAir"))for(var piece:item.getAsJsonObject("excavationAir").entrySet()){
+                    List<AirRun> runs=new ArrayList<>();
+                    for(var encoded:piece.getValue().getAsJsonArray()){
+                        var run=encoded.getAsJsonArray();
+                        runs.add(new AirRun(run.get(0).getAsInt(),run.get(1).getAsInt(),run.get(2).getAsInt(),run.get(3).getAsInt()));
+                    }
+                    excavationAir.put(piece.getKey(),List.copyOf(runs));
+                }
+                result.put(id,new PlacementRule(surface,mode,item.has("subterranean")&&item.get("subterranean").getAsBoolean(),Map.copyOf(excavationAir)));
             }
             return Map.copyOf(result);
         }catch(Exception error){throw new IllegalStateException("No se pueden leer las referencias de altura IDAS",error);}
@@ -268,6 +278,13 @@ public final class BweCatalog {
             // Fill omissions inside a piece column, keeping separate levels independent.
             pieceLayers.forEach((key,layers)->excavation.computeIfAbsent(key,k->new BitSet())
                 .set(layers.nextSetBit(0),layers.length()));
+            if(rule!=null)for(AirRun run:rule.excavationAir().getOrDefault(p.template(),List.of())){
+                BlockPos start=rotate(run.x(),run.bottom(),run.z(),p.rotation()).offset(p.x(),p.y(),p.z());
+                int top=Math.min(rule.surfaceY(),p.y()+run.top());
+                if(start.getX()>=0&&start.getX()<entry.sizeX()&&start.getZ()>=0&&start.getZ()<entry.sizeZ()
+                    &&start.getY()>=0&&start.getY()<=top&&top<entry.sizeY())
+                    excavation.computeIfAbsent(VillageFootprint.key(start.getX(),start.getZ()),k->new BitSet()).set(start.getY(),top+1);
+            }
             for(int height:roadColumns.values())roadHeights.merge(height,1,Integer::sum);
             for(Tag raw:imported(entry)?new ListTag():saved.getList("entities",Tag.TAG_COMPOUND)) {
                 CompoundTag e=(CompoundTag)raw;ListTag pos=e.getList("pos",Tag.TAG_DOUBLE);
