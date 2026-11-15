@@ -18,16 +18,16 @@ public final class SurfaceBuilder {
     private enum Stage { VALIDAR,VALIDAR_APOYOS,LIMPIEZA,EXCAVACION,CIMENTACION,APOYOS,CONSTRUCCION,DETALLES,AGUA,LOOTR,POBLACION }
     private static final class Job {
         final ServerLevel world;final BweCatalog.Entry entry;final BweCatalog.Blueprint blueprint;
-        final boolean aerial,aquatic,underground,crawlspace;final BitSet water,dry;final int waterWidth,waterDepth,waterHeight;final int clearBottom,clearTop;final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;final Map<Long,Integer> lowest=new HashMap<>();
+        final boolean aerial,aquatic,underground,exactEntrance,ocean;final BitSet water,dry;final int waterWidth,waterDepth,waterHeight;final int clearBottom,clearTop;final BlockPos origin;final int walkY,x0,z0,x1,z1;final UUID operator;final AABB area;final Set<Long> footprint=new HashSet<>();final Set<Long> placementFootprint;final Map<Long,Integer> lowest=new HashMap<>();
         final Iterator<Map.Entry<Long,BitSet>> excavation;
         Map.Entry<Long,BitSet> excavationColumn;
         int excavationY;
         int x,z,y=Integer.MIN_VALUE,cursor,done;Stage stage=Stage.VALIDAR;String waiting="";int converted;final List<net.minecraft.resources.ResourceLocation> lootTables;final List<BlockPos> chests;
         Job(ServerLevel w,BweCatalog.Entry e,BweCatalog.Blueprint b,BlockPos center,int ground,int margin,UUID op) {
             excavation=b.excavation().entrySet().iterator();
-            world=w;entry=e;blueprint=b;walkY=ground;operator=op;aerial=BweCatalog.airship(e);aquatic=BweCatalog.pirate(e);underground=BweCatalog.underground(e);crawlspace=BweCatalog.crawlspace(e);
+            world=w;entry=e;blueprint=b;walkY=ground;operator=op;aerial=BweCatalog.airship(e);aquatic=BweCatalog.pirate(e);underground=BweCatalog.underground(e);exactEntrance=BweCatalog.preciseEntrance(e);ocean=BweCatalog.oceanFloor(e);
             origin=new BlockPos(center.getX()-e.sizeX()/2,originY(e,b,ground),center.getZ()-e.sizeZ()/2);
-            clearBottom=aerial?origin.getY()-4:aquatic?origin.getY()-2:walkY;clearTop=(aerial||aquatic)?origin.getY()+e.sizeY()+3:Math.max(origin.getY()+e.sizeY()+1,walkY+64);
+            clearBottom=aerial?origin.getY()-4:aquatic?origin.getY()-2:walkY;clearTop=(aerial||aquatic||BweCatalog.dyt(e))?origin.getY()+e.sizeY()+3:Math.max(origin.getY()+e.sizeY()+1,walkY+64);
             lootTables=BweLootr.available()?BweLootr.tables(w):List.of();
             chests=b.cells().stream().filter(c->BweLootr.convertible(c.state())).map(c->origin.offset(c.pos())).toList();
             x0=origin.getX()-margin;z0=origin.getZ()-margin;x1=origin.getX()+e.sizeX()-1+margin;z1=origin.getZ()+e.sizeZ()-1+margin;
@@ -50,8 +50,8 @@ public final class SurfaceBuilder {
             placementFootprint=Set.copyOf(footprint);
             footprint.clear();for(long k:BweCatalog.terrain(e,b,margin))footprint.add(columnKey(origin.getX()+(int)(k>>32),origin.getZ()+(int)k));
             x=x0;z=z0;
-            int areaBottom=underground?origin.getY():(aerial||aquatic)?clearBottom:w.getMinBuildHeight();
-            int areaTop=underground?origin.getY()+e.sizeY():(aerial||aquatic)?clearTop+1:w.getMaxBuildHeight();
+            int areaBottom=(underground||ocean)?origin.getY():(aerial||aquatic)?clearBottom:w.getMinBuildHeight();
+            int areaTop=(underground||ocean)?origin.getY()+e.sizeY():(aerial||aquatic)?clearTop+1:w.getMaxBuildHeight();
             area=new AABB(x0,areaBottom,z0,x1+1.0,areaTop,z1+1.0);
         }
         boolean excavates(BlockPos at){
@@ -66,6 +66,9 @@ public final class SurfaceBuilder {
     public static String status(){return BweBackup.restoring()?BweBackup.status():active==null?"Sin obra en curso.":active.entry.title()+" | "+active.stage+" | "+active.done+" operaciones"+(active.waiting.isEmpty()?"":" | "+active.waiting);}
     private static void say(Job j,String s){var p=j.world.getServer().getPlayerList().getPlayer(j.operator);if(p!=null)p.sendSystemMessage(Component.literal("[BWE] "+s));}
     public static int ground(ServerLevel world,BlockPos center,BweCatalog.Entry e,int margin) {
+        return ground(world,center,e,null,margin);
+    }
+    static int ground(ServerLevel world,BlockPos center,BweCatalog.Entry e,BweCatalog.Blueprint blueprint,int margin) {
         int x0=center.getX()-e.sizeX()/2-margin,z0=center.getZ()-e.sizeZ()/2-margin;
         int x1=x0+e.sizeX()-1+2*margin,z1=z0+e.sizeZ()-1+2*margin;
         checkArea(world,x0,z0,x1,z1);
@@ -75,6 +78,10 @@ public final class SurfaceBuilder {
                 cover=Math.min(cover,world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z));
             return cover-e.sizeY()-4+1;
         }
+        if(BweCatalog.oceanFloor(e)){
+            return world.getHeight(Heightmap.Types.OCEAN_FLOOR,center.getX(),center.getZ());
+        }
+        if(BweCatalog.netherDesign(e)&&world.dimension().equals(net.minecraft.world.level.Level.NETHER))return center.getY();
         if(BweCatalog.pirate(e)){
             Map<Integer,Integer> levels=new TreeMap<>();
             // Read actual water blocks near the selected site, including water under docks/trees.
@@ -106,6 +113,21 @@ public final class SurfaceBuilder {
             int y=WorldChecks.ground(world,x,z);
             if(y==Integer.MIN_VALUE)y=world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z)-1;
             heights.add(y+1);
+        }
+        if(blueprint!=null&&BweCatalog.preciseEntrance(e)&&!BweCatalog.crawlspace(e)){
+            var columns=BweCatalog.terrain(e,blueprint,0);
+            if(!columns.isEmpty()){
+                heights.clear();
+                int ox=center.getX()-e.sizeX()/2,oz=center.getZ()-e.sizeZ()/2;
+                int stride=Math.max(1,columns.size()/150),index=0;
+                for(long key:columns){
+                    if(index++%stride!=0)continue;
+                    int x=ox+(int)(key>>32),z=oz+(int)key;
+                    int y=WorldChecks.ground(world,x,z);
+                    if(y==Integer.MIN_VALUE)y=world.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,x,z)-1;
+                    heights.add(y+1);
+                }
+            }
         }
         Collections.sort(heights);return heights.get(heights.size()/2);
     }
@@ -159,12 +181,12 @@ public final class SurfaceBuilder {
     private static boolean purge(Job j){
         var es=j.world.getEntitiesOfClass(Entity.class,j.area).stream().filter(e->{
             var p=e.blockPosition();
-            return affected(j,p.getX(),p.getZ())||(j.crawlspace&&e instanceof Player
+            return affected(j,p.getX(),p.getZ())||(j.exactEntrance&&e instanceof Player
                 &&p.getY()>=j.origin.getY()&&p.getY()<j.walkY
                 &&j.placementFootprint.contains(columnKey(p.getX(),p.getZ())));
         }).toList();
         if(es.stream().anyMatch(e->e instanceof Player)){j.waiting=j.underground?"Sal del volumen subterraneo":"Alejate horizontalmente del area";return false;}
-        if(j.underground){j.waiting="";return true;}
+        if(j.underground||j.ocean){j.waiting="";return true;}
         int count=0;for(var e:es){if(e instanceof Player)continue;if(count++>=256){j.waiting="Retirando entidades";return false;}e.discard();}
         j.waiting="";return true;
     }
@@ -203,22 +225,22 @@ public final class SurfaceBuilder {
                         throw new IllegalArgumentException("El techo quedaria al descubierto. Baja la obra con /bwe altura.");
                     j.column();
                 }else if(j.stage==Stage.VALIDAR_APOYOS){
-                    if(j.underground){
+                    if(j.underground||j.ocean||j.exactEntrance||BweCatalog.dyt(j.entry)){
                         if(j.cursor>=j.blueprint.cells().size()){
-                            BweBackup.begin(j.world);last=j;j.stage=Stage.CONSTRUCCION;j.cursor=0;continue;
+                            BweBackup.begin(j.world);last=j;j.stage=(j.underground||j.ocean)?Stage.CONSTRUCCION:Stage.LIMPIEZA;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.cursor=0;continue;
                         }
                         BlockPos at=j.origin.offset(j.blueprint.cells().get(j.cursor++).pos());
                         if(j.world.getBlockState(at).is(Blocks.BEDROCK))
                             throw new IllegalArgumentException("La obra toca roca madre. Cambia su altura o ubicacion.");
                         continue;
                     }
-                    if(j.aerial||j.aquatic||j.crawlspace||j.cursor>=j.blueprint.supports().size()){BweBackup.begin(j.world);j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
+                    if(j.aerial||j.aquatic||j.exactEntrance||j.cursor>=j.blueprint.supports().size()){BweBackup.begin(j.world);j.stage=Stage.LIMPIEZA;last=j;j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;continue;}
                     BlockPos floor=j.origin.offset(j.blueprint.supports().get(j.cursor++));
                     if((BweCatalog.surfaceEntrance(j.entry)&&floor.getY()<j.walkY)||(floor.getY()>=j.walkY&&floor.getY()-j.walkY<=63))continue;
                     requireSupport(j,floor.getX(),floor.getY()-1,floor.getZ());
                 }else if(j.stage==Stage.LIMPIEZA){
                     if(j.x>j.x1){
-                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=(j.aerial||j.aquatic||j.crawlspace)?Stage.CONSTRUCCION:Stage.EXCAVACION;j.cursor=0;continue;
+                        j.x=j.x0;j.z=j.z0;j.y=Integer.MIN_VALUE;j.stage=(j.aerial||j.aquatic||j.exactEntrance)?Stage.CONSTRUCCION:Stage.EXCAVACION;j.cursor=0;continue;
                     }
                     if(!affected(j,j.x,j.z)){j.column();continue;}
                     if(j.y==Integer.MIN_VALUE)j.y=Math.min(j.world.getHeight(Heightmap.Types.WORLD_SURFACE,j.x,j.z)-1,j.clearTop);
@@ -226,7 +248,9 @@ public final class SurfaceBuilder {
                     while(j.y>=j.clearBottom&&skipped<32&&j.world.getBlockState(new BlockPos(j.x,j.y,j.z)).isAir()){j.y--;skipped++;}
                     if(j.y<j.clearBottom){j.column();continue;}
                     if(skipped==32)continue;
-                    set(j,new BlockPos(j.x,j.y--,j.z),Blocks.AIR.defaultBlockState());
+                    BlockPos at=new BlockPos(j.x,j.y--,j.z);
+                    if(!BweCatalog.dyt(j.entry)||!j.world.getBlockState(at).is(Blocks.BEDROCK))
+                        set(j,at,Blocks.AIR.defaultBlockState());
                 }else if(j.stage==Stage.EXCAVACION){
                     if(j.excavationColumn==null){
                         if(!j.excavation.hasNext()){j.stage=Stage.CIMENTACION;continue;}
@@ -246,7 +270,10 @@ public final class SurfaceBuilder {
                     BlockPos at=new BlockPos(j.x,j.y,j.z);var old=j.world.getBlockState(at);
                     if(j.excavates(at)){j.column();continue;}
                     boolean support=firm(old);
-                    if(j.y==j.walkY-1||!support)set(j,at,(j.y==j.walkY-1?Blocks.GRASS_BLOCK:j.y>=j.walkY-3?Blocks.DIRT:Blocks.STONE).defaultBlockState());
+                    if(j.y==j.walkY-1||!support){
+                        var fill=BweCatalog.netherDesign(j.entry)?Blocks.NETHERRACK:j.y==j.walkY-1?Blocks.GRASS_BLOCK:j.y>=j.walkY-3?Blocks.DIRT:Blocks.STONE;
+                        set(j,at,fill.defaultBlockState());
+                    }
                     if(support)j.column();else j.y--;
                 }else if(j.stage==Stage.APOYOS){
                     if(j.cursor>=j.blueprint.supports().size()){j.stage=Stage.CONSTRUCCION;j.cursor=0;continue;}
@@ -259,8 +286,9 @@ public final class SurfaceBuilder {
                     else {set(j,at,Blocks.DIRT.defaultBlockState());j.y--;}
                 }else if(j.stage==Stage.CONSTRUCCION){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=Stage.DETALLES;j.cursor=0;continue;}
-                    var cell=j.blueprint.cells().get(j.cursor++);BlockPos at=j.origin.offset(cell.pos());if(keepFoundation(cell.state().isAir(),j.aerial||j.aquatic||j.underground||j.crawlspace,at.getY(),j.walkY-1,j.lowest.getOrDefault(columnKey(at.getX(),at.getZ()),Integer.MAX_VALUE)))continue;
-                    if(j.underground||j.crawlspace||!cell.state().isAir()||j.placementFootprint.contains(columnKey(at.getX(),at.getZ())))set(j,at,cell.state());
+                    var cell=j.blueprint.cells().get(j.cursor++);BlockPos at=j.origin.offset(cell.pos());if(keepFoundation(cell.state().isAir(),j.aerial||j.aquatic||j.underground||j.ocean||j.exactEntrance,at.getY(),j.walkY-1,j.lowest.getOrDefault(columnKey(at.getX(),at.getZ()),Integer.MAX_VALUE)))continue;
+                    if(j.ocean&&cell.state().isAir()&&j.world.getFluidState(at).is(net.minecraft.tags.FluidTags.WATER))continue;
+                    if(j.underground||j.ocean||j.exactEntrance||!cell.state().isAir()||j.placementFootprint.contains(columnKey(at.getX(),at.getZ())))set(j,at,cell.state());
                 }else if(j.stage==Stage.DETALLES){
                     if(j.cursor>=j.blueprint.cells().size()){j.stage=j.aquatic?Stage.AGUA:Stage.LOOTR;j.cursor=0;continue;}
                     var cell=j.blueprint.cells().get(j.cursor++);
