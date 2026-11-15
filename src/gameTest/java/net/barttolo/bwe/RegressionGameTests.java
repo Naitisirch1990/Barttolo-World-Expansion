@@ -360,6 +360,8 @@ public final class RegressionGameTests {
   var surface=BweCatalog.terrain(pyramid,pyramidPlan,1);
   h.assertTrue(surface.size()==9&&surface.contains(VillageFootprint.key(10,10))&&!surface.contains(VillageFootprint.key(1,1))&&!surface.contains(VillageFootprint.key(2,2)),"Pyramid projects underground chambers onto surface");
   var cw=new BweCatalog.Entry("bwe_cw:test","CW","",20,40,20,35,List.of());
+  var dyt=new BweCatalog.Entry("bwe_dyt:illager_manor","OVW","",20,40,20,35,List.of());
+  h.assertTrue(BweCatalog.group(dyt).equals("DYT"),"DyT plans missing separate catalog");
   h.assertTrue(BweCatalog.group(cw).equals("CW")&&BweCatalog.terrain(cw,pyramidPlan,1).equals(surface),"CW includes buried galleries in the surface outline");
   h.assertTrue(rules.get(pyramid.id()).excavationAir().containsKey("bwe_idas:desert_pyramid/desert_pyramid_entrance1_bottom"),"Pyramid lost its entrance shaft");
   h.assertTrue(recoveredAir==400,"Original IDAS labyrinth shaft clearance is missing");
