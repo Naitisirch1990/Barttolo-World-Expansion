@@ -81,9 +81,9 @@ public final class BarttoloWorldExpansion {
     private static int catalogue(CommandSourceStack s){
         if(BweCatalog.entries().isEmpty())return fail(s,BweCatalog.problem()+". Usa el JAR completo con las plantillas.");
         say(s,"Catalogo BWE: elige un grupo");
-        for(String group:java.util.List.of("IV","BV","GC","EX","CTOV","EXTRAS","TT","ITP","IDAS","SUBTERRANEO","CW","HOSTILES")){
+        for(String group:java.util.List.of("IV","BV","GC","EX","CTOV","EXTRAS","TT","ITP","IDAS","DYT","SUBTERRANEO","CW","HOSTILES")){
             int count=BweCatalog.category(group).size();if(count==0)continue;
-            String label=group.equals("HOSTILES")?"Estructuras hostiles":group.equals("SUBTERRANEO")?"Subterráneo":group;
+            String label=group.equals("HOSTILES")?"Estructuras hostiles":group.equals("SUBTERRANEO")?"Subterráneo":group.equals("DYT")?"DyT":group;
             s.sendSuccess(()->Component.literal("["+label+"] "+count+" estructuras").withStyle(style->style.withColor(group.equals("HOSTILES")?ChatFormatting.GOLD:ChatFormatting.AQUA)
                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe listar "+group))),false);
         }
@@ -93,9 +93,9 @@ public final class BarttoloWorldExpansion {
         var entries=group.equals("TODAS")?BweCatalog.entries():BweCatalog.category(group);int pages=Math.max(1,(entries.size()+5)/6);
         if(entries.isEmpty())return fail(s,"Grupo vacio o desconocido. /bwe listar");
         if(page>pages)return fail(s,"Ultima pagina: "+pages);
-        say(s,group+": "+entries.size()+" | pagina "+page+"/"+pages);
+        say(s,(group.equals("DYT")?"DyT":group)+": "+entries.size()+" | pagina "+page+"/"+pages);
         for(var e:entries.subList((page-1)*6,Math.min(entries.size(),page*6))){
-            int padding=BweCatalog.underground(e)?0:2;
+            int padding=BweCatalog.buriedOnly(e)?0:2;
             Component option=Component.literal("[Ver] "+e.title()+" "+(e.sizeX()+padding)+" x "+(e.sizeZ()+padding)+" total ")
                 .withStyle(style->style.withColor(ChatFormatting.AQUA)
                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,"/bwe vista "+e.id()))
@@ -122,10 +122,10 @@ public final class BarttoloWorldExpansion {
         if(SurfaceBuilder.busy()||BuildEngine.busy())return fail(s,"Espera a que termine la obra");
         var e=BweCatalog.find(name.trim());if(e==null)return fail(s,"Construccion no encontrada. /bwe listar");
         UUID player=id(s);BlockPos center=SITES.getOrDefault(player,s.getPlayerOrException().blockPosition());
-        int margin=BweCatalog.underground(e)?0:MARGINS.getOrDefault(player,1);
+        int margin=BweCatalog.buriedOnly(e)?0:MARGINS.getOrDefault(player,1);
         try{
             var plan=BweCatalog.compose(s.getLevel(),e);var manual=HEIGHTS.get(player);
-            int ground=manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?manual.y()+1:SurfaceBuilder.ground(s.getLevel(),center,e,margin);
+            int ground=manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?manual.y()+1:SurfaceBuilder.ground(s.getLevel(),center,e,plan,margin);
             String heightError=SurfaceBuilder.heightProblem(s.getLevel(),e,plan,ground);if(heightError!=null)return fail(s,heightError);
             SELECTED.put(player,new Selection(e,center,s.getLevel().dimension().location().toString(),ground,margin,plan));HIDDEN_BORDERS.remove(player);showBorder(s.getPlayerOrException(),SELECTED.get(player));
             say(s,BweCatalog.underground(e)?"Borde verde del volumen subterraneo. /bwe altura Y fija el piso."
@@ -133,7 +133,8 @@ public final class BarttoloWorldExpansion {
                 :"Borde VERDE: contorno real de limpieza, incluido un bloque de margen. /bwe borde para ocultar o mostrar.");
             say(s,"Seleccionada: "+e.title()+" | "+e.sizeX()+" x "+e.sizeZ()+" bloques | "+heightLabel(e)+(ground-1)+(manual!=null&&manual.dimension().equals(s.getLevel().dimension().location().toString())?" (altura manual conservada)":""));
             say(s,"Centro X="+center.getX()+" Z="+center.getZ()+" | /bwe x X | /bwe z Z | "+heightLabel(e)+(ground-1)+" | base del esquema Y="+SurfaceBuilder.originY(e,plan,ground));
-            if(BweCatalog.crawlspace(e)){say(s,"La torre queda en el centro indicado. Las galerias se colocan debajo sin nivelar sobre ellas. Alejate y usa /bwe crear.");return 1;}
+            if(BweCatalog.preciseEntrance(e)){say(s,"Las salas inferiores se colocan sin nivelar sobre ellas. Alejate y usa /bwe crear.");return 1;}
+            if(BweCatalog.oceanFloor(e)){say(s,"Colocacion en el fondo marino. Ajusta el piso con /bwe altura. /bwe crear.");return 1;}
             if(BweCatalog.underground(e)){say(s,"Solo se reemplazan los bloques del plano, incluidos agua y lava. Usa /bwe crear.");return 1;}
             say(s,"Limite total: "+(e.sizeX()+2*margin)+" x "+(e.sizeZ()+2*margin)+" bloques, margen de un bloque. "+(BweCatalog.airship(e)?"Dirigibles: aire alrededor y debajo, sin crear tierra. /bwe altura Y ajusta la base.":BweCatalog.pirate(e)?"Estructura acuatica: agua alrededor, sin plataforma de tierra. /bwe altura Y ajusta el agua.":"Limpieza ajustada a edificios y caminos.")+" Alejate horizontalmente y usa /bwe crear.");return 1;
         }catch(Exception error){return fail(s,error.getMessage());}
@@ -157,7 +158,7 @@ public final class BarttoloWorldExpansion {
         say(s,"Giro: "+(next.turns()*90)+" grados | "+(e.sizeX()+2*a.margin())+" x "+(e.sizeZ()+2*a.margin())+" total | "+heightLabel(e)+(a.ground()-1)+". /bwe rotar para otro giro; /bwe crear para construir.");return 1;
     }
 
-    private static String heightLabel(BweCatalog.Entry e){return BweCatalog.underground(e)?"piso Y=":BweCatalog.airship(e)?"base aerea Y=":BweCatalog.pirate(e)?"agua Y=":"suelo/camino Y=";}
+    private static String heightLabel(BweCatalog.Entry e){return BweCatalog.buriedOnly(e)?"piso Y=":BweCatalog.airship(e)?"base aerea Y=":BweCatalog.pirate(e)?"agua Y=":"suelo/camino Y=";}
     private static int height(CommandSourceStack s,int y)throws CommandSyntaxException{
         UUID who=id(s);Selection a=SELECTED.get(who);if(a==null)return fail(s,"Primero selecciona una construccion");
         if(!a.dimension().equals(s.getLevel().dimension().location().toString()))return fail(s,"Vuelve a la dimension elegida");
@@ -179,7 +180,7 @@ public final class BarttoloWorldExpansion {
             if(manual!=null&&manual.dimension().equals(a.dimension())){
                 SurfaceBuilder.validateSite(s.getLevel(),center,a.entry(),a.margin());
                 ground=manual.y()+1;
-            }else ground=SurfaceBuilder.ground(s.getLevel(),center,a.entry(),a.margin());
+            }else ground=SurfaceBuilder.ground(s.getLevel(),center,a.entry(),a.blueprint(),a.margin());
             String problem=SurfaceBuilder.heightProblem(s.getLevel(),a.entry(),a.blueprint(),ground);
             if(problem!=null)return fail(s,problem);
             Selection next=new Selection(a.entry(),center,a.dimension(),ground,a.margin(),a.blueprint(),a.turns(),a.outline());
