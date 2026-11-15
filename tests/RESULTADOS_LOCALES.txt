@@ -1,0 +1,9 @@
+BWE v0.6.0 — auditoría local, 1 de noviembre de 2026
+- Python verify_source.py: OK (auditoría de texto, no Forge)
+- Python verify_toml.py: OK (metadatos)
+- Java SiteMathTest (javac --release 17): OK, 14 casos
+- verify_resource_ids.py contra CTOV 3.4.14 y Explorify 1.6.5: OK, 15 rutas NBT presentes
+- Análisis sintáctico con javac --release 17 sin dependencias: no se detectaron errores de sintaxis; las referencias a Minecraft/Forge NO se pueden resolver sin dependencias externas.
+- Compilación ForgeGradle: NO ejecutada; no hay Gradle/dependencias y la red está bloqueada en este entorno.
+- Runtime Minecraft 1.20.1/Forge 47.4.10: NO probado.
+- Seguridad para mundo principal: NO VALIDADA. Únicamente probar con copia de seguridad íntegra.

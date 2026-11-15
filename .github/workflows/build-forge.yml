@@ -2,12 +2,15 @@ name: Compilar BWE para Forge 1.20.1
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - name: Exigir fuentes completos
@@ -17,29 +20,51 @@ jobs:
             echo "::error::Faltan fuentes BWE. Sube el contenido descomprimido del ZIP antes de compilar."
             exit 1
           fi
-      - name: Preparar Java 17
+      - name: Configurar Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-      - name: Preparar Gradle 8.8
+      - name: Instalar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.8'
-      - name: Verificaciones estaticas y geometria
+      - name: Probar geometria Java sin Minecraft
+        run: bash tests/run_geometry_tests.sh
+      - name: Verificar fuentes y metadatos
+        run: |
+          python3 tests/test_surface_workflow.py
+          python3 tests/verify_no_third_party_assets.py
+      - name: Compilar mod
+        run: gradle --no-daemon --stacktrace build
+      - name: Validar version, integridad y bytecode del JAR
         shell: bash
         run: |
-          python3 tests/verify_source.py
-          python3 tests/verify_toml.py
-          python3 tests/test_chunk_guard.py
-          python3 tests/verify_simulation_parity.py
-          python3 tests/verify_ci.py
-          bash tests/run_geometry_tests.sh
-      - name: Compilar y reobfuscar Forge 1.20.1
-        run: gradle --no-daemon --stacktrace build
-      - name: Adjuntar JAR experimental
+          set -euo pipefail
+          jarfile=$(find build/libs -maxdepth 1 -type f -name 'BarttoloWorldExpansion-*.jar' | head -n 1)
+          test -n "$jarfile"
+          unzip -t "$jarfile" > /dev/null
+          unzip -p "$jarfile" META-INF/mods.toml | grep -F 'version="0.8.0"'
+          jar tf "$jarfile" | grep -F 'net/barttolo/bwe/BarttoloWorldExpansion.class'
+          javap -verbose -classpath "$jarfile" net.barttolo.bwe.BarttoloWorldExpansion | grep -F 'major version: 61'
+      - name: Ensayo real Forge - 15 construcciones y restauracion
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace runGameTestServer | tee gametest.log
+          python3 - <<'PYTEST'
+          from pathlib import Path
+          text=Path('gametest.log').read_text()
+          kinds=('aldea','aldea_grande','altar','campamento','carreta','establo','fortin','granja','herreria','mercado','posada','pozo','refugio','ruina','torre')
+          for kind in kinds:
+              assert f'[BWE-GAMETEST] PASS {kind} |' in text, f'Falta ensayo runtime: {kind}'
+          assert '[BWE-IMPORT-TEST] PASS archive, rotation, ground, block-entity NBT, purge and removal' in text
+          print('15 regresiones anteriores y constructor de archivos nativos verificados en Forge')
+          PYTEST
+      - name: Guardar JAR
         uses: actions/upload-artifact@v4
         with:
-          name: BarttoloWorldExpansion-Forge-1.20.1-EXPERIMENTAL
+          name: BarttoloWorldExpansion-Forge-1.20.1-v0.8.0
           path: build/libs/*.jar
           if-no-files-found: error
+
