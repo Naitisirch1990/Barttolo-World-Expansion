@@ -65,21 +65,22 @@ public final class BweCatalog {
     private static final Map<String,StructureTemplate> CACHE=new HashMap<>();
     private static List<Entry> catalog;
     private static String problem="";
+    private static final Map<String,String> DIMENSIONS=new HashMap<>();
     private static final Map<String,String> PLACEMENT=new HashMap<>();
     private static Path folder() { return FMLPaths.CONFIGDIR.get().resolve("bwe"); }
-    public static void reset() { catalog=null;CACHE.clear();PLACEMENT.clear();problem=""; }
+    public static void reset() { catalog=null;CACHE.clear();PLACEMENT.clear();DIMENSIONS.clear();problem=""; }
     public static String problem() { entries();return problem; }
     public static List<Entry> entries() {
         if(catalog!=null) return catalog;
         try { bootstrap(); } catch(IOException error) { problem=error.getMessage();catalog=List.of();return catalog; }
         try {
             ArrayList<Entry> result=new ArrayList<>();
-            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","catalogo-subterraneo-v2.json","catalogo-cw-v1.json")) {
+            for(String filename:List.of("catalogo-iv-v2.json","catalogo-extra-v1.json","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","catalogo-subterraneo-v2.json","catalogo-cw-v1.json","catalogo-dyt-v1.json","biblioteca-v1.json")) {
             Path file=folder().resolve(filename);if(!Files.isRegularFile(file))continue;
             JsonObject root;try(var reader=Files.newBufferedReader(file)){root=JsonParser.parseReader(reader).getAsJsonObject();}
             for(var item:root.getAsJsonArray("entries")) {
                 JsonObject o=item.getAsJsonObject();
-                if(o.get("id").getAsString().equals("bwe_idas:tree_of_wisdom"))continue;
+                if(Set.of("bwe_idas:tree_of_wisdom","bwe_mazmorras:ur_library").contains(o.get("id").getAsString()))continue;
                 ArrayList<Piece> pieces=new ArrayList<>();
                 for(var value:o.getAsJsonArray("pieces")) {
                     var p=value.getAsJsonObject();pieces.add(new Piece(p.get("template").getAsString(),
@@ -88,6 +89,7 @@ public final class BweCatalog {
                 int x=o.get("sizeX").getAsInt(),y=o.get("sizeY").getAsInt(),z=o.get("sizeZ").getAsInt();
                 if(x<1||z<1||y<1||x>256||z>256||y>256||pieces.size()>128)
                     throw new IllegalArgumentException("Tamano fuera del limite: "+o.get("id"));
+                if(o.has("dimension"))DIMENSIONS.put(o.get("id").getAsString(),o.get("dimension").getAsString());
                 if(o.has("placement"))PLACEMENT.put(o.get("id").getAsString(),o.get("placement").getAsString());
                 result.add(new Entry(o.get("id").getAsString(),shortTitle(o.get("title").getAsString()),
                     placementDescription(o.get("id").getAsString(),o.get("description").getAsString()),x,y,z,o.get("ground").getAsInt(),List.copyOf(pieces)));
@@ -100,7 +102,7 @@ public final class BweCatalog {
     /** Private deliverable may carry the exact user-provided archives as passive resources. */
     private static void bootstrap() throws IOException {
         Files.createDirectories(folder());
-        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json","bwe_better.jar","bwe_capitals.jar","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","bwe_tt.jar","bwe_itp.jar","bwe_idas.jar","catalogo-subterraneo-v2.json","catalogo-cw-v1.json","bwe_mazmorras.jar","bwe_cw.jar")) {
+        for(String name:List.of("ctov.jar","explorify.jar","integrated_vanilla.jar","catalogo-iv-v2.json","bwe_extra.jar","catalogo-extra-v1.json","bwe_better.jar","bwe_capitals.jar","catalogo-biomas-v1.json","catalogo-ampliacion-v1.json","bwe_tt.jar","bwe_itp.jar","bwe_idas.jar","catalogo-subterraneo-v2.json","catalogo-cw-v1.json","bwe_mazmorras.jar","bwe_cw.jar","catalogo-dyt-v1.json","biblioteca-v1.json","bwe_dyt.jar","bwe_biblioteca.jar")) {
             Path target=folder().resolve(name);
             if(Files.exists(target))continue;
             try(InputStream input=BweCatalog.class.getResourceAsStream("/assets/barttoloworldexpansion/"+name)) {
@@ -115,7 +117,7 @@ public final class BweCatalog {
             for(int x=-margin;x<e.sizeX()+margin;x++)for(int z=-margin;z<e.sizeZ()+margin;z++)result.add(VillageFootprint.key(x,z));
         }else{
             for(var c:b.cells())if(!c.state().isAir()&&(!surfaceEntrance(e)||c.pos().getY()>b.surfaceY()))for(int dx=-margin;dx<=margin;dx++)for(int dz=-margin;dz<=margin;dz++)result.add(VillageFootprint.key(c.pos().getX()+dx,c.pos().getZ()+dz));
-            if(!surfaceEntrance(e)&&!underground(e)){
+            if(!surfaceEntrance(e)&&!buriedOnly(e)){
                 result.addAll(b.excavation().keySet());
                 result=VillageFootprint.withCourtyards(result);
             }
@@ -178,12 +180,17 @@ public final class BweCatalog {
         };
     }
     public static boolean imported(Entry e){return e.id().startsWith("bwe_tt:")||e.id().startsWith("bwe_itp:")||e.id().startsWith("bwe_idas:");}
-    static boolean underground(Entry e){return e.id().startsWith("bwe_mazmorras:");}
+    static boolean underground(Entry e){return e.id().startsWith("bwe_mazmorras:")||"underground".equals(PLACEMENT.get(e.id()));}
+    static boolean oceanFloor(Entry e){return "ocean".equals(PLACEMENT.get(e.id()));}
+    static boolean buriedOnly(Entry e){return underground(e)||oceanFloor(e);}
+    static boolean dyt(Entry e){return e.id().startsWith("bwe_dyt:");}
+    static boolean netherDesign(Entry e){return "NETHER".equals(DIMENSIONS.get(e.id()));}
+    static boolean preciseEntrance(Entry e){return crawlspace(e)||"hybrid".equals(PLACEMENT.get(e.id()));}
     static boolean crawlspace(Entry e){return e.id().startsWith("bwe_cw:");}
-    static boolean surfaceEntrance(Entry e){return e.id().equals("bwe_idas:desert_pyramid")||crawlspace(e);}
+    static boolean surfaceEntrance(Entry e){return e.id().equals("bwe_idas:desert_pyramid")||preciseEntrance(e);}
     public static String group(Entry e){
         return switch(e.id().split(":",2)[0]){
-            case "bwe_mazmorras" -> "SUBTERRANEO";case "bwe_cw" -> "CW";case "bwe_tt" -> "TT";case "bwe_itp" -> "ITP";case "bwe_idas" -> "IDAS";
+            case "bwe_dyt" -> "DYT";case "bwe_biblioteca","bwe_mazmorras" -> "SUBTERRANEO";case "bwe_cw" -> "CW";case "bwe_tt" -> "TT";case "bwe_itp" -> "ITP";case "bwe_idas" -> "IDAS";
             case "bwe_capitals" -> "GC";case "bwe_better" -> "BV";case "integrated_villages" -> "IV";
             case "explorify" -> "EX";case "ctov" -> "CTOV";default -> "EXTRAS";
         };
@@ -200,7 +207,7 @@ public final class BweCatalog {
         if(key==null)throw new IOException("ID invalido: "+id);
         Path archive=folder().resolve(key.getNamespace().equals("integrated_villages")?"integrated_vanilla.jar":key.getNamespace()+".jar");
         StructureTemplate result;
-        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra","bwe_better","bwe_capitals","bwe_tt","bwe_itp","bwe_idas","bwe_mazmorras","bwe_cw").contains(key.getNamespace())) {
+        if(Files.isRegularFile(archive) && Set.of("ctov","explorify","integrated_villages","bwe_extra","bwe_better","bwe_capitals","bwe_tt","bwe_itp","bwe_idas","bwe_mazmorras","bwe_cw","bwe_dyt","bwe_biblioteca").contains(key.getNamespace())) {
             try(ZipFile zip=new ZipFile(archive.toFile())) {
                 String base="data/"+key.getNamespace()+"/";
                 var entry=zip.getEntry(base+"structures/"+key.getPath()+".nbt");
@@ -324,7 +331,7 @@ public final class BweCatalog {
         }
         if(entry.id().equals("bwe_capitals:mansion_bottom_front_left"))lightMansion(world,cells,entities);
         ArrayList<Cell> sorted=new ArrayList<>(cells.values());
-        sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()==(underground(entry)||crawlspace(entry))?1:0).thenComparingInt(c -> c.pos().getY()));
+        sorted.sort(Comparator.<Cell,Integer>comparing(c -> c.state().isAir()==(buriedOnly(entry)||preciseEntrance(entry)||dyt(entry))?1:0).thenComparingInt(c -> c.pos().getY()));
         int surface=entry.ground()-1,best=0;
         for(var h:roadHeights.entrySet())if(h.getValue()>best){surface=h.getKey();best=h.getValue();}
         // This fixed harbour has its docks at local Y=20 and its waterline at Y=19.
